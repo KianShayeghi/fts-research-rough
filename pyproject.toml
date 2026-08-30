@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fts-research"
+version = "0.1.0"
+description = "PhD project: Advanced Modelling and Forecasting of Functional Time Series"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "numpy>=1.26",
+    "scipy>=1.13",
+    "matplotlib>=3.11.0",
+    "scikit-learn>=1.9.0",
+    "scikit-fda>=0.10.1",
+    "numba>=0.60",
+    "pandas>=2.0",
+    "multimethod==1.11.2",
+]
+
+[project.optional-dependencies]
+notebooks = [
+    "jupyter>=1.0",
+    "ipython",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[dependency-groups]
+dev = [
+    "flake8>=7.3.0",
+    "nbqa>=1.9.1",
+    "nbstripout>=0.9.1",
+    "pytest>=8.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+    "slow: full estimator pipelines, seconds each (deselect with -m 'not slow')",
+    "needs_r: requires R with the fdaSP package installed",
+]
+
+[tool.nbqa.addopts]
+# E402: notebooks intentionally import packages just before first use, close to the
+#       markdown explaining them, rather than all at the top.
+# E731: short lambdas are used inline for one-off error/summary functions.
+# E702: compact one-line `ax.set_xlabel(...); ax.set_ylabel(...)` plotting calls.
+flake8 = ["--extend-ignore=E402,E702,E731"]
