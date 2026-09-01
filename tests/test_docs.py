@@ -24,7 +24,8 @@ from _helpers import tracked_notebooks
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MAX_LINE = 99  # matches .flake8
-PACKAGE_NAMES = ("core", "truncFLR", "fdaSP", "far", "ftsa", "jump", "bench")
+PACKAGE_NAMES = ("core", "truncFLR", "fdaSP", "far", "ftsa", "jump", "region",
+                 "bench")
 PACKAGES = tuple(f"fts_research.{name}" for name in PACKAGE_NAMES)
 
 

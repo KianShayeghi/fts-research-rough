@@ -3,9 +3,10 @@
 The arrangement is not decoration. `core` holds what more than one chapter needs, so that a
 quadrature rule or a basis has exactly one definition and two estimators cannot silently drift
 apart; the method packages sit on top of it and know nothing of each other bar the dependences
-declared below; and the repository ends in three packages nothing imports -- `bench`, because
-comparing the three estimators is all it does, and `ftsa` and `jump`, which forecast the next
-curve and the scalar the curve does not contain.
+declared below; and the repository ends in four packages nothing imports -- `bench`, because
+comparing the three estimators is all it does, `ftsa` and `jump`, which forecast the next
+curve and the scalar the curve does not contain, and `region`, which chooses where one of the
+estimators is zero.
 Left unchecked that ordering erodes one import at a time -- it had already, with `far` reading
 `quadrature_weights` out of `truncFLR`'s private module and `bench` keeping a second copy of
 the same six lines -- and nothing fails when it does.
@@ -31,15 +32,17 @@ SRC = os.path.join(REPO, "src", "fts_research")
 # is the FAR(1) analogue of that module's simulator and has to hit the same targets. `ftsa` and
 # `jump` sit on `far` because both forecast the same principal component scores it does --
 # `ftsa` forecasts them with `far_est.score_operator` itself, and `jump` regresses the next
-# jump on them -- and `ftsa` reads `fdaSP.intraday` for the panel its replication design is
-# defined on.
+# jump on them -- and both read `fdaSP.intraday` for the panel they are defined on: `ftsa` for
+# its replication design, `jump` for the sessions `covariates` summarises into the `z_t` block.
+# `region` sits on `fdaSP` because the estimator whose null set it selects is `fdaSP.SBC`.
 ALLOWED = {
     "core": set(),
     "truncFLR": {"core"},
     "fdaSP": {"core"},
     "far": {"core", "fdaSP"},
     "ftsa": {"core", "far", "fdaSP"},
-    "jump": {"core", "far"},
+    "jump": {"core", "far", "fdaSP"},
+    "region": {"core", "fdaSP"},
     "bench": {"core", "truncFLR", "fdaSP"},
 }
 
@@ -152,13 +155,14 @@ def test_the_declared_graph_is_acyclic_and_complete():
         resolve(pkg)
     assert depth["core"] == 0, "core must sit under everything"
 
-    # The packages nothing imports are where the repository ends, and there are exactly three:
-    # `bench`, which compares the three scalar-on-function estimators and is all it does, and
+    # The packages nothing imports are where the repository ends, and there are exactly four:
+    # `bench`, which compares the three scalar-on-function estimators and is all it does;
     # `ftsa` and `jump`, the two halves of the functional time series chapter -- one forecasts
-    # the next curve, the other the scalar the curve does not contain. A fourth sink would mean
-    # a package nothing uses; one fewer would mean a comparison had grown a dependent.
+    # the next curve, the other the scalar the curve does not contain; and `region`, which
+    # chooses a null set for `fdaSP`'s estimator rather than adding one. A fifth sink would
+    # mean a package nothing uses; one fewer would mean a comparison had grown a dependent.
     depended_on = set().union(*ALLOWED.values())
-    assert sorted(set(ALLOWED) - depended_on) == ["bench", "ftsa", "jump"], (
+    assert sorted(set(ALLOWED) - depended_on) == ["bench", "ftsa", "jump", "region"], (
         f"the packages nothing imports are {sorted(set(ALLOWED) - depended_on)}")
 
 

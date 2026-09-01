@@ -259,6 +259,117 @@ Matching the two on Hilbert-Schmidt norm does not match them on difficulty: spre
 budget across the spectrum drops the operator norm from `0.70` to `0.58`, and the resulting
 ISEs come out mixed rather than ordered. `notebooks/FAR1_nonIID.ipynb`.
 
+**Cross-validation's failure to deliver a null set is a property of the rule, not of the
+estimator.** Four rules read one penalty path on one dataset and differ in nothing else. Over
+25 replications of each of four designs, cross-validation returns a null set of length exactly
+zero on every replication of `psi1` and of `psi3`, on 84% of `psi2` and on 68% of the
+right-anchored design; complementary-pairs stability selection returns a non-empty one on every
+replication of all four, and where both find one it is the larger and the more accurate. The
+estimator could always represent a null set. `region`, `notebooks/region_selection.ipynb`.
+
+**A locally sparse estimate can carry the distribution theory a truncation estimate has.**
+`notebooks/HH_vs_SBC.ipynb` records what the penalty lacks: an endpoint with a sampling
+distribution, rather than a null set read off whichever basis groups happened to switch off.
+The missing piece is supplied without assuming one. A B-spline of order `d` covers each point
+with `d` basis functions, so the estimate is zero on knot interval `b` exactly when group `b`
+of the overlap penalty vanishes, which makes "group `b` is selected" and "the estimate is
+non-zero on interval `b`" the same event and a selection probability a statement about the
+domain. Subsampling then gives a three-way partition -- informative, null, and neither -- with
+a Shah-Samworth bound on each of the first two. The third piece is the honest one: an estimator
+that names a null set and stops has asserted something about every point of the domain,
+including the ones its data cannot separate. `region/README.md`.
+
+**Both halves of that bound come from the same theorem, read through the complement.**
+Shah and Samworth's Theorem 1(ii) bounds what is wrongly declared null directly, but scales it
+by `E|N ∩ H_theta|`, for which the number of candidates is vacuous rather than conservative --
+the bound is infinite at every threshold including zero, where nothing is declared null and the
+truth is zero. Switching a group off is a selection like any other, though: the procedure that
+keeps `q` groups discards `n_groups - q` of them and has selection probabilities `1 - p_b`, and
+Theorem 1(*i*) applied to *that* procedure is the same statement with the rigorous scaling by
+the number of candidates. `region/bounds.py`, `region/stability.py`.
+
+**Section A.4's algorithm is stated for one case and is used for both.** The tightest of the
+three bounds needs `D(eta, t, B, r)`, the largest tail an `r`-concave distribution on the
+lattice with mean at most `eta` can have, and the paper computes it for a *decreasing*
+maximiser -- which holds when `t > 2 eta`, and whose complement it sets aside as "less
+important for our application". It is not less important for a functional penalty, whose groups
+are few and often selected, so `eta` is routinely above a half and the condition routinely
+fails. Run as written the algorithm returns zero there, which reports the error control as
+*smaller* than it is, and that is the one direction an error control may not fail in.
+`region.bounds.r_concave_tail` falls back on Markov's inequality outside the stated range, and
+the tests hold it against Markov, against explicitly constructed members of the family it
+maximises over, and against its own monotonicity. `tests/test_region.py`.
+
+**The error control holds and the answer is still wrong, on the design that has no answer.**
+`psi3` has no null region, and stability selection declares part of the domain null on every
+one of 25 replications -- a quarter of it on average, more than a third under adaptive
+weights -- while
+the reported bound is never violated. It is not violated because it controls the number of
+declared-null groups whose selection probability *under the base procedure* is high, and near
+`t = 0.5`, where `10(t - 0.5)^3` is under four per cent of its peak, the base procedure
+genuinely almost never selects them. A bound stated relative to a base procedure cannot rescue
+a signal that base procedure never finds. Cross-validation and EBIC, which invent nothing here,
+are the right comparison and they pass this design where the certified method does not.
+`notebooks/region_selection.ipynb`.
+
+**Improving the base procedure is worth more than reading it harder.** On `psi1`, whose
+informative region is two pieces at opposite ends of the domain, plain stability selection
+recovers a median Jaccard overlap of 0.40 with the true null set and leaves half the domain
+undecided; weighting the penalty by a pilot fit -- the group analogue of the adaptive lasso --
+raises that to 0.83 and cuts the undecided band to an eighth, at no change to the error budget.
+`region.criteria.adaptive_weights`.
+
+**The sign of an overnight jump survives a corrected screen for exactly two predictors, and
+neither is the market's own return.** Thirteen covariates, each from a published claim about
+overnight returns, are run against the signed jump and against its size for eight instruments
+over 477 nights, with Newey-West errors and Benjamini-Hochberg across all 208 tests at once. On
+the size, realised volatility and the Parkinson range survive for all eight instruments and the
+length of the closure for six. On the sign, the London session truncated before the New York
+open survives for five, positively, and signed jump variation for five, negatively. The
+previous session's return survives for none, its closing fraction for none, its opening
+fraction for none, and the jump's own lag for none. `jump/covariates.py`,
+`notebooks/jump_covariates.ipynb`, `docs/overnight-jumps-literature.md`.
+
+**What reverses overnight is where the previous session's variation came from, not its
+return.** Signed jump variation is the difference of the upside and downside realised
+semivariances, and it enters the sign equation where the return does not -- yet the two are
+summaries of the same session. A day that rose hard and gave it back has the return of one that
+fell hard and recovered, and the opposite signed variation. The closing-imbalance channel that
+the drift literature is stated in does not appear at all: neither the closing return nor the
+close's position in the session's range predicts the sign for any instrument, which is either
+because an hourly bar is a poor proxy for a signed order imbalance or because the channel
+itself closed over exactly this window. `notebooks/jump_covariates.ipynb`.
+
+**Truncating a foreign session before the domestic open makes the forecast better, not merely
+legal.** The London market trades through the New York night and closes two hours after New
+York opens, so a whole same-day London return is a look-ahead into most of the session it is
+being used to forecast the start of. Cut at 13:00 London it correlates 0.27 with the SPY
+overnight jump; taken whole, 0.15, and the date-blocked out-of-sample R-squared is positive for
+seven of eight instruments against one of eight. The afternoon responds to the move that
+follows the open instead of predicting it, so removing it removes variance and no signal. The
+truncation is doing the work of an estimator, which is the argument for `truncFLR` and `fdaSP`
+arriving from the data. `notebooks/jump_covariates.ipynb`.
+
+**On the London curve the method certifies the informative half and not the null half.** Put
+the whole London return-rate curve in as the regressor, against 482 New York overnight jumps,
+and let `region` choose. At 12 knot intervals nothing is certifiable in either direction -- not
+because of the data but because of the arithmetic: the base procedure keeps four fifths of what
+it is offered at every size, and the bound has no purchase above `theta = 1/2`. At 32 it
+certifies `[0.344, 0.438]`, which is 10:45 to 11:30 London, and certifies nothing null; a sweep
+over knot resolution finds the same interval at 22 and 42 as well, while the null half is
+either empty or one interval of the coarsest available width whose position moves with the
+basis, which is noise rather than a finding. What is stable underneath is where the proportions
+fall away: they hold above a half to `s = 0.562`, which is 12:30 London, and collapse there --
+just before the 13:00 cutoff `jump_covariates` chose by hand, and well before the New York open
+at `s = 0.688` or `0.812`. So the London session stops carrying information about the New York
+open *before* New York opens, and a per-family error rate of one will not certify the null side
+of that. On the same nights and the same path the prediction rules go the other way entirely:
+cross-validation returns no null set, and both the one-standard-error rule and EBIC return the
+*whole domain*, zeroing the coefficient function outright. A rule chosen for prediction risk
+will discard a signal too small to pay for itself in held-out error, which is the wrong trade
+when the question is which part of the domain matters. The sweep and what it would take are in
+`docs/research-log.md`. `notebooks/region_selection.ipynb`.
+
 ## Layout
 
 ```
@@ -272,7 +383,10 @@ src/fts_research/
                 that forecast as the session is observed, and the rolling-origin protocol every
                 route is scored under (ftsa/README.md)
   jump/         The overnight jump equation: closed-form MLE of a scalar-on-function
-                autoregression, and its shrinkage diagnostic (jump/README.md)
+                autoregression, its shrinkage diagnostic, and the covariates the scalar block
+                is built from (jump/README.md)
+  region/       Where the coefficient function is zero, selected for that rather than for
+                prediction, with an error bound on the answer (region/README.md)
   bench/        Matched-spectrum three-way comparison across bases and targets (bench/README.md)
 notebooks/
   truncFLR.ipynb              Truncated FLR: endpoint estimation (method B)
@@ -293,11 +407,17 @@ notebooks/
                               martingale it has to beat
   jump_equation.ipynb         The overnight jump equation, on simulated curves and then on
                               nine instruments of real sessions
+  jump_covariates.ipynb       What predicts the sign of an overnight jump, and what only
+                              predicts its size: thirteen covariates from the literature,
+                              screened with a false-discovery correction
+  region_selection.ipynb      Choosing the null set for support recovery rather than for
+                              prediction, with the error bound that comes with it
 tests/          pytest suite covering all five packages, the documentation, the notebooks
                 and the layout itself
 scripts/        make_r_artifacts.py  -- rebuild the R reference outputs (needs R)
                 make_study_cache.py  -- rebuild the bench study cache
                 make_ftsa_cache.py   -- rebuild the rolling-origin and updating caches
+                make_region_cache.py -- rebuild the null-set selection study
 data/           the real datasets, with `manifest.json` recording what each one is: its
                 source, the day it was taken, its SHA-256, and where it is a window of
                 sessions, the window it covers
@@ -308,13 +428,16 @@ artifacts/      generated files, in two halves (artifacts/README.md): `reference
                 re-fitting
 figures/        figures exported for writing up; regenerated, so not committed
 docs/           research-log.md -- the open questions and dead ends, in date order
+                overnight-jumps-literature.md -- what is known about the close-to-open
+                return, by mechanism, and which of it these panels can test
 ```
 
-The seven packages are layered: `core` depends on nothing, `truncFLR` and `fdaSP` on `core`,
-`far` on `core` and `fdaSP`, `ftsa` and `jump` on `far`, and `bench` on the two estimators it
-compares. That is not a description -- `tests/test_layout.py` reads the import statements back
-against it, so a shared piece cannot drift into a method package unnoticed, and it holds that
-the packages nothing imports are exactly the three the repository ends in.
+The eight packages are layered: `core` depends on nothing, `truncFLR` and `fdaSP` on `core`,
+`far` on `core` and `fdaSP`, `ftsa` and `jump` on `far` and on `fdaSP` for the panel they are
+defined on, `region` on the estimator whose null set it selects, and `bench` on the two
+estimators it compares. That is not a description -- `tests/test_layout.py` reads the import
+statements back against it, so a shared piece cannot drift into a method package unnoticed, and
+it holds that the packages nothing imports are exactly the four the repository ends in.
 
 Read `truncFLR.ipynb` and `LocSpaFLR_f2s.ipynb` first: they set up the two models on
 simulated data, where the truth is known.
@@ -386,6 +509,7 @@ the rolling-origin forecasts `notebooks/shang_replication.ipynb` reads:
 ```bash
 python scripts/make_study_cache.py --refresh
 python scripts/make_ftsa_cache.py --refresh
+python scripts/make_region_cache.py --refresh
 ```
 
 ## Tests
@@ -440,6 +564,31 @@ updating. *Mathematics and Computers in Simulation* 81(7), 1310-1324.
 Hyndman, R. J. and Shang, H. L. (2009). Forecasting functional time series. *Journal of the
 Korean Statistical Society* 38(3), 199-211.
 [doi:10.1016/j.jkss.2009.06.002](https://doi.org/10.1016/j.jkss.2009.06.002)
+
+Shah, R. D. and Samworth, R. J. (2013). Variable selection with error control: another look at
+stability selection. *Journal of the Royal Statistical Society: Series B* 75(1), 55-80.
+[doi:10.1111/j.1467-9868.2011.01034.x](https://doi.org/10.1111/j.1467-9868.2011.01034.x)
+
+Meinshausen, N. and Bühlmann, P. (2010). Stability selection. *Journal of the Royal Statistical
+Society: Series B* 72(4), 417-473.
+[doi:10.1111/j.1467-9868.2010.00740.x](https://doi.org/10.1111/j.1467-9868.2010.00740.x)
+
+Chen, J. and Chen, Z. (2008). Extended Bayesian information criteria for model selection with
+large model spaces. *Biometrika* 95(3), 759-771.
+[doi:10.1093/biomet/asn034](https://doi.org/10.1093/biomet/asn034)
+
+Zou, H. (2006). The adaptive lasso and its oracle properties. *Journal of the American
+Statistical Association* 101(476), 1418-1429.
+[doi:10.1198/016214506000000735](https://doi.org/10.1198/016214506000000735)
+
+Benjamini, Y. and Hochberg, Y. (1995). Controlling the false discovery rate: a practical and
+powerful approach to multiple testing. *Journal of the Royal Statistical Society: Series B*
+57(1), 289-300.
+
+The finance side of `jump` reads a literature of its own, and
+`docs/overnight-jumps-literature.md` is that reading -- what is known about the close-to-open
+return, organised by the mechanism each strand proposes, with what these panels can and cannot
+test about each one.
 
 Aue, A., Norinho, D. D. and Hörmann, S. (2015). On the prediction of stationary functional time
 series. *Journal of the American Statistical Association* 110(509), 378-392.

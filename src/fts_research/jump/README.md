@@ -58,6 +58,31 @@ reading of what unpenalised estimation costs. Cross-validation selects it for pr
 so — exactly as `fdaSP.SBC` does on its own designs — need not return a single exact zero: what
 it reliably does is order the shrinkage.
 
+**`covariates.py`**: the `z_t` block, one column per published claim about overnight moves.
+`overnight_jumps.ipynb` finds that the block matters and the functional term does not, which
+makes what goes in it the empirical question the equation turns on, so the candidates are
+written down here with the paper each one comes from rather than assembled in a notebook cell.
+`session_covariates` extends `fdaSP.intraday.session_summary` with the closing and opening
+fractions of the session, the two realised semivariances and their signed difference, and
+volume against its own trailing mean; `foreign_covariates` takes a session from a market that
+trades through the domestic night and cuts it at a wall-clock time; `jump_design` does the
+lagging; `panel_design` stacks it across instruments.
+
+Two things in there are load-bearing. The **timing**: every column describes a session that
+had closed, or a foreign session truncated before the domestic open, so the whole design
+existed at the moment being forecast. An off-by-one the other way builds a model that reads
+the session it is meant to predict, fits better for doing so, and fails nothing downstream --
+which is why `tests/test_covariates.py` checks the alignment against prices whose answer is
+arithmetic. The **cutoff**: the overnight window is not simultaneous across exchanges, and a
+European close is four and a half hours after a New York open, so a same-day foreign return
+taken whole is a look-ahead into most of the session it is supposed to forecast.
+`foreign_covariates` therefore takes `until` rather than a session, and will take None only so
+that the size of that look-ahead can be measured rather than assumed small.
+
+`benjamini_hochberg` is the last piece. A screen over nine instruments and a dozen covariates
+is a hundred-odd tests, five of which clear the five per cent level by chance, so an
+uncorrected table of stars says nothing at all.
+
 **`jump_dgp.py`**: two simulators, and the difference between them is the point.
 `simulate_jump` hands the estimator the score vectors directly, so the only thing under test is
 whether the algebra is right and a failure is a bug. `simulate_curves_and_jumps` goes the way
@@ -113,6 +138,27 @@ print(je.fit_mle(ya, scores).summary(hac=True))
 
 `notebooks/jump_equation.ipynb` runs both, simulated first and then real.
 
+The scalar block, which on real jumps is the part that carries the signal:
+
+```python
+from fts_research.fdaSP import intraday as itd
+from fts_research.jump import covariates as cov
+from fts_research.jump import jump_eq as je
+
+bars = itd.load_bars("1h")
+london = cov.foreign_covariates(bars[bars["ticker"] == "^FTSE"], until="13:00")
+design = cov.jump_design(bars[bars["ticker"] == "SPY"], foreign=london)
+
+names = ["late", "rvol", "foreign_ret"]
+fit = je.fit_mle(design["jump"].to_numpy(), Z=design[names].to_numpy())
+print(fit.summary(hac=True))
+print(fit.wald("k", hac=True))                     # are the three of them jointly zero
+```
+
+`notebooks/jump_covariates.ipynb` runs that screen across the panel, with
+`benjamini_hochberg` over the whole table of tests rather than a five per cent level over
+each of them.
+
 ## Tests
 
 `pytest tests/test_jump.py` — the design matrix against a hand-built lag, since putting `psi_t`
@@ -125,6 +171,16 @@ on signal against noise and for beating the MLE on `delta` where most directions
 and the generated-regressor step — that `d_true` is taken against the estimated components
 under the shared quadrature, and that the signal really was integrated on the grid rather than
 through the scores.
+
+`pytest tests/test_covariates.py` — the alignment first, against five sessions whose prices
+make the answer arithmetic: the row for a jump must carry the *previous* session's summaries
+and not that session's own, and must carry the previous *jump* as its lag. Then the
+measurements, each against a hand computation on the same bars — that the two realised
+semivariances add back to the realised variance and that their difference has the sign of the
+session, that the closing and opening returns are the bars they claim to be, that relative
+volume excludes the session it describes, and that a cutoff really drops the bars after it
+rather than down-weighting them. Then the multiple-testing step, against a four-test example
+worked by hand and against uniform p-values, where it must reject almost nothing.
 
 ## References
 
