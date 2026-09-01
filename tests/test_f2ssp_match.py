@@ -9,7 +9,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from fdaSP import SBC, r_reference as rref, rbridge as rb
+from fts_research.core.bases import bspline_basis
+from fts_research.fdaSP import SBC, r_reference as rref, rbridge as rb
 
 
 @pytest.fixture(scope="module")
@@ -32,7 +33,7 @@ def test_python_basis_matches_splines_bs(reference):
     """scipy's B-spline basis must equal R's bs(s, df = M, intercept = TRUE) exactly."""
     RPhi = reference["Phi"]
     grid = np.linspace(0, 1, RPhi.shape[0])
-    Phi = SBC.bspline_basis(grid, n_basis=RPhi.shape[1], order=rref.ORDER)
+    Phi = bspline_basis(grid, n_basis=RPhi.shape[1], order=rref.ORDER)
     assert np.max(np.abs(Phi - RPhi)) < 1e-12
 
 

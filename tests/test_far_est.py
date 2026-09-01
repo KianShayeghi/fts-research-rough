@@ -11,9 +11,9 @@ notebook's entire conclusion.
 import numpy as np
 import pytest
 
-from far import far_dgp as dgp
-from far import far_est as est
-from truncFLR._common import quadrature_weights
+from fts_research.far import far_dgp as dgp
+from fts_research.far import far_est as est
+from fts_research.core.quadrature import quadrature_weights
 
 GRID = np.linspace(0.0, 1.0, 40)
 

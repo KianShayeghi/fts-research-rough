@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+title: "fts-research: advanced modelling and forecasting of functional time series"
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - family-names: Shayeghi
+    given-names: Kian
+repository-code: "https://github.com/KianShayeghi/fts-research"
+abstract: >-
+  Research code for scalar-on-function regression where the coefficient function is zero on
+  part of its domain: the truncated linear model of Hall and Hooker (2016), the locally
+  sparse estimator of Stefanucci, Bernardi and Canale (2025), a FAR(1) process supplying
+  serially dependent curves, and a matched-spectrum comparison of the three. Also the
+  functional time series forecaster of Shang (2017a), scored against the FAR(1) on identical
+  principal components, and a jump equation for the overnight move that forecaster's own
+  transform deletes.
+keywords:
+  - functional data analysis
+  - functional time series
+  - scalar-on-function regression
+  - locally sparse estimation
+  - truncated linear model
+  - functional principal component analysis
+  - forecasting
+license: MIT
+version: 0.1.0

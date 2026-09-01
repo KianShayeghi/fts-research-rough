@@ -24,7 +24,8 @@ from _helpers import tracked_notebooks
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MAX_LINE = 99  # matches .flake8
-PACKAGES = ("truncFLR", "fdaSP", "far", "bench")
+PACKAGE_NAMES = ("core", "truncFLR", "fdaSP", "far", "ftsa", "jump", "bench")
+PACKAGES = tuple(f"fts_research.{name}" for name in PACKAGE_NAMES)
 
 
 def _walk(*bases):
@@ -274,8 +275,8 @@ def test_readme_calls_use_real_keyword_arguments(rel):
 
 
 PACKAGE_DIRS = sorted(
-    d for d in os.listdir(os.path.join(REPO, "src"))
-    if os.path.isfile(os.path.join(REPO, "src", d, "README.md"))
+    d for d in os.listdir(os.path.join(REPO, "src", "fts_research"))
+    if os.path.isfile(os.path.join(REPO, "src", "fts_research", d, "README.md"))
 )
 
 
@@ -287,20 +288,20 @@ def test_every_module_is_described_in_its_package_readme(package):
     only in the root README's one-line summary, so a reader of the package's own README had
     no way to know the R bridge was there.
     """
-    here = os.path.join(REPO, "src", package)
+    here = os.path.join(REPO, "src", "fts_research", package)
     with open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
         readme = fh.read()
     missing = [m for m in sorted(os.listdir(here))
                if m.endswith(".py") and m != "__init__.py" and m not in readme]
-    assert not missing, f"src/{package}/README.md never mentions {missing}"
+    assert not missing, f"src/fts_research/{package}/README.md never mentions {missing}"
 
 
 # --------------------------------------------------------------------------- cross-refs
 
 
 REFERENCE = re.compile(r"`([A-Za-z0-9_/.]+\.(?:py|ipynb|md|toml))`")
-SEARCH_PATHS = ["", "notebooks/", "scripts/", "tests/", "src/",
-                "src/truncFLR/", "src/fdaSP/", "src/far/", "src/bench/"]
+SEARCH_PATHS = ["", "notebooks/", "scripts/", "tests/", "src/", "src/fts_research/"] + [
+    f"src/fts_research/{name}/" for name in PACKAGE_NAMES]
 
 
 def _exists_exactly(rel):

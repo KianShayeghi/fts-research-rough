@@ -8,7 +8,8 @@ the mirroring algebra, and the tuning-parameter diagnostics.
 import numpy as np
 import pytest
 
-from truncFLR import HH, HH_dgp
+from fts_research.core.quadrature import trunc_int
+from fts_research.truncFLR import HH, HH_dgp
 
 # The candidate grid the notebooks use: lambda is order 1 on these problems.
 LAMBDAS = np.linspace(0.0, 1.0, 250)[1:]
@@ -28,7 +29,7 @@ def test_pilot_fpca_selects_m_by_bic(hh_data):
 def test_pilot_fpca_matches_method_A(hh_data):
     """Both modules ship the same pilot; a divergence would break every comparison."""
     grid, X, Y = hh_data["grid"], hh_data["X"], hh_data["Y"]
-    from truncFLR import HH_A
+    from fts_research.truncFLR import HH_A
     a1, b1, f1 = HH.pilot_fpca(X, Y, grid, n_basis=15, n_components=6)
     a2, b2, f2 = HH_A.pilot_fpca(X, Y, grid, n_basis=15, n_components=6)
     assert a1 == pytest.approx(a2)
@@ -118,6 +119,20 @@ def test_lambda_select_variance_is_non_negative(hh_data):
     assert np.all(diag["Vs"][finite] >= 0)
     # Where curvature is degenerate both V and P_b must be NaN together, never one alone.
     np.testing.assert_array_equal(np.isnan(diag["Vs"]), np.isnan(diag["P_b"]))
+
+
+def test_lambda_select_raises_when_the_variance_is_undefined_everywhere(monkeypatch, hh_data):
+    """No V(lambda) anywhere means no P_b anywhere, and nanargmin of all-NaN is not an answer.
+
+    V is NaN where S_Y has non-positive curvature at theta_lambda, the step-6 variance being a
+    Taylor expansion about a minimum that is not there. When that holds at every candidate the
+    criterion has no opinion, and `lambda_select` says so instead of returning one.
+    """
+    grid, X, Y = hh_data["grid"], hh_data["X"], hh_data["Y"]
+    a, b, fpc = HH.pilot_fpca(X, Y, grid, n_basis=15, n_components=6)
+    monkeypatch.setattr(HH, "theta_lam_variance", lambda *args, **kwargs: np.nan)
+    with pytest.raises(HH.DegenerateSelection, match="undefined at every candidate"):
+        HH.lambda_select(X, Y, grid, a, b, fpc, None, np.logspace(-6, 0, 10), m_tuning=2)
 
 
 def test_fit_b_simp_uses_one_fourier_pair_by_default(hh_data):
@@ -220,7 +235,7 @@ def test_sim_dataset_shapes_and_truth():
 
 def test_sim_dataset_hits_the_requested_snr():
     d = HH_dgp.sim_dataset(n=4000, n_grid=101, u=0.8, v=1.0, snr=26.25, rng=3)
-    signal = HH_dgp.trunc_int(d["X"], d["grid"], u=0.8, v=1.0)
+    signal = trunc_int(d["X"], d["grid"], u=0.8, v=1.0)
     assert np.var(signal) / d["sigma"] ** 2 == pytest.approx(26.25, rel=1e-6)
 
 
@@ -238,31 +253,3 @@ def test_sim_dataset_accepts_a_custom_beta():
 
     d = HH_dgp.sim_dataset(n=30, n_grid=51, beta_fn=beta, rng=2)
     np.testing.assert_allclose(d["b"], beta(d["grid"]))
-
-
-def test_trig_basis_matches_the_paper():
-    grid = np.linspace(0, 1, 61)
-    Psi = HH_dgp.trig_basis(grid, n_basis=5)
-    np.testing.assert_allclose(Psi[0], 1.0)
-    np.testing.assert_allclose(Psi[1], np.sin(2 * np.pi * grid))
-    np.testing.assert_allclose(Psi[2], np.cos(2 * np.pi * grid))
-    np.testing.assert_allclose(Psi[3], np.sin(4 * np.pi * grid))
-    np.testing.assert_allclose(Psi[4], np.cos(4 * np.pi * grid))
-
-
-def test_trunc_int_matches_a_direct_integral():
-    grid = np.linspace(0, 1, 201)
-    X = np.vstack([np.ones_like(grid), grid])
-    got = HH_dgp.trunc_int(X, grid, u=0.25, v=0.75)
-    np.testing.assert_allclose(got, [0.5, 0.25], atol=1e-6)
-
-
-def test_sample_gp_variance_decays_across_the_basis():
-    grid = np.linspace(0, 1, 101)
-    X = HH_dgp.sample_gp(20000, grid, n_basis=6, decay=2.0, variance=1.0, rng=0)
-    Psi = HH_dgp.trig_basis(grid, n_basis=6)
-    # Recover the coefficients by projecting onto the (orthogonal) trig basis.
-    coef = np.linalg.lstsq(Psi.T, X.T, rcond=None)[0]
-    emp_var = coef.var(axis=1)
-    expected = np.exp(-np.arange(6) / 2.0)
-    np.testing.assert_allclose(emp_var, expected, rtol=0.06)

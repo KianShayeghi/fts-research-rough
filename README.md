@@ -16,34 +16,49 @@ informative set is a single interval and estimates its endpoint (Hall & Hooker, 
 be run without the i.i.d. assumption, and also estimates and tests a FAR(1) from observed
 curves; `bench` runs all three methods over a matched grid of designs.
 
+Two further packages take the same curves in the other direction, forward in time rather than
+onto a scalar. `ftsa` forecasts the next curve through its principal component scores, which is
+Shang's (2017a) method, scores it against the FAR(1) on identical components, and revises it
+through the day as the session is observed; `jump` is the model for the quantity that
+forecaster cannot see, the overnight move between one session's close and the next one's
+open.
+
 ## What is here
 
-**A correction to Hall & Hooker's tuning scheme.** Their §3.2 selects the truncation penalty
-`lambda` by a surrogate criterion, and run as the displays are written it returns the smallest
-candidate on the grid regardless of the data. The cause is a scale mismatch: equation (3.4)
-writes the penalty as `n*lambda*theta^2`, "since both `S` and `S_1` are of order `n`", while
-step 6 pairs `S_Y` with a bare `lambda`. Read as the sum step 5 displays, `lambda` is `n` times
-too small to register: `(S_Y'' + lambda)/S_Y''` never reaches `1.005` anywhere on the candidate
-grid, the variance `V(lambda)` collapses to order `sigma^2/n^2`, and the step-7 density ends up
-some twenty-five times narrower than the grid it is integrated on. `P_b` then tracks
-`S_b(theta_lambda)`, which is monotone, so `lambda_hat` lands on the floor. Taking step 6's
-`S_Y` per observation and resolving the step-7 quadrature fixes both.
-`notebooks/truncFLR_lambdadegen.ipynb`.
+**Three corrections to Hall & Hooker's tuning scheme.** Their §3.2 selects the truncation
+penalty `lambda` by a surrogate criterion, and run as the displays are written it returns the
+smallest candidate on the grid regardless of the data. Steps 5 and 5' define that criterion's
+two surrogates as conditional expectations, so what they should equal is checkable rather than
+arguable, and three of the four displays evaluating them are out by a factor. The variance
+terms of `S_Y^B`, `S_b^B` and `S_b^A` are `n` times too large, a coefficient fitted to `n`
+curves having variance `sigma^2/(n tau_j)` where `tau_j` is an eigenvalue of the covariance
+operator; `S_b^B`'s is also governed by the full-interval `tau_j^1` that `b_check*` was
+estimated from rather than the truncated `tau_j^theta`, which is what makes it diverge as
+`theta -> 0` and `S_b` monotone. Separately, equation (3.4) writes the penalty as
+`n*lambda*theta^2` while step 6 pairs `S_Y` with a bare `lambda`, so `lambda` is `n` times too
+small to move `V(lambda)`, which collapses to order `sigma^2/n^2`; and step 7's Gaussian is
+then twenty-five times narrower than the grid it is integrated on, where by Poisson summation
+the trapezium rule returns `h*S_b(theta_lambda)/sqrt(2 pi V)` instead of an average of `S_b`.
+Corrected, `lambda_hat` is interior on 23 of 25 seeds and method B's endpoint loses its bias
+and two-thirds of its RMSE. `notebooks/truncFLR_lambdadegen.ipynb`.
 
-**Method A is essentially unbiased once that is fixed.** Over 100 paired replications
-(n = 200, snr = 26.25, true `u` = 0.8), method A recovers the endpoint with bias `-0.0027`
-against method B's `-0.0298`, reproducing the ordering of the paper's Table 1. Paired on the
-same datasets the gap is `-0.023` in absolute endpoint error (`t = -23.9`) and `-0.0038` in
-integrated squared error (`t = -7.0`), at mean ISEs of `0.0070` and `0.0109`. Both beat the
-untruncated FPCA pilot, which over 25 replications of the same design averages `0.0219`
-against method A's `0.0091` and method B's `0.0120`.
+**With the tuning corrected, methods A and B are indistinguishable.** The paper's Table 1
+reports that method A carries less bias in the endpoint than method B, and that is what this
+repository found while §3.2 ran as displayed. It is the tuning rather than the method: over 100
+paired replications (n = 200, snr = 26.25, true `u` = 0.8), method A now recovers the endpoint
+with bias `-0.0023` and method B with `-0.0017`, and the paired differences are within noise
+(`t = -0.39` in absolute endpoint error, `t = +0.80` in integrated squared error). Method B's
+under-truncation was the cost of a penalty pinned at the floor of its candidate grid, and it
+buys back method A's accuracy for one principal components analysis instead of a fresh one at
+every candidate endpoint. Both beat the untruncated FPCA pilot, which over 25 replications of
+the same design averages `0.0219` against method A's `0.0094` and method B's `0.0084`.
 `notebooks/truncFLR_methodA.ipynb`, `notebooks/truncFLR_lambdadegen.ipynb`.
 
 **The truncation model does not beat the group lasso, even on its own ground.** Over 50 paired
 replications the locally sparse estimator has the lower median ISE on both a single-window
 coefficient function, which is exactly Hall & Hooker's model, and a two-window one, which is
-not. On the single window it is ahead of method B on 62% of draws, which a signed-rank test
-does not separate from a tie (`p = 0.088`); on the pair it wins outright. What the truncation
+not. On the single window it is ahead of method B on 60% of draws, which a signed-rank test
+does not separate from a tie (`p = 0.099`); on the pair it wins outright. What the truncation
 model has that the penalty does not is an explicit endpoint estimate with a sampling
 distribution, rather than a null set read off whichever basis groups the penalty switched off.
 `notebooks/HH_vs_SBC.ipynb`.
@@ -81,7 +96,7 @@ where its coefficient function is wrong by ten orders of magnitude.
 **The Python port matches CRAN `fdaSP::f2sSP`.** The two parametrise the same estimator under
 four different conventions; matched, they agree to `1e-3` at fixed penalties and to `1e-2`
 across the regularised part of the path. The comparison runs without R, against reference
-outputs committed under `artifacts/`. `notebooks/LocSpaFLR_validation.ipynb`.
+outputs committed under `artifacts/reference/`. `notebooks/LocSpaFLR_validation.ipynb`.
 
 **Cross-validation never delivers local sparsity.** On all three of the paper's test functions
 and on Tecator, the CV-selected `lambda` zeroes nothing at all. Cross-validation targets
@@ -168,6 +183,75 @@ varies by four per cent across every candidate endpoint with no elbow -- so the 
 accumulates steadily and the useful summary is again close to the total move.
 `notebooks/overnight_jumps.ipynb`.
 
+**Shang's two score forecasters are not close, and the multivariate one wins.** The paper
+reports that forecasting each principal component score with its own ARIMA and forecasting the
+whole score vector with one autoregression differ little. Rebuilt on 125 sessions of five-minute
+S&P 500 curves and on nine instruments of the five-minute panel, they do not: the vector route
+is the more accurate on eight of the nine, which a sign test puts at `p = 0.0391`, and it is
+ahead on the 2017 window too. The margins are not small. Measured as out-of-sample R-squared
+against the flat forecast, the univariate route runs from `-0.5812` to `+0.0729` and the vector
+route from `-0.1050` to `+0.1351`. Fitting `M` separate models throws away every cross-lag
+relation between the scores and re-selects an order at every split; at order one the vector
+route is exactly this repository's FAR(1), so the comparison is between two uses of one
+decomposition rather than between two implementations. `notebooks/shang_replication.ipynb`.
+
+**Neither forecaster beats predicting nothing.** The paper's accuracy tables have no floor in
+them, and with one added neither route clears it: on the 2017 window both are beaten by the
+flat forecast, which predicts each session by the mean of those before it, and by the zero
+curve, which predicts no move at all. Paired over the 50 held-out sessions none of the gaps is
+significant -- `t = +1.33` for the vector route against the flat forecast, `t = +0.77` for the
+flat forecast against the zero curve -- which is the point rather than a caveat: there is
+nothing in the conditional mean of the curve sequence for any of them to find, so all four land
+in the same place. What does survive is the interval, which covers close to its nominal rate;
+the flat forecast's empirical quantiles cover as well and score slightly better, so the
+bootstrap is buying the shape of the uncertainty and not the level of the forecast.
+`notebooks/shang_replication.ipynb`.
+
+**Dynamic updating buys the observed level, not a forecast.** Both of Shang's 2017 papers pair
+the day-ahead forecaster with dynamic updating: once the first part of a session has been seen,
+the forecast of the rest of it is revised. It works, in the paper's own terms. From 40% of the
+session onwards every update beats the un-updated forecast, and by the last fifth it has removed
+above 82% of that error. It does not work against the right benchmark. Carrying the last
+observed value forward beats every method at every one of nine update points, significantly, and
+the out-of-sample R-squared for predicting the remaining *increment* is negative throughout.
+Anchoring each method at the last observed value closes almost the whole gap and leaves them
+indistinguishable from that martingale, so what they were losing was level, on a number they had
+been handed, rather than shape. The strongest form of it is that the un-updated forecast slid to
+meet today's observed level scores within a few hundredths of the martingale at every point in
+the session: the morning contributes nothing yesterday did not already have.
+`notebooks/shang_updating.ipynb`.
+
+**A short observed block breaks least squares, and the penalty repairs it.** With a fifth of the
+session observed and two components to fit, ordinary least squares on the observed block is
+worse than the martingale by a factor of nearly twenty two; ridge at the same update point by a
+factor of two and a third, so the penalty removes about nine tenths of the excess, significantly
+at the two earliest update points and not at the two latest. The penalty has to be chosen
+against the *observed* curves: a truncated curve lies exactly in the span of its own components,
+so least squares on any block of a reconstruction recovers its scores exactly, and a criterion
+measured there is identically zero at every penalty and selects whichever end of the grid it is
+handed. `notebooks/shang_updating.ipynb`.
+
+**The jump equation's functional term is empty, and its nuisance term is not.** The overnight
+move is what the cumulative intraday return transform deletes, and `jump` is the equation for
+it: `J_t` on its own lag, the previous session's curve, and predetermined covariates. Fitted
+across nine instruments and some 500 sessions each, the joint test that the coefficient
+function is zero rejects for none of the nine, on the signed jump or on its size, while the
+test that the two scalar covariates are zero rejects for all nine on the size. Out of sample
+the ordering is the same: adding the covariates lifts the median held-out R-squared from
+`-0.016` to `+0.0268`, and adding the curve on top of them returns it to `-0.026`, helping two
+of nine. A bounded coefficient function integrated against `X` cannot evaluate `X` at a point,
+so where a curve's informative summary is one of its values the functional slot cannot express
+it and an unpenalised block simply adds variance. `notebooks/jump_equation.ipynb`.
+
+**Retaining more components makes the unpenalised estimate of the coefficient function worse.**
+Conditional maximum likelihood of the jump equation is closed form and recovers its parameters
+cleanly, but it shrinks nothing, and the width of the functional block is set by how many
+principal components were retained rather than by how many carry signal. On one design, going
+from 5 components to 12 improves the best reconstruction available in the retained span from
+`0.0242` to `0.0065` and degrades the maximum likelihood reconstruction from `0.1673` to
+`1.2968` -- more information, a worse estimate, by a factor of eight. That is the case for
+shrinkage stated as a measurement. `notebooks/jump_equation.ipynb`.
+
 **The standard FAR(1) test kernel is rank one.** Bosq's `exp{-(s^2 + r^2)/2}` factorises, so
 it autocorrelates a single direction in L² and leaves every orthogonal direction i.i.d., a much
 narrower departure from independence than it appears. `far` also supplies a full-rank kernel.
@@ -178,10 +262,17 @@ ISEs come out mixed rather than ordered. `notebooks/FAR1_nonIID.ipynb`.
 ## Layout
 
 ```
-src/
+src/fts_research/
+  core/         Quadrature, bases, the curve process, the paths and the visual system
+                -- what more than one of the four below needs (core/README.md)
   truncFLR/     Truncated FLR: endpoint estimation, methods A and B (truncFLR/README.md)
   fdaSP/        Locally sparse FLR, plus the real datasets and the R bridge (fdaSP/README.md)
   far/          FAR(1): the data-generating process, and estimation and testing (far/README.md)
+  ftsa/         Forecasting a curve sequence through its principal component scores, revising
+                that forecast as the session is observed, and the rolling-origin protocol every
+                route is scored under (ftsa/README.md)
+  jump/         The overnight jump equation: closed-form MLE of a scalar-on-function
+                autoregression, and its shrinkage diagnostic (jump/README.md)
   bench/        Matched-spectrum three-way comparison across bases and targets (bench/README.md)
 notebooks/
   truncFLR.ipynb              Truncated FLR: endpoint estimation (method B)
@@ -196,12 +287,34 @@ notebooks/
   HH_vs_SBC.ipynb             The two approaches head to head
   basis_and_coef_comp.ipynb   All three methods, over three bases and three coefficients
   FAR1_nonIID.ipynb           Both methods re-run on FAR(1)-generated (non-i.i.d.) curves
-tests/          pytest suite covering all four packages
-scripts/        make_r_artifacts.py -- regenerate the cached R reference outputs
-data/           cached real datasets, including the two dated intraday snapshots
-artifacts/      cached fdaSP::f2sSP reference outputs and the cached bench study, so the
-                validation and comparison notebooks run without R and without re-fitting
+  shang_replication.ipynb     Shang (2017a) rebuilt on 2017 S&P 500 curves, its two score
+                              forecasters scored against each other and against doing nothing
+  shang_updating.ipynb        The same forecast revised through the session, against the
+                              martingale it has to beat
+  jump_equation.ipynb         The overnight jump equation, on simulated curves and then on
+                              nine instruments of real sessions
+tests/          pytest suite covering all five packages, the documentation, the notebooks
+                and the layout itself
+scripts/        make_r_artifacts.py  -- rebuild the R reference outputs (needs R)
+                make_study_cache.py  -- rebuild the bench study cache
+                make_ftsa_cache.py   -- rebuild the rolling-origin and updating caches
+data/           the real datasets, with `manifest.json` recording what each one is: its
+                source, the day it was taken, its SHA-256, and where it is a window of
+                sessions, the window it covers
+artifacts/      generated files, in two halves (artifacts/README.md): `reference/` is what
+                CRAN fdaSP::f2sSP produced, so the validation notebook and its test run
+                without R; `cache/` is what this repository produced and would take minutes
+                to recompute, so the comparison and replication notebooks open without
+                re-fitting
+figures/        figures exported for writing up; regenerated, so not committed
+docs/           research-log.md -- the open questions and dead ends, in date order
 ```
+
+The seven packages are layered: `core` depends on nothing, `truncFLR` and `fdaSP` on `core`,
+`far` on `core` and `fdaSP`, `ftsa` and `jump` on `far`, and `bench` on the two estimators it
+compares. That is not a description -- `tests/test_layout.py` reads the import statements back
+against it, so a shared piece cannot drift into a method package unnoticed, and it holds that
+the packages nothing imports are exactly the three the repository ends in.
 
 Read `truncFLR.ipynb` and `LocSpaFLR_f2s.ipynb` first: they set up the two models on
 simulated data, where the truth is known.
@@ -227,8 +340,8 @@ from the public Yahoo Finance chart endpoint. To fetch everything up front (befo
 offline):
 
 ```bash
-python -m fdaSP.empirical            # --force to re-download
-python -m fdaSP.intraday             # --force to take a fresh snapshot
+python -m fts_research.fdaSP.empirical    # --force to re-download
+python -m fts_research.fdaSP.intraday     # --force to take a fresh snapshot
 ```
 
 Set `FTS_DATA_DIR` to keep the cache somewhere else.
@@ -239,15 +352,40 @@ returns different data and every number in `notebooks/overnight_jumps.ipynb` mov
 The committed CSVs are what those numbers were computed on; the loader prefers them and
 downloads only when a file is missing. `intraday.snapshot_span` reports the window.
 
+One dataset is not fetched at all. `data/spx_1m_2017H1.csv` holds one-minute
+regular-session closes of the S&P 500 cash index for 2017-01-03 to 2017-06-30, which is the
+design `notebooks/shang_replication.ipynb` needs and which no public endpoint serves; it is
+loaded by `intraday.load_spx_2017` and, being a fixed historical window, has the opposite
+failure mode to the snapshots -- it cannot be silently replaced, and it cannot be recovered
+either. Its manifest entry carries `fetchable: false` to say so, and `tests/test_provenance.py`
+permits that declaration for this file and no other.
+
+Each fetch records what it took in `data/manifest.json` -- source, date, SHA-256, and the
+window for the two panels -- so the file a number was computed on can be identified later, and
+a snapshot that has been silently replaced can be told from one that has not:
+
+```bash
+python -m fts_research.core.provenance     # the manifest, and a non-zero exit on a mismatch
+```
+
 ## R (optional)
 
 `notebooks/LocSpaFLR_validation.ipynb` compares `fdaSP.SBC` against CRAN `fdaSP::f2sSP`. It
-runs **without R**, using the reference outputs committed in `artifacts/`. Where R with the
+runs **without R**, using the reference outputs committed in `artifacts/reference/`. Where
+R with the
 `fdaSP` package is installed, those cells regenerate the reference instead of loading it. Set
 `FTS_RSCRIPT` if `Rscript` is not found automatically. To regenerate the cache headlessly:
 
 ```bash
 python scripts/make_r_artifacts.py
+```
+
+The `bench` study cache is the other half of `artifacts/`, and is rebuilt without R, as are
+the rolling-origin forecasts `notebooks/shang_replication.ipynb` reads:
+
+```bash
+python scripts/make_study_cache.py --refresh
+python scripts/make_ftsa_cache.py --refresh
 ```
 
 ## Tests
@@ -257,13 +395,20 @@ pytest                  # everything (~2 min)
 pytest -m "not slow"    # skip the full estimator pipelines (~10 s)
 ```
 
+Besides the estimators, the suite checks the things that rot silently: `test_docs.py` holds
+the documentation against the code, `test_notebooks.py` the notebooks against the repository,
+`test_layout.py` the package layering against its declared graph, and `test_provenance.py`
+the committed data against `data/manifest.json`.
+
 Run on every push by `.github/workflows/ci.yml`, against Python 3.12 and 3.13.
 
 ## Dependencies
 
-`numpy`, `scipy`, `scikit-learn`, `scikit-fda`, `pandas`, `matplotlib`. Note that
-`scikit-fda` constrains the usable Python version via `numba`; see `pyproject.toml` for the
-pinned range.
+`numpy`, `scipy`, `scikit-learn`, `scikit-fda`, `pandas`, `matplotlib`, `statsmodels`. Note
+that `scikit-fda` constrains the usable Python version via `numba`; see `pyproject.toml` for
+the pinned range. `statsmodels` is there for one thing only -- the ARIMA fits behind
+`ftsa.forecast`, which replicate a published forecaster built on R's `forecast::auto.arima` and
+so want a real maximum likelihood ARIMA rather than a reimplementation of one.
 
 ## References
 
@@ -279,6 +424,26 @@ chapter 62, pp. 521–527. Springer.
 
 Bosq, D. (2000). *Linear Processes in Function Spaces*. Springer.
 [doi:10.1007/978-1-4612-1154-9](https://doi.org/10.1007/978-1-4612-1154-9)
+
+Shang, H. L. (2017a). Forecasting intraday S&P 500 index returns: a functional time series
+approach. *Journal of Forecasting* 36(7), 741-755.
+[doi:10.1002/for.2467](https://doi.org/10.1002/for.2467)
+
+Shang, H. L. (2017b). Functional time series forecasting with dynamic updating: an application
+to intraday particulate matter concentration. *Econometrics and Statistics* 1, 184-200.
+[doi:10.1016/j.ecosta.2016.08.004](https://doi.org/10.1016/j.ecosta.2016.08.004)
+
+Shang, H. L. and Hyndman, R. J. (2011). Nonparametric time series forecasting with dynamic
+updating. *Mathematics and Computers in Simulation* 81(7), 1310-1324.
+[doi:10.1016/j.matcom.2010.04.027](https://doi.org/10.1016/j.matcom.2010.04.027)
+
+Hyndman, R. J. and Shang, H. L. (2009). Forecasting functional time series. *Journal of the
+Korean Statistical Society* 38(3), 199-211.
+[doi:10.1016/j.jkss.2009.06.002](https://doi.org/10.1016/j.jkss.2009.06.002)
+
+Aue, A., Norinho, D. D. and Hörmann, S. (2015). On the prediction of stationary functional time
+series. *Journal of the American Statistical Association* 110(509), 378-392.
+[doi:10.1080/01621459.2014.909317](https://doi.org/10.1080/01621459.2014.909317)
 
 ## Licence
 

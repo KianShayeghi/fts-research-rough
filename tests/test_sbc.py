@@ -10,44 +10,10 @@ import numpy as np
 import pytest
 
 from conftest import ogl_objective
-from fdaSP import SBC
+from fts_research.fdaSP import SBC
 
 
 # --------------------------------------------------------------------------- basis ------
-
-def test_bspline_basis_is_a_partition_of_unity():
-    """B-splines with an open knot vector sum to 1 everywhere on the domain."""
-    grid = np.linspace(0, 1, 137)
-    Phi = SBC.bspline_basis(grid, n_basis=15, order=4)
-    assert Phi.shape == (137, 15)
-    np.testing.assert_allclose(Phi.sum(axis=1), 1.0, atol=1e-12)
-
-
-def test_bspline_basis_is_non_negative_and_locally_supported():
-    grid = np.linspace(0, 1, 200)
-    Phi = SBC.bspline_basis(grid, n_basis=12, order=4)
-    assert (Phi >= -1e-14).all()
-    # A cubic B-spline touches at most order + 1 knot spans, so each column's support is a
-    # short contiguous run -- never the whole domain (once there are interior knots).
-    for j in range(Phi.shape[1]):
-        nz = np.flatnonzero(Phi[:, j] > 1e-12)
-        assert nz.size < grid.size
-        assert np.all(np.diff(nz) == 1), "support of a basis function must be contiguous"
-
-
-def test_bspline_basis_reproduces_polynomials():
-    """Order-4 B-splines span cubics, so a cubic is representable exactly."""
-    grid = np.linspace(0, 1, 101)
-    Phi = SBC.bspline_basis(grid, n_basis=10, order=4)
-    target = 1 - 2 * grid + 3 * grid ** 2 - 0.5 * grid ** 3
-    coef, *_ = np.linalg.lstsq(Phi, target, rcond=None)
-    np.testing.assert_allclose(Phi @ coef, target, atol=1e-10)
-
-
-def test_bspline_basis_rejects_too_few_functions():
-    with pytest.raises(ValueError, match="must be >= order"):
-        SBC.bspline_basis(np.linspace(0, 1, 10), n_basis=3, order=4)
-
 
 def test_bspline_design_is_the_trapezoid_integral():
     """W[i, j] must equal int x_i(t) phi_j(t) dt by the trapezium rule."""

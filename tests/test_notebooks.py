@@ -3,7 +3,7 @@
 Executing every notebook would take tens of minutes, so instead each one is checked to be
 valid, to have code that parses, to carry no stored traceback from its last run, and to
 depend on nothing outside the repository: no machine-specific path, no bare executable name,
-and no CSV read outside `fdaSP.empirical`.
+and no CSV read outside `fts_research.fdaSP.empirical`.
 """
 
 import ast
@@ -13,11 +13,11 @@ import re
 
 import pytest
 
-from fdaSP import empirical as emp
+from fts_research.core import paths
 
 from _helpers import tracked_notebooks
 
-NB_DIR = os.path.join(emp.repo_root(), "notebooks")
+NB_DIR = os.path.join(paths.repo_root(), "notebooks")
 NOTEBOOKS = [os.path.basename(p) for p in tracked_notebooks()]
 
 
@@ -104,7 +104,7 @@ def test_notebook_imports_resolve(name):
 @pytest.mark.parametrize("name", NOTEBOOKS)
 def test_notebook_data_access_goes_through_the_loaders(name):
     """Relative CSV paths resolve against the kernel's working directory, so data must come
-    from `fdaSP.empirical` instead."""
+    from `fts_research.fdaSP.empirical` instead."""
     src = source_of(load(name))
     # Bare relative reads in *Python* (R snippets are handed absolute paths by rbridge).
     bad = re.findall(r"""pd\.read_csv\(\s*["'](?!\w+:)[^"']*\.csv["']""", src)
@@ -155,7 +155,7 @@ def test_tracked_notebooks_are_the_ones_git_knows_about():
     tracked = tracked_notebooks()
     assert tracked, "no tracked notebooks found; the helper's fallback may have fired"
     assert all(p.startswith("notebooks/") and p.endswith(".ipynb") for p in tracked)
-    assert all(os.path.exists(os.path.join(emp.repo_root(), p)) for p in tracked)
+    assert all(os.path.exists(os.path.join(paths.repo_root(), p)) for p in tracked)
 
     on_disk = {f for f in os.listdir(NB_DIR) if f.endswith(".ipynb")}
     assert {os.path.basename(p) for p in tracked} <= on_disk
@@ -163,7 +163,7 @@ def test_tracked_notebooks_are_the_ones_git_knows_about():
 
 def test_every_tracked_notebook_is_listed_in_the_root_readme():
     """A notebook nobody points at is a notebook nobody opens."""
-    with open(os.path.join(emp.repo_root(), "README.md"), encoding="utf-8") as fh:
+    with open(os.path.join(paths.repo_root(), "README.md"), encoding="utf-8") as fh:
         readme = fh.read()
     missing = [os.path.basename(p) for p in tracked_notebooks()
                if os.path.basename(p) not in readme]

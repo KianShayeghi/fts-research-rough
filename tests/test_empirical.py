@@ -14,21 +14,22 @@ import sys
 import numpy as np
 import pytest
 
-from fdaSP import empirical as emp
+from fts_research.core import paths
+from fts_research.fdaSP import empirical as emp
 
 
 # ------------------------------------------------------------------ where the data is ----
 
 def test_repo_root_contains_the_project_marker():
-    root = emp.repo_root()
+    root = paths.repo_root()
     assert os.path.isabs(root)
     assert os.path.exists(os.path.join(root, "pyproject.toml"))
-    assert os.path.isdir(os.path.join(root, "src", "fdaSP"))
+    assert os.path.isdir(os.path.join(root, "src", "fts_research"))
 
 
 def test_data_dir_is_absolute_and_under_the_repo():
-    assert os.path.isabs(emp.DATA_DIR)
-    assert os.path.basename(emp.DATA_DIR) == "data"
+    assert os.path.isabs(paths.DATA_DIR)
+    assert os.path.basename(paths.DATA_DIR) == "data"
 
 
 def test_dataset_paths_are_absolute():
@@ -43,10 +44,11 @@ def test_dataset_path_rejects_unknown_names():
 
 def test_data_dir_does_not_depend_on_the_working_directory(tmp_path):
     """The original path bug: resolution must not change when the CWD changes."""
-    code = "import fdaSP.empirical as e; print(e.dataset_path('tecator.csv'))"
-    env = dict(os.environ, PYTHONPATH=os.path.join(emp.repo_root(), "src"))
+    code = ("import fts_research.fdaSP.empirical as e; "
+            "print(e.dataset_path('tecator.csv'))")
+    env = dict(os.environ, PYTHONPATH=os.path.join(paths.repo_root(), "src"))
     env.pop("FTS_DATA_DIR", None)
-    here = subprocess.run([sys.executable, "-c", code], cwd=emp.repo_root(),
+    here = subprocess.run([sys.executable, "-c", code], cwd=paths.repo_root(),
                           capture_output=True, text=True, env=env, check=True)
     there = subprocess.run([sys.executable, "-c", code], cwd=str(tmp_path),
                            capture_output=True, text=True, env=env, check=True)
@@ -70,7 +72,7 @@ def test_ensure_dataset_is_idempotent():
 
 def test_ensure_dataset_reports_a_useful_error_when_offline(monkeypatch, tmp_path):
     """A missing file plus no network must name the file, the URL and the override."""
-    monkeypatch.setattr(emp, "DATA_DIR", str(tmp_path))
+    monkeypatch.setattr(paths, "DATA_DIR", str(tmp_path))
     monkeypatch.setattr(emp, "_download", lambda url: (_ for _ in ()).throw(OSError("no net")))
     with pytest.raises(RuntimeError) as exc:
         emp.ensure_dataset("tecator.csv")

@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from fdaSP import intraday as itd
+from fts_research.fdaSP import intraday as itd
 
 
 def make_bars(prices_by_day, ticker="TEST", start="09:30", freq_min=60, div=None):
@@ -300,7 +300,7 @@ def cached(name):
 
 needs_panel = pytest.mark.skipif(
     not (cached("1h") and cached("5m")),
-    reason="cached intraday panels are absent; run `python -m fdaSP.intraday`",
+    reason="cached intraday panels are absent; run `python -m fts_research.fdaSP.intraday`",
 )
 
 

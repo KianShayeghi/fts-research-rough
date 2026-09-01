@@ -9,8 +9,9 @@ the paper's three test functions.
 import numpy as np
 import pytest
 
-from far import far_dgp
-from fdaSP import SBC, SBC_sim
+from fts_research.core.quadrature import trunc_int
+from fts_research.far import far_dgp
+from fts_research.fdaSP import SBC, SBC_sim
 
 
 # --------------------------------------------------------------------- FAR(1) operator ---
@@ -111,7 +112,7 @@ def test_lag1_autocorr_is_bounded():
 
 def test_sim_dataset_window_matches_the_iid_interface():
     """It must be substitutable for HH_dgp.sim_dataset, keys and all."""
-    from truncFLR import HH_dgp
+    from fts_research.truncFLR import HH_dgp
     far = far_dgp.sim_dataset_window(n=40, grid=np.linspace(0, 1, 61), u=0.8, rng=0)
     iid = HH_dgp.sim_dataset(n=40, n_grid=61, u=0.8, rng=0)
     assert set(iid).issubset(set(far))
@@ -129,8 +130,7 @@ def test_sim_dataset_psi_matches_the_iid_interface():
 
 def test_sim_dataset_window_hits_the_requested_snr():
     d = far_dgp.sim_dataset_window(n=3000, grid=np.linspace(0, 1, 61), u=0.8, snr=10.0, rng=1)
-    from truncFLR import HH_dgp
-    signal = HH_dgp.trunc_int(d["X"], d["grid"], u=0.8, v=1.0)
+    signal = trunc_int(d["X"], d["grid"], u=0.8, v=1.0)
     assert np.var(signal) / d["sigma"] ** 2 == pytest.approx(10.0, rel=1e-6)
 
 

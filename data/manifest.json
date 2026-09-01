@@ -1,0 +1,50 @@
+{
+  "intraday_1h.csv": {
+    "bytes": 2595411,
+    "retrieved": "2026-08-30",
+    "rows": 32405,
+    "sha256": "4ef4d27c0ba485289b73ad8329fcb867ad789e6099bee68b4fef81217fef6a77",
+    "source": "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?interval=1h&range=2y",
+    "span": [
+      "2024-08-29",
+      "2026-08-28"
+    ]
+  },
+  "intraday_5m.csv": {
+    "bytes": 3467910,
+    "retrieved": "2026-08-30",
+    "rows": 43540,
+    "sha256": "4f4fe04db1c6a7fd3e568965b92424371587f0e2e01af4ccecb4eb45a622ad36",
+    "source": "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?interval=5m&range=60d",
+    "span": [
+      "2026-06-04",
+      "2026-08-28"
+    ]
+  },
+  "spx_1m_2017H1.csv": {
+    "bytes": 1391291,
+    "fetchable": false,
+    "retrieved": "2026-08-31",
+    "rows": 42160,
+    "sha256": "5c4a1d3404811eee8dbced10171b10c08075acbc6acc5dd8cf74e4b8e53f06b5",
+    "source": "not recorded upstream: one-minute regular-session closes of the S&P 500 cash index, imported with the overnight-jump project. A fixed historical window rather than a rolling snapshot, so unlike the two panels above it does not move under a re-fetch -- but it cannot be re-fetched either, and the committed file is the only copy.",
+    "span": [
+      "2017-01-03",
+      "2017-06-30"
+    ]
+  },
+  "stockdata_daily.csv": {
+    "bytes": 147044,
+    "retrieved": "2026-08-26",
+    "rows": 2306,
+    "sha256": "4afe6e9093c70a9ab413481f88ef671b984e9845586d5671c4d734eed9f4988f",
+    "source": "https://raw.githubusercontent.com/plotly/datasets/master/stockdata.csv"
+  },
+  "tecator.csv": {
+    "bytes": 173461,
+    "retrieved": "2026-08-26",
+    "rows": 215,
+    "sha256": "104fa3e0ed45ae5e50231bac46aae228ccda86a99947ab1e9eab8f5a657659dc",
+    "source": "https://openml.org/data/v1/download/52617/tecator.arff"
+  }
+}

@@ -16,6 +16,9 @@ build/
 # pytest
 .pytest_cache/
 
-# Others
-notes.md
-.claude/
+# Exported figures: every one is redrawn by the notebook or script that made it.
+figures/*
+!figures/README.md
+
+# Claude Code: the project settings are shared, a machine's own allowances are not.
+.claude/settings.local.json

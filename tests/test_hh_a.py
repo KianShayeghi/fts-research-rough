@@ -9,7 +9,7 @@ optimisation), the mirroring algebra, and end-to-end endpoint recovery.
 import numpy as np
 import pytest
 
-from truncFLR import HH, HH_A, HH_dgp
+from fts_research.truncFLR import HH, HH_A, HH_dgp
 
 # The candidate grid the notebooks use: lambda is order 1 on these problems.
 LAMBDAS = np.linspace(0.0, 1.0, 250)[1:]

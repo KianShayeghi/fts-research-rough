@@ -15,16 +15,16 @@ the objective that moves with lambda, so `hh_b_at` and `hh_a_at` are held agains
 functions they stand in for and required to agree exactly.
 """
 
-import colorsys
 
 import numpy as np
 import pytest
 
-from bench import design as dz
-from bench import study as st
-from bench import style as sty
-from fdaSP import SBC
-from truncFLR import HH, HH_A
+from fts_research.bench import design as dz
+from fts_research.bench import study as st
+from fts_research.core import style as sty
+from fts_research.core.quadrature import quadrature_weights
+from fts_research.fdaSP import SBC
+from fts_research.truncFLR import HH, HH_A
 
 
 @pytest.fixture(scope="module")
@@ -61,7 +61,7 @@ def test_orthonormalising_does_not_change_the_span(kind):
     Psi = dz.orthonormalise(raw, grid)
     f = np.exp(grid) * np.sin(4 * grid)
 
-    w = dz.quad_weights(grid)
+    w = quadrature_weights(grid)
     G = dz.gram(raw, grid)
     coef = np.linalg.solve(G, (raw * w[None, :]) @ f)      # least squares onto the raw basis
     assert np.allclose(coef @ raw, dz.project(f, Psi, grid)[1], atol=1e-10)
@@ -118,7 +118,7 @@ def test_no_design_concentrates_its_variation_at_one_end_of_the_domain(kind):
     falls away to the right and the truncation model is handed an orientation before it has
     seen any data."""
     grid = np.linspace(0, 1, 201)
-    w, var = dz.quad_weights(grid), dz.variance_profile(25, decay=6.0)
+    w, var = quadrature_weights(grid), dz.variance_profile(25, decay=6.0)
     v = dz.pointwise_variance(dz.basis(grid, kind, 25), var)
     half = grid <= 0.5
     assert (w[half] @ v[half]) / (w[~half] @ v[~half]) == pytest.approx(1.0, abs=0.05)
@@ -156,7 +156,7 @@ def test_each_null_set_is_the_closed_set_where_psi_vanishes(target, length):
         grid = np.linspace(0, 1, n_grid)
         null = spec["null"](grid)
         assert np.all(spec["fn"](grid)[null] == 0.0)
-        measured = dz.quad_weights(grid)[null].sum()
+        measured = quadrature_weights(grid)[null].sum()
         assert measured == pytest.approx(length, abs=2.5 / (n_grid - 1))
         errors.append(abs(measured - length))
     assert errors[1] < errors[0]
@@ -185,7 +185,7 @@ def test_the_projection_gap_is_what_the_span_leaves_out():
     """int (psi - P psi)^2 must be the Pythagorean remainder, and must fall as the span grows."""
     grid = np.linspace(0, 1, 201)
     psi = dz.psi_multi(grid)
-    w = dz.quad_weights(grid)
+    w = quadrature_weights(grid)
     gaps = []
     for K in (8, 16, 25):
         Psi = dz.basis(grid, "bspline", K)
@@ -200,7 +200,7 @@ def test_simulate_returns_matched_shapes_and_the_requested_noise_level(small):
     d = small
     assert d["X"].shape == (60, 41) and d["Y"].shape == (60,)
     assert d["X_test"].shape == (40, 41) and d["Y_test"].shape == (40,)
-    signal = (d["X"] * dz.quad_weights(d["grid"])[None, :]) @ d["psi"]
+    signal = (d["X"] * quadrature_weights(d["grid"])[None, :]) @ d["psi"]
     assert np.var(signal) / d["sigma"] ** 2 == pytest.approx(20.0, rel=1e-8)
     assert d["scale"] == pytest.approx(np.trapezoid(d["psi"] ** 2, d["grid"]), rel=1e-10)
 
@@ -327,31 +327,49 @@ def _lopsided(n=200, n_grid=201, n_basis=25, decay=6.0, snr=20.0, rng=0):
     var = dz.variance_profile(n_basis, decay)
     X = dz.sample_curves(n, Psi, var, rng=rng)
     psi = dz.psi_step(grid)
-    signal = (X * dz.quad_weights(grid)[None, :]) @ psi
+    signal = (X * quadrature_weights(grid)[None, :]) @ psi
     sigma = np.sqrt(np.var(signal) / snr)
     return X, signal + sigma * rng.standard_normal(n), grid
 
 
-@pytest.mark.slow
-def test_a_degenerate_section_3_2_selection_falls_back_rather_than_raising():
-    """Where the curves' variation is lopsided, S_Y^B has no interior minimum: theta_lambda
-    sits on an end of the theta grid at every candidate and V(lambda) is undefined throughout.
-    `truncFLR` now says that rather than dying inside numpy's nanargmin, and the study records
-    the fallback instead of losing the cell.
+def test_a_degenerate_section_3_2_selection_falls_back_rather_than_raising(monkeypatch):
+    """`DegenerateSelection` means P_b is undefined at every candidate, so the criterion ranks
+    nothing rather than ranking weakly. The study still has to produce a fit, so `_select`
+    takes the least-penalised candidate and records that it did.
 
-    This is also the evidence that the roughness ordering in `bench.design.basis` was a fix
-    and not a preference: on the design it replaced, method B's own tuning rule had nothing to
-    say at any lambda."""
-    X, Y, grid = _lopsided()
+    The condition is forced here rather than found: since the section 3.2 variance terms were
+    put on their per-observation scale, S_Y^B has an interior minimum on every design in this
+    study and the fallback never fires -- which is what the next two tests check. The path
+    still has to work when it does.
+    """
+    def refuses(*args, **kwargs):
+        raise HH.DegenerateSelection("undefined at every candidate")
+
+    monkeypatch.setattr(st.HH, "lambda_select", refuses)
     lam_grid = np.linspace(0.0, 1.0, 40)[1:]
-    a, b, fpc = HH.pilot_fpca(X, Y, grid)
-    with pytest.raises(HH.DegenerateSelection, match="undefined at every candidate"):
-        HH.lambda_select(X, Y, grid, a, b, fpc, None, lam_grid)
+    d = dz.simulate("bspline", "step", rng=0)
+    state = st.hh_b_state(d["X"], d["Y"], d["grid"], lam_grid)
 
-    state = st.hh_b_state(X, Y, grid, lam_grid)
     assert state["lam_failed"] is True
     assert state["lam_hat"] == pytest.approx(lam_grid.min())
     assert np.isfinite(st.hh_b_at(state, state["lam_hat"])["b_hat"]).all()
+
+
+@pytest.mark.slow
+def test_even_the_lopsided_design_leaves_the_selection_rule_defined():
+    """The design `design.basis` replaced, kept here because it used to break the rule.
+
+    With S_Y^B's variance term n times too large, as step 5' displays it, that term dominated
+    and left S_Y^B without an interior minimum on this design: V(lambda) was undefined at
+    every candidate and section 3.2 had no opinion at all. On the corrected scale it does, so
+    the roughness ordering now rests on `test_no_design_concentrates_its_variation_at_one_end
+    _of_the_domain` alone -- an even Var X(t) -- rather than on a criterion that used to fail.
+    """
+    X, Y, grid = _lopsided()
+    a, b, fpc = HH.pilot_fpca(X, Y, grid)
+    lam, diag = HH.lambda_select(X, Y, grid, a, b, fpc, None, np.linspace(0.0, 1.0, 40)[1:])
+    assert np.isfinite(lam)
+    assert np.all(np.isfinite(diag["Vs"]))
 
 
 @pytest.mark.slow
@@ -400,7 +418,7 @@ def test_relative_ise_splits_over_a_region_and_its_complement():
 def test_null_metrics_reward_only_an_exactly_recovered_null_set():
     grid = np.linspace(0, 1, 201)
     null = dz.TARGETS["multi"]["null"](grid)
-    w = dz.quad_weights(grid)
+    w = quadrature_weights(grid)
     perfect = st.null_metrics(~null, null, grid)
     assert perfect == {"null_sens": pytest.approx(1.0), "null_spec": pytest.approx(1.0),
                        "null_jaccard": pytest.approx(1.0),
@@ -548,7 +566,7 @@ def test_the_support_frequencies_integrate_to_the_recorded_null_lengths():
            "n_lambda_ogl": 8, "n_folds": 4, "ogl_basis": 10}
     df, freq = st.run_study(cells=[("legendre", "cdf")], n_rep=3, cfg=cfg, n_jobs=1,
                             verbose=False)
-    w = dz.quad_weights(np.linspace(0, 1, cfg["n_grid"]))
+    w = quadrature_weights(np.linspace(0, 1, cfg["n_grid"]))
     chosen = df[df["bic_pick"]]
     for (method, tuning), g in freq.groupby(["method", "tuning"]):
         want = chosen.query("method == @method and tuning == @tuning")["null_measure"].mean()
@@ -582,77 +600,3 @@ def test_the_method_palette_is_the_validated_categorical_order():
     assert set(sty.METHOD_COLOUR) == set(st.METHOD_ORDER)
     assert len(set(sty.METHOD_COLOUR.values())) == len(st.METHOD_ORDER)
     assert sty.INK not in sty.METHOD_COLOUR.values()      # the truth is never a series colour
-
-
-def _luminance(hex_colour):
-    """Relative luminance of a hex colour, by the WCAG definition."""
-    srgb = np.array([int(hex_colour[i:i + 2], 16) for i in (1, 3, 5)]) / 255.0
-    lin = np.where(srgb <= 0.04045, srgb / 12.92, ((srgb + 0.055) / 1.055) ** 2.4)
-    return float(lin @ (0.2126, 0.7152, 0.0722))
-
-
-def test_the_sequential_ramp_is_one_hue_running_light_to_dark():
-    """A magnitude ramp has to be monotone in lightness, or a reader cannot order two cells by
-    eye; and it has to be one hue, or it is a rainbow. Both are checked rather than assumed."""
-    lums = [_luminance(c) for c in sty.SEQUENTIAL_STEPS]
-    assert all(a > b for a, b in zip(lums, lums[1:])), lums
-
-    hues = []
-    for c in sty.SEQUENTIAL_STEPS:
-        r, g, b = (int(c[i:i + 2], 16) / 255.0 for i in (1, 3, 5))
-        hues.append(colorsys.rgb_to_hsv(r, g, b)[0] * 360.0)
-    assert max(hues) - min(hues) < 25.0, hues        # one hue, not a ramp across the wheel
-
-    sampled = [sty.SEQUENTIAL(x) for x in np.linspace(0, 1, 9)]
-    assert all(a[:3] != b[:3] for a, b in zip(sampled, sampled[1:]))
-
-
-def test_clip_to_blanks_the_excursion_and_reports_its_size():
-    """The device that makes method A's failures readable: the in-range shape survives, the
-    excursion becomes a gap rather than a vertical stroke, and its magnitude comes back as a
-    number to label the panel with."""
-    y = np.array([0.0, 0.5, 1e6, 0.5, -3.0, 0.25])
-    shown, worst = sty.clip_to(y, -1.0, 2.0)
-    assert np.array_equal(np.isnan(shown), [False, False, True, False, True, False])
-    assert np.array_equal(shown[~np.isnan(shown)], [0.0, 0.5, 0.5, 0.25])
-    assert worst == pytest.approx(1e6)
-
-    inside, none = sty.clip_to(np.array([0.0, 1.0]), -1.0, 2.0)
-    assert none is None and np.array_equal(inside, [0.0, 1.0])
-
-
-def test_fmt_switches_to_scientific_only_where_fixed_point_stops_being_readable():
-    assert sty.fmt(0.02364) == "0.0236"
-    assert sty.fmt(1.0) == "1"
-    assert sty.fmt(239.65) == "240"
-    assert sty.fmt(0.0) == "0"
-    assert sty.fmt(2.7e11) == "3e11"
-    assert sty.fmt(1.5e-6) == "2e-6"
-
-
-def test_use_sets_the_shared_defaults_without_importing_pyplot_itself():
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    with plt.rc_context():
-        sty.use(plt)
-        assert plt.rcParams["axes.grid"] is True
-        assert plt.rcParams["grid.linestyle"] == "-"          # never a dashed grid
-        assert plt.rcParams["axes.spines.top"] is False
-        cycle = [c["color"] for c in plt.rcParams["axes.prop_cycle"]]
-        assert cycle == list(sty.CATEGORICAL)
-
-
-def test_the_ordinal_ramp_is_ordered_dark_and_never_reaches_the_pale_end():
-    """Four basis functions ordered by roughness are an ordered set, not four identities, so
-    they take steps of the one ramp rather than four hues -- which past three slots would start
-    cycling. The pale end is held back so the first step still reads against the surface."""
-    steps = sty.ordinal(4)
-    assert len(steps) == len(set(steps)) == 4
-    lums = [_luminance(c) for c in steps]
-    assert all(a > b for a, b in zip(lums, lums[1:])), lums
-    assert _luminance(steps[0]) <= _luminance(sty.SEQUENTIAL_STEPS[3])
-    assert steps[-1] == sty.SEQUENTIAL_STEPS[-1]
-    assert sty.ordinal(1) == [sty.SEQUENTIAL_STEPS[-1]]
-    with pytest.raises(ValueError, match="at least one step"):
-        sty.ordinal(0)

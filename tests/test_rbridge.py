@@ -9,7 +9,8 @@ import os
 
 import pytest
 
-from fdaSP import rbridge as rb
+from fts_research.core import paths
+from fts_research.fdaSP import rbridge as rb
 
 
 def test_r_path_uses_forward_slashes_and_is_absolute():
@@ -23,25 +24,6 @@ def test_r_path_uses_forward_slashes_and_is_absolute():
 def test_r_path_is_idempotent():
     once = rb.r_path("data/tecator.csv")
     assert rb.r_path(once) == once
-
-
-def test_artifact_path_creates_the_directory():
-    """R's write.csv fails outright if the target directory is missing -- the single most
-    common way this notebook broke on a fresh checkout."""
-    path = rb.artifact_path("smoke_test_marker.csv")
-    assert os.path.isdir(os.path.dirname(path))
-    assert os.path.isabs(path)
-
-
-def test_artifact_path_can_skip_creation(tmp_path, monkeypatch):
-    monkeypatch.setattr(rb, "ARTIFACT_DIR", str(tmp_path / "nope"))
-    path = rb.artifact_path("x.csv", create=False)
-    assert not os.path.exists(os.path.dirname(path))
-
-
-def test_artifact_dir_is_repo_anchored():
-    assert os.path.isabs(rb.ARTIFACT_DIR)
-    assert os.path.basename(rb.ARTIFACT_DIR) == "artifacts"
 
 
 def test_find_rscript_returns_a_real_file_or_none():
@@ -75,14 +57,14 @@ def test_r_error_carries_its_output():
 
 
 def test_cached_artifact_missing_raises_with_a_fix(monkeypatch, tmp_path):
-    from fdaSP import r_reference as rref
-    monkeypatch.setattr(rb, "ARTIFACT_DIR", str(tmp_path))
+    from fts_research.fdaSP import r_reference as rref
+    monkeypatch.setattr(paths, "REFERENCE_DIR", str(tmp_path))
     with pytest.raises(FileNotFoundError, match="make_r_artifacts"):
         rref.cached("R_basis_bs.csv")
 
 
 def test_r_snippets_cover_every_artifact():
-    from fdaSP import r_reference as rref
+    from fts_research.fdaSP import r_reference as rref
     assert set(rref.R_SNIPPETS) == set(rref.ARTIFACTS)
     for name in rref.ARTIFACTS:
         assert callable(getattr(rref, name))

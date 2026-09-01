@@ -9,8 +9,8 @@ resolve it. Both are pinned below, along with the identity of the shared definit
 import numpy as np
 import pytest
 
-from truncFLR import HH, HH_A
-from truncFLR import _common as C
+from fts_research.truncFLR import HH, HH_A
+from fts_research.truncFLR import _common as C
 
 
 # --------------------------------------------------------------------------- sharing ----
@@ -28,23 +28,6 @@ def test_both_modules_expose_the_same_object(name):
 def test_method_a_also_shares_the_truncated_fpca():
     assert HH_A.trunc_fpca is C.trunc_fpca
     assert HH_A.trunc_eigvals is C.trunc_eigvals
-
-
-# ---------------------------------------------------------------------- quadrature ------
-
-
-def test_quadrature_weights_integrate_polynomials():
-    grid = np.linspace(0.0, 1.0, 401)
-    w = C.quadrature_weights(grid)
-    assert w.sum() == pytest.approx(1.0)
-    assert w @ grid == pytest.approx(0.5, abs=1e-9)
-    assert w @ (grid ** 2) == pytest.approx(1 / 3, abs=1e-5)
-
-
-def test_quadrature_weights_match_trapezoid():
-    grid = np.linspace(0.0, 1.0, 137)
-    f = np.sin(3 * grid) + grid ** 3
-    assert C.quadrature_weights(grid) @ f == pytest.approx(np.trapezoid(f, grid))
 
 
 # ------------------------------------------------------------------------- step 6 -------

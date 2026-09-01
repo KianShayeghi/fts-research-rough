@@ -7,16 +7,11 @@ session-scoped and shared across assertions. Two markers keep the fast suite fas
 - `needs_r` -- requires R with the `fdaSP` package; skipped automatically otherwise.
 """
 
-import os
-import sys
-
 import numpy as np
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
-
-from fdaSP import SBC_sim                      # noqa: E402
-from truncFLR import HH_dgp                    # noqa: E402
+from fts_research.fdaSP import SBC_sim
+from fts_research.truncFLR import HH_dgp
 
 
 def pytest_configure(config):
@@ -28,7 +23,7 @@ def pytest_collection_modifyitems(config, items):
     """Skip `needs_r` tests when R or the fdaSP package is unavailable."""
     if not any(item.get_closest_marker("needs_r") for item in items):
         return
-    from fdaSP import rbridge as rb
+    from fts_research.fdaSP import rbridge as rb
     if rb.r_available("fdaSP"):
         return
     skip = pytest.mark.skip(reason=f"R with fdaSP not found (Rscript: {rb.find_rscript()})")
@@ -59,7 +54,7 @@ def sbc_data():
 @pytest.fixture(scope="session")
 def tecator():
     """Tecator spectra and protein content. Downloads and caches on first use."""
-    from fdaSP import empirical as emp
+    from fts_research.fdaSP import empirical as emp
     X, y, wl = emp.load_tecator("protein")
     return {"X": X, "y": y, "wl": wl}
 

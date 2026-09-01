@@ -7,6 +7,8 @@ name = "fts-research"
 version = "0.1.0"
 description = "PhD project: Advanced Modelling and Forecasting of Functional Time Series"
 requires-python = ">=3.12,<3.14"
+license = "MIT"
+authors = [{ name = "Kian Shayeghi" }]
 dependencies = [
     "numpy>=1.26",
     "scipy>=1.13",
@@ -15,8 +17,16 @@ dependencies = [
     "scikit-fda>=0.10.1",
     "numba>=0.60",
     "pandas>=2.0",
+    # For the ARIMA fits behind `ftsa.forecast`, which replicate a forecaster built on R's
+    # `forecast::auto.arima` and so want a real maximum likelihood ARIMA rather than one
+    # written here. Nothing else in the repository imports it.
+    "statsmodels>=0.14",
     "multimethod==1.11.2",
+    "statsmodels>=0.14",
 ]
+
+[project.urls]
+Repository = "https://github.com/KianShayeghi/fts-research"
 
 [project.optional-dependencies]
 notebooks = [
