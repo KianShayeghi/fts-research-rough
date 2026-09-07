@@ -40,7 +40,12 @@ def _walk(*bases):
 
 PY_FILES = [p for p in _walk("src", "scripts", "tests") if p.endswith(".py")]
 SRC_FILES = [p for p in PY_FILES if not p.startswith("tests/")]
-MD_FILES = [p for p in _walk("src") if p.endswith("README.md")] + ["README.md"]
+# Every piece of prose the repository keeps about itself: the package READMEs, the root one,
+# and everything under `docs/`. The last of those was outside these checks until the
+# bibliography moved there, and the literature review had been naming files for months with
+# nothing reading the names back against the tree.
+MD_FILES = ([p for p in _walk("src") if p.endswith("README.md")] + ["README.md"]
+            + [p for p in _walk("docs") if p.endswith(".md")])
 NB_FILES = tracked_notebooks()
 
 
@@ -335,6 +340,12 @@ def _documentation_text():
                              if c["cell_type"] == "markdown")
 
 
+# A log is a record of what was done, and half of what was done is deletion: the entry for
+# 2026-08-31 names `dgp.py` and `data_prep.py` precisely because they no longer exist. Rewriting
+# that to satisfy a check would be rewriting the history the file is for.
+HISTORICAL = {"docs/research-log.md"}
+
+
 @pytest.mark.parametrize("rel,text", list(_documentation_text()), ids=lambda v: str(v)[:60])
 def test_referenced_repository_files_exist(rel, text):
     """Every module and notebook named in backticks in prose must resolve to a real file.
@@ -342,6 +353,8 @@ def test_referenced_repository_files_exist(rel, text):
     The match is case-sensitive, so a reference that differs only in case -- which opens
     happily on Windows and nowhere else -- fails here.
     """
+    if rel in HISTORICAL:
+        pytest.skip(f"{rel} names files it records the removal of")
     here = os.path.dirname(rel)
     missing = sorted({
         name for name in REFERENCE.findall(text)

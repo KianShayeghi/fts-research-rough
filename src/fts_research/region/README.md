@@ -35,10 +35,10 @@ same event, so a selection probability here is a probability about the domain an
 basis. `tests/test_region.py` checks that correspondence against the basis itself rather than
 taking it on trust, because everything else rests on it.
 
-**The probabilities come from complementary pairs.** Refit the estimator on disjoint halves of
-the data, `n_pairs` times, and record how often each group survives. Shah and Samworth's
-(2013) Theorem 1 then bounds the expected number of rarely-selected groups a threshold keeps,
-under no assumption about the model, the estimator, or the number of pairs.
+**The probabilities come from complementary pairs.** Refit the estimator on disjoint halves of the
+data, `n_pairs` times, and record how often each group survives. Shah and Samworth's
+[[43]][shah-samworth-2013] Theorem 1 then bounds the expected number of rarely-selected groups a
+threshold keeps, under no assumption about the model, the estimator, or the number of pairs.
 
 **Both halves of the claim use the same theorem.** Theorem 1 has a second part bounding what
 is wrongly excluded, but it scales by `E|N ∩ H_theta|`, for which the number of candidates is
@@ -153,25 +153,29 @@ known, where what is certified null must be null.
 
 ## References
 
-Chen, J. and Chen, Z. (2008). Extended Bayesian information criteria for model selection with
-large model spaces. *Biometrika* 95(3), 759-771.
-[doi:10.1093/biomet/asn034](https://doi.org/10.1093/biomet/asn034)
+The works this package rests on. Full entries, with journals and DOIs, are in
+[the repository's one bibliography](../../../docs/references.md); the numbers below
+link into it.
 
-Meinshausen, N. (2007). Relaxed lasso. *Computational Statistics and Data Analysis* 52(1),
-374-393. [doi:10.1016/j.csda.2006.12.019](https://doi.org/10.1016/j.csda.2006.12.019)
+<!-- references:
+  chen-chen-2008, meinshausen-2007, meinshausen-buhlmann-2010, shah-samworth-2013, wang-leng-2008,
+  zou-2006
+-->
+- **[16]** Chen & Chen (2008), [Extended Bayesian information criteria for model selection with
+  large model spaces][chen-chen-2008].
+- **[36]** Meinshausen (2007), [Relaxed lasso][meinshausen-2007].
+- **[37]** Meinshausen & Bühlmann (2010), [Stability selection][meinshausen-buhlmann-2010].
+- **[43]** Shah & Samworth (2013), [Variable selection with error control: another look at
+  stability selection][shah-samworth-2013].
+- **[49]** Wang & Leng (2008), [A note on adaptive group lasso][wang-leng-2008].
+- **[53]** Zou (2006), [The adaptive lasso and its oracle properties][zou-2006].
+<!-- /references -->
 
-Meinshausen, N. and Bühlmann, P. (2010). Stability selection. *Journal of the Royal
-Statistical Society: Series B* 72(4), 417-473.
-[doi:10.1111/j.1467-9868.2010.00740.x](https://doi.org/10.1111/j.1467-9868.2010.00740.x)
-
-Shah, R. D. and Samworth, R. J. (2013). Variable selection with error control: another look at
-stability selection. *Journal of the Royal Statistical Society: Series B* 75(1), 55-80.
-[doi:10.1111/j.1467-9868.2011.01034.x](https://doi.org/10.1111/j.1467-9868.2011.01034.x)
-
-Wang, H. and Leng, C. (2008). A note on adaptive group lasso. *Computational Statistics and
-Data Analysis* 52(12), 5277-5286.
-[doi:10.1016/j.csda.2008.05.006](https://doi.org/10.1016/j.csda.2008.05.006)
-
-Zou, H. (2006). The adaptive lasso and its oracle properties. *Journal of the American
-Statistical Association* 101(476), 1418-1429.
-[doi:10.1198/016214506000000735](https://doi.org/10.1198/016214506000000735)
+<!-- reference-links -->
+[chen-chen-2008]: ../../../docs/references.md#ref-chen-chen-2008
+[meinshausen-2007]: ../../../docs/references.md#ref-meinshausen-2007
+[meinshausen-buhlmann-2010]: ../../../docs/references.md#ref-meinshausen-buhlmann-2010
+[shah-samworth-2013]: ../../../docs/references.md#ref-shah-samworth-2013
+[wang-leng-2008]: ../../../docs/references.md#ref-wang-leng-2008
+[zou-2006]: ../../../docs/references.md#ref-zou-2006
+<!-- /reference-links -->

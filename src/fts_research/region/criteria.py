@@ -28,14 +28,9 @@ split into the half that matters -- domain called null where the coefficient fun
 zero -- and the half that is only conservative.
 
 References
-Chen, J. and Chen, Z. (2008). Extended Bayesian information criteria for model selection with
-large model spaces. Biometrika 95(3), 759-771. doi:10.1093/biomet/asn034
-Meinshausen, N. (2007). Relaxed lasso. Computational Statistics and Data Analysis 52(1),
-374-393. doi:10.1016/j.csda.2006.12.019
-Wang, H. and Leng, C. (2008). A note on adaptive group lasso. Computational Statistics and
-Data Analysis 52(12), 5277-5286. doi:10.1016/j.csda.2008.05.006
-Zou, H. (2006). The adaptive lasso and its oracle properties. Journal of the American
-Statistical Association 101(476), 1418-1429. doi:10.1198/016214506000000735
+Full entries are in `docs/references.md`, this repository's one bibliography. Beyond Chen and
+Chen (2008) named above: Meinshausen (2007) for the relaxed lasso, Zou (2006) for the adaptive
+lasso, and Wang and Leng (2008) for the group form of it that `adaptive_weights` computes.
 """
 
 import numpy as np

@@ -306,7 +306,7 @@ def snapshot_span(name="1h"):
     return ses.min(), ses.max()
 
 
-# The one panel here that is not a snapshot. Shang (2017) forecasts five-minute S&P 500
+# The one panel here that is not a snapshot. Shang (2017a) forecasts five-minute S&P 500
 # cumulative intraday return curves over the first half of a year, and the chart endpoint above
 # serves five-minute bars for sixty days only, so no fetch reproduces that design. This file is
 # a fixed historical window instead: one-minute regular-session closes of the cash index for

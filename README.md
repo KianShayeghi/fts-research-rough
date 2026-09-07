@@ -9,19 +9,18 @@ Research code for scalar-on-function regression,
     y_i = ∫_T x_i(t) psi(t) dt + eps_i,
 
 where the coefficient function `psi` is zero on part of its domain, so the estimation problem
-includes finding *where*. Two approaches are implemented: `truncFLR`, which assumes the
-informative set is a single interval and estimates its endpoint (Hall & Hooker, 2016), and
+includes finding *where*. Two approaches are implemented: `truncFLR`, which assumes the informative
+set is a single interval and estimates its endpoint (Hall & Hooker [[26]][hall-hooker-2016]), and
 `fdaSP`, which lets it be any union of intervals and induces the sparsity by penalisation
-(Stefanucci, Bernardi & Canale, 2025). `far` supplies serially dependent curves, so both can
-be run without the i.i.d. assumption, and also estimates and tests a FAR(1) from observed
-curves; `bench` runs all three methods over a matched grid of designs.
+(Stefanucci, Bernardi & Canale [[48]][stefanucci-bernardi-canale-2025]). `far` supplies serially
+dependent curves, so both can be run without the i.i.d. assumption, and also estimates and tests a
+FAR(1) from observed curves; `bench` runs all three methods over a matched grid of designs.
 
-Two further packages take the same curves in the other direction, forward in time rather than
-onto a scalar. `ftsa` forecasts the next curve through its principal component scores, which is
-Shang's (2017a) method, scores it against the FAR(1) on identical components, and revises it
-through the day as the session is observed; `jump` is the model for the quantity that
-forecaster cannot see, the overnight move between one session's close and the next one's
-open.
+Two further packages take the same curves in the other direction, forward in time rather than onto
+a scalar. `ftsa` forecasts the next curve through its principal component scores, which is Shang's
+[[46]][shang-2017a] method, scores it against the FAR(1) on identical components, and revises it
+through the day as the session is observed; `jump` is the model for the quantity that forecaster
+cannot see, the overnight move between one session's close and the next one's open.
 
 ## What is here
 
@@ -414,7 +413,8 @@ notebooks/
                               prediction, with the error bound that comes with it
 tests/          pytest suite covering all five packages, the documentation, the notebooks
                 and the layout itself
-scripts/        make_r_artifacts.py  -- rebuild the R reference outputs (needs R)
+scripts/        bibliography.py      -- generate and check the bibliography (see below)
+                make_r_artifacts.py  -- rebuild the R reference outputs (needs R)
                 make_study_cache.py  -- rebuild the bench study cache
                 make_ftsa_cache.py   -- rebuild the rolling-origin and updating caches
                 make_region_cache.py -- rebuild the null-set selection study
@@ -427,7 +427,10 @@ artifacts/      generated files, in two halves (artifacts/README.md): `reference
                 to recompute, so the comparison and replication notebooks open without
                 re-fitting
 figures/        figures exported for writing up; regenerated, so not committed
-docs/           research-log.md -- the open questions and dead ends, in date order
+docs/           references.toml -- the bibliography, and the only place a journal, a volume
+                or a DOI is written down
+                references.md, references.bib -- generated from it, numbered and as BibTeX
+                research-log.md -- the open questions and dead ends, in date order
                 overnight-jumps-literature.md -- what is known about the close-to-open
                 return, by mechanism, and which of it these panels can test
 ```
@@ -536,64 +539,68 @@ so want a real maximum likelihood ARIMA rather than a reimplementation of one.
 
 ## References
 
-Hall, P. and Hooker, G. (2016). Truncated linear models for functional data.
-*Journal of the Royal Statistical Society: Series B* 78(3), 637–653.
-[doi:10.1111/rssb.12125](https://doi.org/10.1111/rssb.12125)
+Every work cited anywhere in this repository is described once in `docs/references.toml` and
+numbered in [`docs/references.md`](docs/references.md), which is the only place a journal, a
+volume or a DOI is written down; the numbers below link into it. `docs/references.bib` is the
+same list as BibTeX.
 
-Stefanucci, M., Bernardi, M. and Canale, A. (2025). Locally sparse estimation for functional
-linear models with scalar response. In G. Aneiros, E. G. Bongiorno, A. Goia and M. Hušková
-(eds.), *New Trends in Functional Statistics and Related Fields*, Contributions to Statistics,
-chapter 62, pp. 521–527. Springer.
-[doi:10.1007/978-3-031-92383-8_62](https://doi.org/10.1007/978-3-031-92383-8_62)
-
-Bosq, D. (2000). *Linear Processes in Function Spaces*. Springer.
-[doi:10.1007/978-1-4612-1154-9](https://doi.org/10.1007/978-1-4612-1154-9)
-
-Shang, H. L. (2017a). Forecasting intraday S&P 500 index returns: a functional time series
-approach. *Journal of Forecasting* 36(7), 741-755.
-[doi:10.1002/for.2467](https://doi.org/10.1002/for.2467)
-
-Shang, H. L. (2017b). Functional time series forecasting with dynamic updating: an application
-to intraday particulate matter concentration. *Econometrics and Statistics* 1, 184-200.
-[doi:10.1016/j.ecosta.2016.08.004](https://doi.org/10.1016/j.ecosta.2016.08.004)
-
-Shang, H. L. and Hyndman, R. J. (2011). Nonparametric time series forecasting with dynamic
-updating. *Mathematics and Computers in Simulation* 81(7), 1310-1324.
-[doi:10.1016/j.matcom.2010.04.027](https://doi.org/10.1016/j.matcom.2010.04.027)
-
-Hyndman, R. J. and Shang, H. L. (2009). Forecasting functional time series. *Journal of the
-Korean Statistical Society* 38(3), 199-211.
-[doi:10.1016/j.jkss.2009.06.002](https://doi.org/10.1016/j.jkss.2009.06.002)
-
-Shah, R. D. and Samworth, R. J. (2013). Variable selection with error control: another look at
-stability selection. *Journal of the Royal Statistical Society: Series B* 75(1), 55-80.
-[doi:10.1111/j.1467-9868.2011.01034.x](https://doi.org/10.1111/j.1467-9868.2011.01034.x)
-
-Meinshausen, N. and Bühlmann, P. (2010). Stability selection. *Journal of the Royal Statistical
-Society: Series B* 72(4), 417-473.
-[doi:10.1111/j.1467-9868.2010.00740.x](https://doi.org/10.1111/j.1467-9868.2010.00740.x)
-
-Chen, J. and Chen, Z. (2008). Extended Bayesian information criteria for model selection with
-large model spaces. *Biometrika* 95(3), 759-771.
-[doi:10.1093/biomet/asn034](https://doi.org/10.1093/biomet/asn034)
-
-Zou, H. (2006). The adaptive lasso and its oracle properties. *Journal of the American
-Statistical Association* 101(476), 1418-1429.
-[doi:10.1198/016214506000000735](https://doi.org/10.1198/016214506000000735)
-
-Benjamini, Y. and Hochberg, Y. (1995). Controlling the false discovery rate: a practical and
-powerful approach to multiple testing. *Journal of the Royal Statistical Society: Series B*
-57(1), 289-300.
+To cite a work in prose, write `[[0]][key]` where `key` is its key in the TOML and let
+`python scripts/bibliography.py --write` fill in the number; a notebook writes the same marker
+with an inline link, and a docstring cites by author and year, because nothing renders markdown
+for a docstring. To add a work, put it in the TOML and run the same command: the numbering is
+alphabetical, so a new entry renumbers the ones after it in every file that cites them, and
+that is done here rather than by hand. `--check`, which the test suite runs, fails if any
+citation anywhere has drifted from what the bibliography now says.
 
 The finance side of `jump` reads a literature of its own, and
 `docs/overnight-jumps-literature.md` is that reading -- what is known about the close-to-open
 return, organised by the mechanism each strand proposes, with what these panels can and cannot
 test about each one.
 
-Aue, A., Norinho, D. D. and Hörmann, S. (2015). On the prediction of stationary functional time
-series. *Journal of the American Statistical Association* 110(509), 378-392.
-[doi:10.1080/01621459.2014.909317](https://doi.org/10.1080/01621459.2014.909317)
+<!-- references:
+  hall-hooker-2016, stefanucci-bernardi-canale-2025, bosq-2000, shang-2017a, shang-2017b,
+  shang-hyndman-2011, hyndman-shang-2009, shah-samworth-2013, meinshausen-buhlmann-2010,
+  chen-chen-2008, zou-2006, benjamini-hochberg-1995, aue-norinho-hormann-2015
+-->
+- **[2]** Aue, Norinho & Hörmann (2015), [On the prediction of stationary functional time
+  series][aue-norinho-hormann-2015].
+- **[7]** Benjamini & Hochberg (1995), [Controlling the false discovery rate: a practical and
+  powerful approach to multiple testing][benjamini-hochberg-1995].
+- **[13]** Bosq (2000), [*Linear Processes in Function Spaces*][bosq-2000].
+- **[16]** Chen & Chen (2008), [Extended Bayesian information criteria for model selection with
+  large model spaces][chen-chen-2008].
+- **[26]** Hall & Hooker (2016), [Truncated linear models for functional data][hall-hooker-2016].
+- **[30]** Hyndman & Shang (2009), [Forecasting functional time series][hyndman-shang-2009].
+- **[37]** Meinshausen & Bühlmann (2010), [Stability selection][meinshausen-buhlmann-2010].
+- **[43]** Shah & Samworth (2013), [Variable selection with error control: another look at
+  stability selection][shah-samworth-2013].
+- **[44]** Shang & Hyndman (2011), [Nonparametric time series forecasting with dynamic
+  updating][shang-hyndman-2011].
+- **[46]** Shang (2017a), [Forecasting intraday S&P 500 index returns: a functional time series
+  approach][shang-2017a].
+- **[47]** Shang (2017b), [Functional time series forecasting with dynamic updating: an application
+  to intraday particulate matter concentration][shang-2017b].
+- **[48]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
+  models with scalar response][stefanucci-bernardi-canale-2025].
+- **[53]** Zou (2006), [The adaptive lasso and its oracle properties][zou-2006].
+<!-- /references -->
 
 ## Licence
 
 MIT, see `LICENSE`.
+
+<!-- reference-links -->
+[aue-norinho-hormann-2015]: docs/references.md#ref-aue-norinho-hormann-2015
+[benjamini-hochberg-1995]: docs/references.md#ref-benjamini-hochberg-1995
+[bosq-2000]: docs/references.md#ref-bosq-2000
+[chen-chen-2008]: docs/references.md#ref-chen-chen-2008
+[hall-hooker-2016]: docs/references.md#ref-hall-hooker-2016
+[hyndman-shang-2009]: docs/references.md#ref-hyndman-shang-2009
+[meinshausen-buhlmann-2010]: docs/references.md#ref-meinshausen-buhlmann-2010
+[shah-samworth-2013]: docs/references.md#ref-shah-samworth-2013
+[shang-hyndman-2011]: docs/references.md#ref-shang-hyndman-2011
+[shang-2017a]: docs/references.md#ref-shang-2017a
+[shang-2017b]: docs/references.md#ref-shang-2017b
+[stefanucci-bernardi-canale-2025]: docs/references.md#ref-stefanucci-bernardi-canale-2025
+[zou-2006]: docs/references.md#ref-zou-2006
+<!-- /reference-links -->

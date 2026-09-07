@@ -5,13 +5,24 @@ session-scoped and shared across assertions. Two markers keep the fast suite fas
 
 - `slow`    -- full estimator pipelines (seconds each). Deselect with `-m "not slow"`.
 - `needs_r` -- requires R with the `fdaSP` package; skipped automatically otherwise.
+
+`scripts/` goes on the path here. Nothing under it is part of the installed package -- these
+are tools the repository is maintained with rather than code it publishes -- but
+`test_bibliography.py` tests `scripts/bibliography.py` directly, because a tool that rewrites
+every README in the repository is not one to check only by running it.
 """
+
+import os
+import sys
 
 import numpy as np
 import pytest
 
 from fts_research.fdaSP import SBC_sim
 from fts_research.truncFLR import HH_dgp
+
+sys.path.insert(0, os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scripts"))
 
 
 def pytest_configure(config):

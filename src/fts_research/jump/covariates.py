@@ -54,34 +54,12 @@ What each column is, and why it is here.
            of the covariates prices them against the persistence they have to beat.
 
 References
-`docs/overnight-jumps-literature.md` reads these together, with what each one does and does not
-say about the sign of the overnight move, and with the two that turn out to survive.
-
-Barndorff-Nielsen, O. E., Kinnebrock, S. and Shephard, N. (2010). Measuring downside risk:
-realised semivariance. In T. Bollerslev, J. Russell and M. Watson (eds.), Volatility and Time
-Series Econometrics, 117-136. Oxford University Press.
-Benjamini, Y. and Hochberg, Y. (1995). Controlling the false discovery rate: a practical and
-powerful approach to multiple testing. Journal of the Royal Statistical Society, Series B
-57(1), 289-300.
-Berkman, H., Koch, P. D., Tuttle, L. and Zhang, Y. J. (2012). Paying attention: overnight
-returns and the hidden cost of buying at the open. Journal of Financial and Quantitative
-Analysis 47(4), 715-741.
-Boyarchenko, N., Larsen, L. C. and Whelan, P. (2023). The overnight drift. Review of
-Financial Studies 36(9), 3502-3547.
-Boyarchenko, N., Larsen, L. C. and Whelan, P. (2026). The disappearing overnight drift.
-Liberty Street Economics, Federal Reserve Bank of New York, 1 July 2026.
-Gao, L., Han, Y., Li, S. Z. and Zhou, G. (2018). Market intraday momentum. Journal of
-Financial Economics 129(2), 394-414.
-Hamao, Y., Masulis, R. W. and Ng, V. (1990). Correlations in price changes and volatility
-across international stock markets. Review of Financial Studies 3(2), 281-307.
-Lou, D., Polk, C. and Skouras, S. (2019). A tug of war: overnight versus intraday expected
-returns. Journal of Financial Economics 134(1), 192-213.
-Parkinson, M. (1980). The extreme value method for estimating the variance of the rate of
-return. Journal of Business 53(1), 61-65.
-Patton, A. J. and Sheppard, K. (2015). Good volatility, bad volatility: signed jumps and the
-persistence of volatility. Review of Economics and Statistics 97(3), 683-697.
-Xu, D., Li, B., Singh, T., Chen, X. and Li, J. (2025). Cross-market overnight time-series
-momentum. Journal of International Financial Markets, Institutions and Money.
+Full entries are in `docs/references.md`, this repository's one bibliography, and
+`docs/overnight-jumps-literature.md` reads them together: what each one does and does not say
+about the sign of the overnight move, and which two turn out to survive. Beyond the works named
+above, that reading covers Benjamini and Hochberg (1995) for the multiple-testing step applied
+to a screen of these columns, Hamao, Masulis and Ng (1990) for the cross-market transmission
+`foreign_covariates` measures, and Parkinson (1980) for the range.
 """
 
 import numpy as np

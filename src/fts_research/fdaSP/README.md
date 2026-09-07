@@ -1,6 +1,7 @@
 # fdaSP
 
-Locally sparse scalar-on-function regression, following Stefanucci, Bernardi & Canale (2025):
+Locally sparse scalar-on-function regression, following Stefanucci, Bernardi & Canale
+[[48]][stefanucci-bernardi-canale-2025]:
 
     y_i = ∫_T x_i(t) ψ(t) dt + z_i ^ T γ + ε_i,    i = 1, ..., n
 
@@ -167,18 +168,21 @@ pipelines; R-dependent tests skip themselves when R is absent.
 
 ## References
 
-Stefanucci, M., Bernardi, M. and Canale, A. (2025). Locally sparse estimation for functional
-linear models with scalar response. In G. Aneiros, E. G. Bongiorno, A. Goia and M. Hušková
-(eds.), *New Trends in Functional Statistics and Related Fields*, Contributions to Statistics,
-chapter 62, pp. 521-527. Springer.
-[doi:10.1007/978-3-031-92383-8_62](https://doi.org/10.1007/978-3-031-92383-8_62)
+The works this package rests on. Full entries, with journals and DOIs, are in
+[the repository's one bibliography](../../../docs/references.md); the numbers below
+link into it.
 
-Bernardi, M. and Stefanucci, M. (2023). fdaSP: sparse functional data analysis methods. R
-package. [doi:10.32614/CRAN.package.fdaSP](https://doi.org/10.32614/CRAN.package.fdaSP) — the
-implementation `SBC` is checked against, whose outputs are committed under
-`artifacts/reference/`.
+<!-- references: stefanucci-bernardi-canale-2025, bernardi-stefanucci-2023, parkinson-1980 -->
+- **[9]** Bernardi & Stefanucci (2023), [fdaSP: sparse functional data analysis
+  methods][bernardi-stefanucci-2023].
+- **[40]** Parkinson (1980), [The extreme value method for estimating the variance of the rate of
+  return][parkinson-1980].
+- **[48]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
+  models with scalar response][stefanucci-bernardi-canale-2025].
+<!-- /references -->
 
-Parkinson, M. (1980). The extreme value method for estimating the variance of the rate of
-return. *The Journal of Business* 53(1), 61-65.
-[doi:10.1086/296071](https://doi.org/10.1086/296071) — the range `session_summary` reports,
-which is the summary of a session that best predicts the size of the jump that follows it.
+<!-- reference-links -->
+[bernardi-stefanucci-2023]: ../../../docs/references.md#ref-bernardi-stefanucci-2023
+[parkinson-1980]: ../../../docs/references.md#ref-parkinson-1980
+[stefanucci-bernardi-canale-2025]: ../../../docs/references.md#ref-stefanucci-bernardi-canale-2025
+<!-- /reference-links -->

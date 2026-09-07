@@ -42,11 +42,8 @@ number of candidates and by `q = E|S|`. Those substitutions are arguments here r
 assumptions inside, so a caller can see which of the two quantities each bound scales with.
 
 References
-Meinshausen, N. and Buhlmann, P. (2010). Stability selection. Journal of the Royal
-Statistical Society, Series B 72(4), 417-473. doi:10.1111/j.1467-9868.2010.00740.x
-Shah, R. D. and Samworth, R. J. (2013). Variable selection with error control: another look
-at stability selection. Journal of the Royal Statistical Society, Series B 75(1), 55-80.
-doi:10.1111/j.1467-9868.2011.01034.x
+Full entries for the two papers named above are in `docs/references.md`, this repository's one
+bibliography.
 """
 
 import math

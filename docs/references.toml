@@ -1,0 +1,578 @@
+# The bibliography. Every work cited anywhere in this repository is described here and only
+# here; `docs/references.md` and `docs/references.bib` are written from this file by
+# `scripts/bibliography.py`, and prose cites by a number that script assigns and maintains.
+#
+# To add a work: give it a lowercase hyphenated key, fill in what is known, and run
+# `python scripts/bibliography.py --write`. The numbering is alphabetical by first author, so
+# the new entry will renumber the ones after it in every file that cites them, which is the
+# point of doing it here rather than by hand.
+#
+# Fields. `kind` is one of article, chapter, book, software, working-paper, preprint, blog and
+# picks the BibTeX entry type. `letter` disambiguates two works by the same authors in the same
+# year. `note` is what this repository has to say about the work, and is the only place such a
+# remark belongs. `cited_as` lists names prose uses for a work whose authorship is not recorded
+# here. A missing `title` is allowed only with a `note` explaining the gap, so that a citation
+# this repository never chased down is visible rather than quietly plausible.
+#
+# The entries below are in key order, which is for reading. The order they are numbered in is
+# computed, and does not depend on this file's arrangement.
+
+[andersen-bollerslev-diebold-2007]
+kind = "article"
+authors = ["Andersen, T. G.", "Bollerslev, T.", "Diebold, F. X."]
+year = 2007
+title = "Roughing it up: including jump components in the measurement, modeling, and forecasting of return volatility"
+journal = "Review of Economics and Statistics"
+volume = "89"
+issue = "4"
+pages = "701-720"
+
+[aue-norinho-hormann-2015]
+kind = "article"
+authors = ["Aue, A.", "Norinho, D. D.", "Hörmann, S."]
+year = 2015
+title = "On the prediction of stationary functional time series"
+journal = "Journal of the American Statistical Association"
+volume = "110"
+issue = "509"
+pages = "378-392"
+doi = "10.1080/01621459.2014.909317"
+note = "The vector autoregression on principal component scores that `far.far_est.score_operator` implements, and the forecaster `ftsa` scores its own against."
+
+[bao-chen-ma-2025]
+kind = "article"
+authors = ["Bao", "Chen", "Ma"]
+year = 2025
+note = "Cited in `docs/overnight-jumps-literature.md` for the result that the US last half-hour return predicts the next day's first half-hour return in international markets, in and out of sample and after transaction costs. No title, journal or DOI was ever recorded here and none is guessed: the citation needs chasing down before it is used in the thesis."
+
+[barclay-hendershott-2003]
+kind = "article"
+authors = ["Barclay, M. J.", "Hendershott, T."]
+year = 2003
+title = "Price discovery and trading after hours"
+journal = "Review of Financial Studies"
+volume = "16"
+issue = "4"
+pages = "1041-1073"
+
+[barndorff-nielsen-kinnebrock-shephard-2010]
+kind = "chapter"
+authors = ["Barndorff-Nielsen, O. E.", "Kinnebrock, S.", "Shephard, N."]
+year = 2010
+title = "Measuring downside risk: realised semivariance"
+booktitle = "Volatility and Time Series Econometrics"
+editors = ["T. Bollerslev", "J. Russell", "M. Watson"]
+pages = "117-136"
+publisher = "Oxford University Press"
+
+[barndorff-nielsen-shephard-2006]
+kind = "article"
+authors = ["Barndorff-Nielsen, O. E.", "Shephard, N."]
+year = 2006
+title = "Econometrics of testing for jumps in financial economics using bipower variation"
+journal = "Journal of Financial Econometrics"
+volume = "4"
+issue = "1"
+pages = "1-30"
+
+[benjamini-hochberg-1995]
+kind = "article"
+authors = ["Benjamini, Y.", "Hochberg, Y."]
+year = 1995
+title = "Controlling the false discovery rate: a practical and powerful approach to multiple testing"
+journal = "Journal of the Royal Statistical Society: Series B"
+volume = "57"
+issue = "1"
+pages = "289-300"
+
+[berkman-etal-2012]
+kind = "article"
+authors = ["Berkman, H.", "Koch, P. D.", "Tuttle, L.", "Zhang, Y. J."]
+year = 2012
+title = "Paying attention: overnight returns and the hidden cost of buying at the open"
+journal = "Journal of Financial and Quantitative Analysis"
+volume = "47"
+issue = "4"
+pages = "715-741"
+url = "https://www.cambridge.org/core/journals/journal-of-financial-and-quantitative-analysis/article/abs/paying-attention-overnight-returns-and-the-hidden-cost-of-buying-at-the-open/F9AAD159B512C651F09D5D52011D88E0"
+
+[bernardi-stefanucci-2023]
+kind = "software"
+authors = ["Bernardi, M.", "Stefanucci, M."]
+year = 2023
+title = "fdaSP: sparse functional data analysis methods"
+series = "R package"
+doi = "10.32614/CRAN.package.fdaSP"
+note = "The implementation `fdaSP.SBC` is checked against, whose outputs are committed under `artifacts/reference/`."
+
+[bogousslavsky-2021]
+kind = "article"
+authors = ["Bogousslavsky, V."]
+year = 2021
+title = "The cross-section of intraday and overnight returns"
+journal = "Journal of Financial Economics"
+volume = "141"
+issue = "1"
+pages = "172-194"
+url = "https://www.sciencedirect.com/science/article/abs/pii/S0304405X21000854"
+
+[bogousslavsky-muravyev-2023a]
+kind = "article"
+authors = ["Bogousslavsky, V.", "Muravyev, D."]
+year = 2023
+letter = "a"
+title = "Market return around the clock: a puzzle"
+journal = "Journal of Financial and Quantitative Analysis"
+url = "https://www.cambridge.org/core/journals/journal-of-financial-and-quantitative-analysis/article/abs/market-return-around-the-clock-a-puzzle/089E33AC0B4D3B9A02CBA31EDF6505B3"
+
+[bogousslavsky-muravyev-2023b]
+kind = "article"
+authors = ["Bogousslavsky, V.", "Muravyev, D."]
+year = 2023
+letter = "b"
+title = "Who trades at the close? Implications for price discovery and liquidity"
+journal = "Journal of Financial Markets"
+volume = "66"
+url = "https://www.sciencedirect.com/science/article/abs/pii/S1386418123000502"
+
+[bosq-2000]
+kind = "book"
+authors = ["Bosq, D."]
+year = 2000
+title = "Linear Processes in Function Spaces"
+publisher = "Springer"
+doi = "10.1007/978-1-4612-1154-9"
+note = "Chapter 3 is the source of the FAR(1) kernels `far.far_dgp` simulates from."
+
+[boyarchenko-larsen-whelan-2023]
+kind = "article"
+authors = ["Boyarchenko, N.", "Larsen, L. C.", "Whelan, P."]
+year = 2023
+title = "The overnight drift"
+journal = "Review of Financial Studies"
+volume = "36"
+issue = "9"
+pages = "3502-3547"
+url = "https://academic.oup.com/rfs/article-abstract/36/9/3502/7076616"
+
+[boyarchenko-larsen-whelan-2026]
+kind = "blog"
+authors = ["Boyarchenko, N.", "Larsen, L. C.", "Whelan, P."]
+year = 2026
+title = "The disappearing overnight drift"
+series = "Liberty Street Economics, Federal Reserve Bank of New York, 1 July 2026"
+url = "https://libertystreeteconomics.newyorkfed.org/2026/07/the-disappearing-overnight-drift/"
+
+[chen-chen-2008]
+kind = "article"
+authors = ["Chen, J.", "Chen, Z."]
+year = 2008
+title = "Extended Bayesian information criteria for model selection with large model spaces"
+journal = "Biometrika"
+volume = "95"
+issue = "3"
+pages = "759-771"
+doi = "10.1093/biomet/asn034"
+
+[cliff-cooper-gulen-2008]
+kind = "working-paper"
+authors = ["Cliff, M. T.", "Cooper, M. J.", "Gulen, H."]
+year = 2008
+title = "Return differences between trading and non-trading hours: like night and day"
+series = "Working paper"
+url = "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1004081"
+url_label = "SSRN 1004081"
+
+[engle-ito-lin-1990]
+kind = "article"
+authors = ["Engle, R. F.", "Ito, T.", "Lin, W.-L."]
+year = 1990
+title = "Meteor showers or heat waves? Heteroskedastic intra-daily volatility in the foreign exchange market"
+journal = "Econometrica"
+volume = "58"
+pages = "525-542"
+
+[french-roll-1986]
+kind = "article"
+authors = ["French, K. R.", "Roll, R."]
+year = 1986
+title = "Stock return variances: the arrival of information and the reaction of traders"
+journal = "Journal of Financial Economics"
+volume = "17"
+issue = "1"
+pages = "5-26"
+
+[gabrys-horvath-kokoszka-2010]
+kind = "article"
+authors = ["Gabrys, R.", "Horváth, L.", "Kokoszka, P."]
+year = 2010
+title = "Tests for error correlation in the functional linear model"
+journal = "Journal of the American Statistical Association"
+volume = "105"
+issue = "491"
+pages = "1113-1125"
+note = "The paper the cumulative intraday return transform in `fdaSP.intraday` comes from."
+
+[gabrys-kokoszka-2007]
+kind = "article"
+authors = ["Gabrys, R.", "Kokoszka, P."]
+year = 2007
+title = "Portmanteau test of independence for functional observations"
+journal = "Journal of the American Statistical Association"
+volume = "102"
+issue = "480"
+pages = "1338-1348"
+doi = "10.1198/016214507000001111"
+
+[gao-etal-2018]
+kind = "article"
+authors = ["Gao, L.", "Han, Y.", "Li, S. Z.", "Zhou, G."]
+year = 2018
+title = "Market intraday momentum"
+journal = "Journal of Financial Economics"
+volume = "129"
+issue = "2"
+pages = "394-414"
+url = "https://www.sciencedirect.com/science/article/abs/pii/S0304405X18301351"
+
+[gao-etal-2022]
+kind = "article"
+authors = ["Gao, R.", "Zhang, X.", "Zhang, H.", "Zhao, Q.", "Wang, Y."]
+year = 2022
+title = "Forecasting the overnight return direction of stock market index combining global market indices: a multiple-branch deep learning approach"
+journal = "Expert Systems with Applications"
+volume = "194"
+pages = "116506"
+doi = "10.1016/j.eswa.2022.116506"
+
+[glasserman-etal-2024]
+kind = "preprint"
+authors = ["Glasserman, P.", "Krstovski, K.", "Laliberte, P.", "Mamaysky, H."]
+year = 2024
+title = "Does overnight news explain overnight returns?"
+series = "arXiv:2507.04481"
+url = "https://arxiv.org/abs/2507.04481"
+
+[gneiting-raftery-2007]
+kind = "article"
+authors = ["Gneiting, T.", "Raftery, A. E."]
+year = 2007
+title = "Strictly proper scoring rules, prediction, and estimation"
+journal = "Journal of the American Statistical Association"
+volume = "102"
+issue = "477"
+pages = "359-378"
+doi = "10.1198/016214506000001437"
+note = "Section 6.2 defines the interval score `ftsa.evaluation.interval_score` computes."
+
+[hall-hooker-2016]
+kind = "article"
+authors = ["Hall, P.", "Hooker, G."]
+year = 2016
+title = "Truncated linear models for functional data"
+journal = "Journal of the Royal Statistical Society: Series B"
+volume = "78"
+issue = "3"
+pages = "637-653"
+doi = "10.1111/rssb.12125"
+note = "Methods A and B are `truncFLR.HH_A` and `truncFLR.HH`; section 3.2 is the one `notebooks/truncFLR_lambdadegen.ipynb` takes apart."
+
+[hamao-masulis-ng-1990]
+kind = "article"
+authors = ["Hamao, Y.", "Masulis, R. W.", "Ng, V."]
+year = 1990
+title = "Correlations in price changes and volatility across international stock markets"
+journal = "Review of Financial Studies"
+volume = "3"
+issue = "2"
+pages = "281-307"
+
+[hendershott-livdan-rosch-2020]
+kind = "article"
+authors = ["Hendershott, T.", "Livdan, D.", "Rösch, D."]
+year = 2020
+title = "Asset pricing: a tale of night and day"
+journal = "Journal of Financial Economics"
+volume = "138"
+issue = "3"
+pages = "635-662"
+url = "https://www.sciencedirect.com/science/article/abs/pii/S0304405X20301732"
+
+[hyndman-khandakar-2008]
+kind = "article"
+authors = ["Hyndman, R. J.", "Khandakar, Y."]
+year = 2008
+title = "Automatic time series forecasting: the forecast package for R"
+journal = "Journal of Statistical Software"
+volume = "27"
+issue = "3"
+pages = "1-22"
+doi = "10.18637/jss.v027.i03"
+note = "The order search `ftsa.forecast` reproduces, including the corrected AIC it selects on."
+
+[hyndman-shang-2009]
+kind = "article"
+authors = ["Hyndman, R. J.", "Shang, H. L."]
+year = 2009
+title = "Forecasting functional time series"
+journal = "Journal of the Korean Statistical Society"
+volume = "38"
+issue = "3"
+pages = "199-211"
+doi = "10.1016/j.jkss.2009.06.002"
+
+[kokoszka-reimherr-2013]
+kind = "article"
+authors = ["Kokoszka, P.", "Reimherr, M."]
+year = 2013
+title = "Predictability of shapes of intraday price curves"
+journal = "Econometrics Journal"
+volume = "16"
+issue = "3"
+pages = "285-308"
+url = "https://academic.oup.com/ectj/article-abstract/16/3/285/5061235"
+
+[kurov-wolfe-gilbert-2021]
+kind = "article"
+authors = ["Kurov, A.", "Wolfe, M. H.", "Gilbert, T."]
+year = 2021
+title = "The disappearing pre-FOMC announcement drift"
+journal = "Finance Research Letters"
+volume = "40"
+pages = "101781"
+url = "https://www.sciencedirect.com/science/article/abs/pii/S1544612320315956"
+
+[ljung-box-1978]
+kind = "article"
+authors = ["Ljung, G. M.", "Box, G. E. P."]
+year = 1978
+title = "On a measure of lack of fit in time series models"
+journal = "Biometrika"
+volume = "65"
+issue = "2"
+pages = "297-303"
+doi = "10.1093/biomet/65.2.297"
+note = "The scalar statistic that `far.far_est.portmanteau_test` generalises to functional observations, and which `notebooks/overnight_jumps.ipynb` applies directly to the jump series."
+
+[lou-polk-skouras-2019]
+kind = "article"
+authors = ["Lou, D.", "Polk, C.", "Skouras, S."]
+year = 2019
+title = "A tug of war: overnight versus intraday expected returns"
+journal = "Journal of Financial Economics"
+volume = "134"
+issue = "1"
+pages = "192-213"
+url = "https://www.sciencedirect.com/science/article/abs/pii/S0304405X19300650"
+
+[lucca-moench-2015]
+kind = "article"
+authors = ["Lucca, D. O.", "Moench, E."]
+year = 2015
+title = "The pre-FOMC announcement drift"
+journal = "Journal of Finance"
+volume = "70"
+issue = "1"
+pages = "329-371"
+doi = "10.1111/jofi.12196"
+
+[meinshausen-2007]
+kind = "article"
+authors = ["Meinshausen, N."]
+year = 2007
+title = "Relaxed lasso"
+journal = "Computational Statistics and Data Analysis"
+volume = "52"
+issue = "1"
+pages = "374-393"
+doi = "10.1016/j.csda.2006.12.019"
+
+[meinshausen-buhlmann-2010]
+kind = "article"
+authors = ["Meinshausen, N.", "Bühlmann, P."]
+year = 2010
+title = "Stability selection"
+journal = "Journal of the Royal Statistical Society: Series B"
+volume = "72"
+issue = "4"
+pages = "417-473"
+doi = "10.1111/j.1467-9868.2010.00740.x"
+
+[newey-west-1987]
+kind = "article"
+authors = ["Newey, W. K.", "West, K. D."]
+year = 1987
+title = "A simple, positive semi-definite, heteroskedasticity and autocorrelation consistent covariance matrix"
+journal = "Econometrica"
+volume = "55"
+issue = "3"
+pages = "703-708"
+doi = "10.2307/1913610"
+
+[overnight-not-simultaneous-2026]
+kind = "article"
+year = 2026
+title = 'When "overnight" is not simultaneous: turning cross index overnight returns into feasible forecasts of morning gaps'
+journal = "The Journal of Finance and Data Science"
+url = "https://www.sciencedirect.com/science/article/pii/S2214845026000918"
+cited_as = ["Bai and Li"]
+note = "Cited by title: no public listing consulted named its authors, so none are recorded here. The prose in `docs/overnight-jumps-literature.md` attributes it to Bai and Li; that attribution is unconfirmed and the two statements need reconciling before either is used."
+
+[pagan-1984]
+kind = "article"
+authors = ["Pagan, A."]
+year = 1984
+title = "Econometric issues in the analysis of regressions with generated regressors"
+journal = "International Economic Review"
+volume = "25"
+issue = "1"
+pages = "221-247"
+doi = "10.2307/2648877"
+note = "Why the principal component scores entering the jump equation are generated regressors, and what that costs the standard errors."
+
+[parkinson-1980]
+kind = "article"
+authors = ["Parkinson, M."]
+year = 1980
+title = "The extreme value method for estimating the variance of the rate of return"
+journal = "The Journal of Business"
+volume = "53"
+issue = "1"
+pages = "61-65"
+doi = "10.1086/296071"
+note = "The range `fdaSP.intraday.session_summary` reports, which is the summary of a session that best predicts the size of the jump that follows it."
+
+[patton-sheppard-2015]
+kind = "article"
+authors = ["Patton, A. J.", "Sheppard, K."]
+year = 2015
+title = "Good volatility, bad volatility: signed jumps and the persistence of volatility"
+journal = "Review of Economics and Statistics"
+volume = "97"
+issue = "3"
+pages = "683-697"
+url = "https://direct.mit.edu/rest/article/97/3/683/58249"
+
+[rapach-strauss-zhou-2013]
+kind = "article"
+authors = ["Rapach, D. E.", "Strauss, J. K.", "Zhou, G."]
+year = 2013
+title = "International stock return predictability: what is the role of the United States?"
+journal = "Journal of Finance"
+volume = "68"
+issue = "4"
+pages = "1633-1662"
+
+[shah-samworth-2013]
+kind = "article"
+authors = ["Shah, R. D.", "Samworth, R. J."]
+year = 2013
+title = "Variable selection with error control: another look at stability selection"
+journal = "Journal of the Royal Statistical Society: Series B"
+volume = "75"
+issue = "1"
+pages = "55-80"
+doi = "10.1111/j.1467-9868.2011.01034.x"
+note = "Theorem 1 is the bound `region.bounds` implements, in both of its directions."
+
+[shang-2013]
+kind = "article"
+authors = ["Shang, H. L."]
+year = 2013
+title = "ftsa: an R package for analyzing functional time series"
+journal = "The R Journal"
+volume = "5"
+issue = "1"
+pages = "64-72"
+doi = "10.32614/RJ-2013-006"
+
+[shang-2017a]
+kind = "article"
+authors = ["Shang, H. L."]
+year = 2017
+letter = "a"
+title = "Forecasting intraday S&P 500 index returns: a functional time series approach"
+journal = "Journal of Forecasting"
+volume = "36"
+issue = "7"
+pages = "741-755"
+doi = "10.1002/for.2467"
+note = "The paper `notebooks/shang_replication.ipynb` rebuilds, and the design `fdaSP.intraday`'s 2017 panel exists to serve."
+
+[shang-2017b]
+kind = "article"
+authors = ["Shang, H. L."]
+year = 2017
+letter = "b"
+title = "Functional time series forecasting with dynamic updating: an application to intraday particulate matter concentration"
+journal = "Econometrics and Statistics"
+volume = "1"
+pages = "184-200"
+doi = "10.1016/j.ecosta.2016.08.004"
+note = "The companion paper, which puts the same decomposition and the same two score forecasters on half-hourly particulate matter and develops the dynamic updating at greater length."
+
+[shang-hyndman-2011]
+kind = "article"
+authors = ["Shang, H. L.", "Hyndman, R. J."]
+year = 2011
+title = "Nonparametric time series forecasting with dynamic updating"
+journal = "Mathematics and Computers in Simulation"
+volume = "81"
+issue = "7"
+pages = "1310-1324"
+doi = "10.1016/j.matcom.2010.04.027"
+
+[stefanucci-bernardi-canale-2025]
+kind = "chapter"
+authors = ["Stefanucci, M.", "Bernardi, M.", "Canale, A."]
+year = 2025
+title = "Locally sparse estimation for functional linear models with scalar response"
+booktitle = "New Trends in Functional Statistics and Related Fields"
+editors = ["G. Aneiros", "E. G. Bongiorno", "A. Goia", "M. Hušková"]
+series = "Contributions to Statistics"
+chapter = "62"
+pages = "521-527"
+publisher = "Springer"
+doi = "10.1007/978-3-031-92383-8_62"
+note = "Problem (62.3) is what `fdaSP.SBC` solves."
+
+[wang-leng-2008]
+kind = "article"
+authors = ["Wang, H.", "Leng, C."]
+year = 2008
+title = "A note on adaptive group lasso"
+journal = "Computational Statistics and Data Analysis"
+volume = "52"
+issue = "12"
+pages = "5277-5286"
+doi = "10.1016/j.csda.2008.05.006"
+
+[wu-jegadeesh-2022]
+kind = "article"
+authors = ["Wu, Y.", "Jegadeesh, N."]
+year = 2022
+title = "Closing auctions: Nasdaq versus NYSE"
+journal = "Journal of Financial Economics"
+volume = "143"
+issue = "3"
+pages = "1120-1139"
+url = "https://www.sciencedirect.com/science/article/abs/pii/S0304405X21005092"
+
+[xu-etal-2025]
+kind = "article"
+authors = ["Xu, D.", "Li, B.", "Singh, T.", "Chen, X.", "Li, J."]
+year = 2025
+title = "Cross-market overnight time-series momentum"
+journal = "Journal of International Financial Markets, Institutions and Money"
+url = "https://www.sciencedirect.com/science/article/abs/pii/S1042443125001295"
+
+[zou-2006]
+kind = "article"
+authors = ["Zou, H."]
+year = 2006
+title = "The adaptive lasso and its oracle properties"
+journal = "Journal of the American Statistical Association"
+volume = "101"
+issue = "476"
+pages = "1418-1429"
+doi = "10.1198/016214506000000735"

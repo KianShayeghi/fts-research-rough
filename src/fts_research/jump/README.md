@@ -46,8 +46,8 @@ Two things travel with the point estimate and are why `fit_mle` reports more tha
   Newey-West errors agree; on real jumps the volatility clusters even where the AR(1) mean is
   correct, and the sandwich is then the honest one. `tests/test_jump.py` measures both cases.
 - The scores are **generated regressors** — estimated from the same curves — so errors that
-  condition on the decomposition understate the uncertainty in `d` (Pagan, 1984). Nothing here
-  corrects for that, and both sets are conditional on it.
+  condition on the decomposition understate the uncertainty in `d` (Pagan [[39]][pagan-1984]).
+  Nothing here corrects for that, and both sets are conditional on it.
 
 `fit_lasso` is the overfitting diagnostic. The MLE shrinks nothing, and the `d` block is as wide
 as the number of components retained rather than as the number carrying signal, so the fitted
@@ -184,10 +184,18 @@ worked by hand and against uniform p-values, where it must reject almost nothing
 
 ## References
 
-Pagan, A. (1984). Econometric issues in the analysis of regressions with generated regressors.
-*International Economic Review* 25(1), 221-247.
-[doi:10.2307/2648877](https://doi.org/10.2307/2648877)
+The works this package rests on. Full entries, with journals and DOIs, are in
+[the repository's one bibliography](../../../docs/references.md); the numbers below
+link into it.
 
-Newey, W. K. and West, K. D. (1987). A simple, positive semi-definite, heteroskedasticity and
-autocorrelation consistent covariance matrix. *Econometrica* 55(3), 703-708.
-[doi:10.2307/1913610](https://doi.org/10.2307/1913610)
+<!-- references: pagan-1984, newey-west-1987 -->
+- **[38]** Newey & West (1987), [A simple, positive semi-definite, heteroskedasticity and
+  autocorrelation consistent covariance matrix][newey-west-1987].
+- **[39]** Pagan (1984), [Econometric issues in the analysis of regressions with generated
+  regressors][pagan-1984].
+<!-- /references -->
+
+<!-- reference-links -->
+[newey-west-1987]: ../../../docs/references.md#ref-newey-west-1987
+[pagan-1984]: ../../../docs/references.md#ref-pagan-1984
+<!-- /reference-links -->

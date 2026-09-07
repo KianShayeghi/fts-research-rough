@@ -6,11 +6,11 @@ they have to recover.
 
     y_i = ∫_T x_i(t) psi(t) dt + eps_i,    i = 1, ..., n
 
-The methods are method A and method B of Hall & Hooker (2016), which assume the informative
-set is a single interval and estimate its endpoint, and the overlap group lasso of Stefanucci,
-Bernardi & Canale (2025), which lets it be any union of intervals. The untruncated FPCA pilot
-is carried alongside as the no-sparsity baseline, so what each assumption buys is visible
-rather than inferred.
+The methods are method A and method B of Hall & Hooker [[26]][hall-hooker-2016], which assume the
+informative set is a single interval and estimate its endpoint, and the overlap group lasso of
+Stefanucci, Bernardi & Canale [[48]][stefanucci-bernardi-canale-2025], which lets it be any union
+of intervals. The untruncated FPCA pilot is carried alongside as the no-sparsity baseline, so what
+each assumption buys is visible rather than inferred.
 
 ## Modules
 
@@ -130,12 +130,17 @@ the study cannot go uncoloured; the rest of the visual system is checked in
 
 ## References
 
-Hall, P. and Hooker, G. (2016). Truncated linear models for functional data.
-*Journal of the Royal Statistical Society: Series B* 78(3), 637-653.
-[doi:10.1111/rssb.12125](https://doi.org/10.1111/rssb.12125)
+The works this package rests on. Full entries, with journals and DOIs, are in
+[the repository's one bibliography](../../../docs/references.md); the numbers below
+link into it.
 
-Stefanucci, M., Bernardi, M. and Canale, A. (2025). Locally sparse estimation for functional
-linear models with scalar response. In G. Aneiros, E. G. Bongiorno, A. Goia and M. Hušková
-(eds.), *New Trends in Functional Statistics and Related Fields*, Contributions to Statistics,
-chapter 62, pp. 521-527. Springer.
-[doi:10.1007/978-3-031-92383-8_62](https://doi.org/10.1007/978-3-031-92383-8_62)
+<!-- references: hall-hooker-2016, stefanucci-bernardi-canale-2025 -->
+- **[26]** Hall & Hooker (2016), [Truncated linear models for functional data][hall-hooker-2016].
+- **[48]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
+  models with scalar response][stefanucci-bernardi-canale-2025].
+<!-- /references -->
+
+<!-- reference-links -->
+[hall-hooker-2016]: ../../../docs/references.md#ref-hall-hooker-2016
+[stefanucci-bernardi-canale-2025]: ../../../docs/references.md#ref-stefanucci-bernardi-canale-2025
+<!-- /reference-links -->

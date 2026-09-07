@@ -21,8 +21,8 @@ Add a naive method to HH.py, seeing what happens if we choose to circumvent the 
 ## 2026-08-31 -- the overnight-jump project, folded in
 
 Brought the old `overnight-jump` repository into this one. Two things came out of it: the Shang
-(2017a) forecaster, now `ftsa`, and the jump equation, now `jump`. Notes on what changed and
-what is still open.
+[[46]][shang-2017a] forecaster, now `ftsa`, and the jump equation, now `jump`. Notes on what
+changed and what is still open.
 
 The FPCA front end was the duplication worth killing. Both of the old modules ran their own
 skfda decomposition, so the scores driving the jump equation were not the scores `far_est.fpca`
@@ -108,3 +108,16 @@ Open:
 - everything here is the 2017 window. The panel sweep exists for the day-ahead forecaster and
   not for the updates; running it would cost about ten minutes and would say whether the
   ordering holds across instruments.
+
+Fix citations and layout of repo. Bibliography section, merge packages, merge readmes, clean up notebooks and tests.
+
+## References
+
+<!-- references: cited -->
+- **[46]** Shang (2017a), [Forecasting intraday S&P 500 index returns: a functional time series
+  approach][shang-2017a].
+<!-- /references -->
+
+<!-- reference-links -->
+[shang-2017a]: references.md#ref-shang-2017a
+<!-- /reference-links -->

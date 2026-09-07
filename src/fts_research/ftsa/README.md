@@ -1,8 +1,8 @@
 # ftsa
 
-Forecasting a functional time series through its principal component scores, after Hyndman &
-Shang (2009) and the intraday application of Shang (2017a). The sample of curves is decomposed
-once,
+Forecasting a functional time series through its principal component scores, after Hyndman & Shang
+[[30]][hyndman-shang-2009] and the intraday application of Shang [[46]][shang-2017a]. The sample of
+curves is decomposed once,
 
     X_t(s) = mu(s) + sum_{k=1}^{M} psi_{t,k} phi_k(s) + e_t(s),
 
@@ -12,11 +12,10 @@ the temporal modelling happens in `R^M` and none of it in function space, which 
 the method as cheap as it is.
 
 The package is named for the R package it ports, as `fdaSP` is: Shang's `ftsa::forecast.ftsm`
-(Shang, 2013) is the routine reproduced here. It shares its decomposition with `far` rather
-than keeping a second one — `far_est.fpca` is what both call — so the scores forecast here are
-the scores
-`far_est.far1_fit` regresses, and the two forecasters below differ in what they do with those
-scores and in nothing else.
+(Shang [[45]][shang-2013]) is the routine reproduced here. It shares its decomposition with `far`
+rather than keeping a second one — `far_est.fpca` is what both call — so the scores forecast here
+are the scores `far_est.far1_fit` regresses, and the two forecasters below differ in what they do
+with those scores and in nothing else.
 
 ## Modules
 
@@ -24,18 +23,17 @@ scores and in nothing else.
 Shang's 90% rule, and it also returns the reconstruction residuals `e_t` the truncation leaves,
 which the bootstrap needs. `forecast_scores` takes the two routes Shang compares:
 
-- `method="arima"` — one univariate ARIMA per score series, the order chosen by corrected AIC
-  over the `(p, d, q)` grid up to order three. The scores are uncorrelated across `k` by
-  construction, so univariate models are the principled default, and this is what R's
-  `auto.arima` is called score-by-score to do. R searches the grid stepwise from a starting
-  model where this searches all of it, so on a near-tie the two can pick different orders; that
-  is the one place a replication of Shang cannot be made exact, and it is not a Python
-  limitation.
-- `method="far"` — one vector autoregression on the whole score vector, at order one. That is
-  Aue, Norinho & Hörmann's (2015) route, and at order one it *is* `far.far_est`'s operator:
-  `forecast_scores` calls `far_est.score_operator`, so the comparison between the two methods
-  is a comparison of Shang's forecaster against this repository's FAR(1) on identical
-  components rather than against a second implementation of one.
+- `method="arima"` — one univariate ARIMA per score series, the order chosen by corrected AIC over
+  the `(p, d, q)` grid up to order three. The scores are uncorrelated across `k` by construction,
+  so univariate models are the principled default, and this is what R's `auto.arima` is called
+  score-by-score to do. R searches the grid stepwise from a starting model where this searches all
+  of it, so on a near-tie the two can pick different orders; that is the one place a replication of
+  Shang cannot be made exact, and it is not a Python limitation.
+- `method="far"` — one vector autoregression on the whole score vector, at order one. That is Aue,
+  Norinho & Hörmann's [[2]][aue-norinho-hormann-2015] route, and at order one it *is*
+  `far.far_est`'s operator: `forecast_scores` calls `far_est.score_operator`, so the comparison
+  between the two methods is a comparison of Shang's forecaster against this repository's FAR(1) on
+  identical components rather than against a second implementation of one.
 
 `prediction_bands` is Shang's nonparametric bootstrap (2017a, §5.1), which resamples both error
 sources a reconstructed curve has: the score forecast errors, drawn from each component's own
@@ -45,14 +43,14 @@ step the residual pool is still the one-step pool, so each draw is scaled by the
 model's `h`-step to its one-step forecast standard deviation; at `h = 1` that factor is one and
 the scheme is Shang's exactly.
 
-**`updating.py`**: the second half of both 2017 papers, after Shang & Hyndman (2011). Once the
-first `m` points of a day are observed, the forecast of the rest of it is revised. Four methods
-differ only in which score vector they rebuild the unobserved block from: `ols` regresses the
-observed block on the same block of the components, `ridge` shrinks that toward the mean curve,
-`pls` shrinks it toward the day-ahead forecast instead, and `block` moving rotates the day
-boundary to the update point so the observed morning enters as the tail of a complete curve
-rather than as a design matrix. `select_lambda` chooses the penalty on the training days, by
-the error the update is actually scored on.
+**`updating.py`**: the second half of both 2017 papers, after Shang & Hyndman
+[[44]][shang-hyndman-2011]. Once the first `m` points of a day are observed, the forecast of the
+rest of it is revised. Four methods differ only in which score vector they rebuild the unobserved
+block from: `ols` regresses the observed block on the same block of the components, `ridge` shrinks
+that toward the mean curve, `pls` shrinks it toward the day-ahead forecast instead, and `block`
+moving rotates the day boundary to the update point so the observed morning enters as the tail of a
+complete curve rather than as a design matrix. `select_lambda` chooses the penalty on the training
+days, by the error the update is actually scored on.
 
 Two benchmarks come with them, and on a cumulative curve they are not optional. `hold` carries
 the last observed value forward, which for a cumulative intraday return is the martingale, and
@@ -63,13 +61,13 @@ the increment, which is the part that is not already known. `anchor` goes one st
 separates the two ways a method can fail, shifting the prediction to meet the last observed
 value so that only the shape of the remainder is judged.
 
-**`evaluation.py`**: the protocol the accuracy tables come from — expanding window, one step
-ahead, re-estimated at every split, so nothing is fitted on a curve it is later scored against.
-Shang's three measures, `interval_score` being Gneiting & Raftery's (2007), each reported both
-averaged over the holdout and profiled along the intraday grid, since *when* in the session a
-forecaster goes wrong is what a grand mean throws away. `replication_curves` builds the design
-itself, from the committed 2017 S&P 500 panel through `fdaSP.intraday.session_curves`, so the
-notebook and the cache cannot drift apart. `cached_rolling` keeps the forecasts — not the
+**`evaluation.py`**: the protocol the accuracy tables come from — expanding window, one step ahead,
+re-estimated at every split, so nothing is fitted on a curve it is later scored against. Shang's
+three measures, `interval_score` being Gneiting & Raftery's [[25]][gneiting-raftery-2007], each
+reported both averaged over the holdout and profiled along the intraday grid, since *when* in the
+session a forecaster goes wrong is what a grand mean throws away. `replication_curves` builds the
+design itself, from the committed 2017 S&P 500 panel through `fdaSP.intraday.session_curves`, so
+the notebook and the cache cannot drift apart. `cached_rolling` keeps the forecasts — not the
 scores — under `artifacts/cache/`, so a measure this repository has not thought of yet can be
 computed without refitting.
 
@@ -136,35 +134,37 @@ unchanged.
 
 ## References
 
-Aue, A., Norinho, D. D. and Hörmann, S. (2015). On the prediction of stationary functional time
-series. *Journal of the American Statistical Association* 110(509), 378-392.
-[doi:10.1080/01621459.2014.909317](https://doi.org/10.1080/01621459.2014.909317)
+The works this package rests on. Full entries, with journals and DOIs, are in
+[the repository's one bibliography](../../../docs/references.md); the numbers below
+link into it.
 
-Gneiting, T. and Raftery, A. E. (2007). Strictly proper scoring rules, prediction, and
-estimation. *Journal of the American Statistical Association* 102(477), 359-378.
-[doi:10.1198/016214506000001437](https://doi.org/10.1198/016214506000001437)
+<!-- references:
+  aue-norinho-hormann-2015, gneiting-raftery-2007, hyndman-khandakar-2008, hyndman-shang-2009,
+  shang-hyndman-2011, shang-2013, shang-2017a, shang-2017b
+-->
+- **[2]** Aue, Norinho & Hörmann (2015), [On the prediction of stationary functional time
+  series][aue-norinho-hormann-2015].
+- **[25]** Gneiting & Raftery (2007), [Strictly proper scoring rules, prediction, and
+  estimation][gneiting-raftery-2007].
+- **[29]** Hyndman & Khandakar (2008), [Automatic time series forecasting: the forecast package for
+  R][hyndman-khandakar-2008].
+- **[30]** Hyndman & Shang (2009), [Forecasting functional time series][hyndman-shang-2009].
+- **[44]** Shang & Hyndman (2011), [Nonparametric time series forecasting with dynamic
+  updating][shang-hyndman-2011].
+- **[45]** Shang (2013), [ftsa: an R package for analyzing functional time series][shang-2013].
+- **[46]** Shang (2017a), [Forecasting intraday S&P 500 index returns: a functional time series
+  approach][shang-2017a].
+- **[47]** Shang (2017b), [Functional time series forecasting with dynamic updating: an application
+  to intraday particulate matter concentration][shang-2017b].
+<!-- /references -->
 
-Hyndman, R. J. and Khandakar, Y. (2008). Automatic time series forecasting: the forecast package
-for R. *Journal of Statistical Software* 27(3), 1-22.
-[doi:10.18637/jss.v027.i03](https://doi.org/10.18637/jss.v027.i03)
-
-Hyndman, R. J. and Shang, H. L. (2009). Forecasting functional time series. *Journal of the
-Korean Statistical Society* 38(3), 199-211.
-[doi:10.1016/j.jkss.2009.06.002](https://doi.org/10.1016/j.jkss.2009.06.002)
-
-Shang, H. L. and Hyndman, R. J. (2011). Nonparametric time series forecasting with dynamic
-updating. *Mathematics and Computers in Simulation* 81(7), 1310-1324.
-[doi:10.1016/j.matcom.2010.04.027](https://doi.org/10.1016/j.matcom.2010.04.027)
-
-Shang, H. L. (2013). ftsa: an R package for analyzing functional time series. *The R Journal*
-5(1), 64-72. [doi:10.32614/RJ-2013-006](https://doi.org/10.32614/RJ-2013-006)
-
-Shang, H. L. (2017a). Forecasting intraday S&P 500 index returns: a functional time series
-approach. *Journal of Forecasting* 36(7), 741-755.
-[doi:10.1002/for.2467](https://doi.org/10.1002/for.2467) — the paper replicated here.
-
-Shang, H. L. (2017b). Functional time series forecasting with dynamic updating: an application
-to intraday particulate matter concentration. *Econometrics and Statistics* 1, 184-200.
-[doi:10.1016/j.ecosta.2016.08.004](https://doi.org/10.1016/j.ecosta.2016.08.004) — the
-companion paper, which puts the same decomposition and the same two score forecasters on
-half-hourly particulate matter and develops the dynamic updating at greater length.
+<!-- reference-links -->
+[aue-norinho-hormann-2015]: ../../../docs/references.md#ref-aue-norinho-hormann-2015
+[gneiting-raftery-2007]: ../../../docs/references.md#ref-gneiting-raftery-2007
+[hyndman-khandakar-2008]: ../../../docs/references.md#ref-hyndman-khandakar-2008
+[hyndman-shang-2009]: ../../../docs/references.md#ref-hyndman-shang-2009
+[shang-hyndman-2011]: ../../../docs/references.md#ref-shang-hyndman-2011
+[shang-2013]: ../../../docs/references.md#ref-shang-2013
+[shang-2017a]: ../../../docs/references.md#ref-shang-2017a
+[shang-2017b]: ../../../docs/references.md#ref-shang-2017b
+<!-- /reference-links -->

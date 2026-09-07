@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "fts-research"
+name = "fts-research-rough"
 version = "0.1.0"
 description = "PhD project: Advanced Modelling and Forecasting of Functional Time Series"
 requires-python = ">=3.12,<3.14"
