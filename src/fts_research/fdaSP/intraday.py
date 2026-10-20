@@ -387,7 +387,7 @@ def sessions(bars, min_bars=None):
 
 
 def session_curves(bars, n_points=None, min_bars=None, price="close", kind="cidr",
-                   until=None):
+                   until=None, anchor="first_close"):
     """Build one curve per session, on a shared grid.
 
     Two curves can be built from the same bars, and the application needs both:
@@ -417,6 +417,18 @@ def session_curves(bars, n_points=None, min_bars=None, price="close", kind="cidr
     In both cases `s` is the fraction of the retained span elapsed, linearly interpolated
     onto `n_points` equally spaced values.
 
+    `anchor` decides where a curve starts, and the default is not the opening price. Under
+    "first_close" -- the behaviour every notebook before `notebooks/jump_equation_v2.ipynb` was
+    run with, kept so their numbers stand -- the curve is the sequence of bar *closes*, each
+    placed at its bar's *start* time, so `s = 0` holds the close of the first bar. The return
+    over that first bar, open to close, then belongs to neither the curve nor the jump, which
+    is measured from the open: on the hourly panel that is the first hour of the session, and
+    its standard deviation on SPY is about half that of the whole session. Under "open" the
+    curve starts at the session's opening price and each close sits at its bar's *end*, so
+    `s = 1` is the close of the last bar, the price `overnight_jumps` measures the next jump
+    from, and `J_{t+1} + X_t(1)` is the close-to-close return exactly. That identity is what
+    the joint model of `jump.joint_dgp` is built on, so it is the anchor to use there.
+
     `until` cuts every session off at a wall-clock time and renormalises `s` over what is
     left, so `s = 1` is that cutoff rather than the close. This is what makes a curve from
     one exchange usable as a predictor of another's open: the London session runs while New
@@ -428,17 +440,22 @@ def session_curves(bars, n_points=None, min_bars=None, price="close", kind="cidr
     PARAMETERS
     bars     : DataFrame from `load_bars`, restricted to a single ticker;
     n_points : int or None, points on the shared grid. Defaults to the modal session
-               length, so a "cidr" or "rvol" curve interpolates nothing; a "ret" curve
+               length, one more under `anchor="open"`, so a "cidr" or "rvol" curve
+               interpolates nothing; a "ret" curve
                instead defaults to `_RATE_REFINEMENT` times that, capped at
                `_RATE_MAX_POINTS`, to resolve its steps;
     min_bars : int or None, passed to `sessions`;
     price    : str, the bar column read as the price, "close" by default;
     kind     : {"cidr", "rvol", "ret"}, which of the three curves above to build;
     until    : str or None, a local wall-clock time such as "13:00"; bars after it are
-               dropped from every session before the curve is built.
+               dropped from every session before the curve is built;
+    anchor   : {"first_close", "open"}, where the curve starts: the first bar's close, as
+               before, or the session's opening price with every close at its bar's end.
     """
     if kind not in ("cidr", "rvol", "ret"):
         raise ValueError(f"kind must be 'cidr', 'rvol' or 'ret', got {kind!r}.")
+    if anchor not in ("first_close", "open"):
+        raise ValueError(f"anchor must be 'first_close' or 'open', got {anchor!r}.")
     days = sessions(bars, min_bars=min_bars)
     if until is not None:
         days = [g[g["ts"].dt.strftime("%H:%M") <= until] for g in days]
@@ -447,6 +464,8 @@ def session_curves(bars, n_points=None, min_bars=None, price="close", kind="cidr
         raise ValueError("no session survived the `min_bars` filter.")
     if n_points is None:
         n_points = int(pd.Series([len(g) for g in days]).mode().iloc[0])
+        if anchor == "open":
+            n_points += 1                     # the opening price is a point of its own
         if kind == "ret":
             n_points = min(_RATE_MAX_POINTS, _RATE_REFINEMENT * n_points + 1)
     grid = np.linspace(0.0, 1.0, int(n_points))
@@ -454,9 +473,15 @@ def session_curves(bars, n_points=None, min_bars=None, price="close", kind="cidr
     X = np.empty((len(days), grid.size))
     for i, g in enumerate(days):
         secs = g["ts"].astype("int64").to_numpy() / 1e9
+        logp = np.log(g[price].to_numpy(float))
+        if anchor == "open":
+            # Each close is the price at the *end* of its bar, and the open is the price at
+            # the start of the first one; bars are taken to be as long as their modal spacing.
+            bar = float(np.median(np.diff(secs))) if secs.size > 1 else 0.0
+            secs = np.concatenate([[secs[0]], secs + bar])
+            logp = np.concatenate([[np.log(float(g["open"].iloc[0]))], logp])
         span = secs[-1] - secs[0]
         s = (secs - secs[0]) / span if span > 0 else np.linspace(0, 1, len(secs))
-        logp = np.log(g[price].to_numpy(float))
         if kind == "ret":
             # Differences divided by their own step in s, then held constant across the step
             # they were measured over, so the trapezium integral of the result returns the
@@ -475,7 +500,10 @@ def overnight_jumps(bars, min_bars=None, net_of_dividends=True):
     """Overnight log jump for each session, `J_t = log(Open_t) - log(Close_{t-1})`.
 
     Open and close are the first and last bar of the session, so the jump and the curve come
-    from one price series and together reconstruct the open-to-open return exactly. Only
+    from one price series. Together they reconstruct the close-to-close return exactly only
+    when the curve is built with `session_curves(..., anchor="open")`; under the default
+    anchor the curve starts at the first bar's close, and the first bar's own return is in
+    neither. Only
     sessions adjacent in the surviving series are differenced, so a jump spanning a dropped
     half-day is excluded rather than silently stretched over it; `gap_days` says how far
     each one actually reaches.

@@ -451,7 +451,7 @@ def _oracle(at_fn, state, lambdas, data):
     return best[1], best[2]
 
 
-def run_cell(kind, target, rep, cfg=None):
+def run_cell(kind, target, rep, cfg=None, data=None):
     """Fit every method on one replication of one cell.
 
     Returns a list of records, one per (method, tuning, orientation); a dict of the fitted
@@ -464,12 +464,16 @@ def run_cell(kind, target, rep, cfg=None):
     kind   : str, one of `bench.design.BASIS_KINDS`;
     target : str, one of `bench.design.TARGETS`;
     rep    : int, replication index, which sets the seed through `seed_of`;
-    cfg    : dict or None, overrides applied on top of `CONFIG`.
+    cfg    : dict or None, overrides applied on top of `CONFIG`;
+    data   : dict or None, a dataset shaped like `bench.design.simulate`'s to fit instead of
+             drawing one -- for a perturbed design built from the same draw. `kind`, `target`
+             and `rep` then only label the records.
     """
     cfg = {**CONFIG, **(cfg or {})}
-    data = design.simulate(kind, target, n=cfg["n"], n_grid=cfg["n_grid"],
-                           n_basis=cfg["n_basis"], decay=cfg["decay"], snr=cfg["snr"],
-                           n_test=cfg["n_test"], rng=seed_of(kind, target, rep))
+    if data is None:
+        data = design.simulate(kind, target, n=cfg["n"], n_grid=cfg["n_grid"],
+                               n_basis=cfg["n_basis"], decay=cfg["decay"], snr=cfg["snr"],
+                               n_test=cfg["n_test"], rng=seed_of(kind, target, rep))
     X, Y, grid = data["X"], data["Y"], data["grid"]
     lambdas = np.linspace(0.0, 1.0, cfg["n_lambda_hh"])[1:]
     common = {"basis": kind, "target": target, "rep": rep}

@@ -17,6 +17,18 @@
 # The entries below are in key order, which is for reading. The order they are numbered in is
 # computed, and does not depend on this file's arrangement.
 
+[andersen-bollerslev-1997]
+kind = "article"
+authors = ["Andersen, T. G.", "Bollerslev, T."]
+year = 1997
+title = "Intraday periodicity and volatility persistence in financial markets"
+journal = "Journal of Empirical Finance"
+volume = "4"
+issue = "2-3"
+pages = "115-158"
+doi = "10.1016/S0927-5398(97)00004-2"
+note = "The U-shaped intraday volatility pattern. `jump.joint_dgp.intraday_variance` gives the curve noise that shape, its ends two and a half times its middle in the design of `notebooks/jump_equation_v2.ipynb`."
+
 [andersen-bollerslev-diebold-2007]
 kind = "article"
 authors = ["Andersen, T. G.", "Bollerslev, T.", "Diebold, F. X."]
@@ -26,6 +38,18 @@ journal = "Review of Economics and Statistics"
 volume = "89"
 issue = "4"
 pages = "701-720"
+
+[aue-horvath-pellatt-2017]
+kind = "article"
+authors = ["Aue, A.", "Horváth, L.", "Pellatt, D. F."]
+year = 2017
+title = "Functional generalized autoregressive conditional heteroskedasticity"
+journal = "Journal of Time Series Analysis"
+volume = "38"
+issue = "1"
+pages = "3-21"
+doi = "10.1111/jtsa.12192"
+note = "The fGARCH(1,1) generalisation of Hörmann, Horváth and Reeder's fARCH. This is the process `notebooks/overnight_jumps.ipynb` describes without naming: the curve sequence's dependence survives in its norms and vanishes once each curve is divided by its own, which is conditional heteroscedasticity rather than the conditional-mean dependence a FAR(1) carries."
 
 [aue-norinho-hormann-2015]
 kind = "article"
@@ -74,6 +98,18 @@ journal = "Journal of Financial Econometrics"
 volume = "4"
 issue = "1"
 pages = "1-30"
+
+[bartlett-1937]
+kind = "article"
+authors = ["Bartlett, M. S."]
+year = 1937
+title = "Properties of sufficiency and statistical tests"
+journal = "Proceedings of the Royal Society of London. Series A"
+volume = "160"
+issue = "901"
+pages = "268-282"
+doi = "10.1098/rspa.1937.0109"
+note = "Bartlett's test of equal variances. `jump.basic_est.bartlett_from_variances` computes it from pooled variance estimates and their degrees of freedom, and `notebooks/basic_jump_equation.ipynb` uses it to ask whether the curve's volatility is constant through the session."
 
 [benjamini-hochberg-1995]
 kind = "article"
@@ -163,6 +199,29 @@ title = "The disappearing overnight drift"
 series = "Liberty Street Economics, Federal Reserve Bank of New York, 1 July 2026"
 url = "https://libertystreeteconomics.newyorkfed.org/2026/07/the-disappearing-overnight-drift/"
 
+[cai-hall-2006]
+kind = "article"
+authors = ["Cai, T. T.", "Hall, P."]
+year = 2006
+title = "Prediction in functional linear regression"
+journal = "The Annals of Statistics"
+volume = "34"
+issue = "5"
+pages = "2159-2179"
+doi = "10.1214/009053606000000830"
+note = "Prediction and estimation of the slope function converge at different rates and under different conditions. This is the formal statement of the split this repository keeps meeting from the applied side: cross-validation never delivers a null set (`notebooks/LocSpaFLR_f2s.ipynb`), held-out error is flat past the true endpoint (`HH_A.truncation_profile`), and a rule chosen for prediction risk discards a signal too small to pay for itself."
+
+[cerovecki-etal-2019]
+kind = "article"
+authors = ["Cerovecki, C.", "Francq, C.", "Hörmann, S.", "Zakoïan, J.-M."]
+year = 2019
+title = "Functional GARCH models: the quasi-likelihood approach and its applications"
+journal = "Journal of Econometrics"
+volume = "209"
+issue = "2"
+pages = "353-375"
+note = "The FGARCH(p, q) generalisation, and the quasi-likelihood estimator both Rice, Wirjanto and Zhao papers use. Its data-driven basis truncates the negative part of the empirical principal components of y^2, since a conditional variance has to stay non-negative -- a constraint none of this repository's estimators carries, because none of them estimates a variance."
+
 [chen-chen-2008]
 kind = "article"
 authors = ["Chen, J.", "Chen, Z."]
@@ -174,6 +233,18 @@ issue = "3"
 pages = "759-771"
 doi = "10.1093/biomet/asn034"
 
+[chen-guo-qiao-2022]
+kind = "article"
+authors = ["Chen, C.", "Guo, S.", "Qiao, X."]
+year = 2022
+title = "Functional linear regression: dependence and error contamination"
+journal = "Journal of Business and Economic Statistics"
+volume = "40"
+issue = "1"
+pages = "444-457"
+doi = "10.1080/07350015.2020.1832503"
+note = "Drops the two assumptions `truncFLR` and `fdaSP` both make, that the curves are independent realisations and the measurement error is i.i.d. The estimator is an autocovariance-based generalised method of moments, which works because the autocovariance of the observed curves filters out the noise term. The nearest existing treatment of the dependence this repository's panels have, and the baseline any dependence-aware selection rule has to be argued against."
+
 [cliff-cooper-gulen-2008]
 kind = "working-paper"
 authors = ["Cliff, M. T.", "Cooper, M. J.", "Gulen, H."]
@@ -182,6 +253,41 @@ title = "Return differences between trading and non-trading hours: like night an
 series = "Working paper"
 url = "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1004081"
 url_label = "SSRN 1004081"
+
+[corsi-2009]
+kind = "article"
+authors = ["Corsi, F."]
+year = 2009
+title = "A simple approximate long-memory model of realized volatility"
+journal = "Journal of Financial Econometrics"
+volume = "7"
+issue = "2"
+pages = "174-196"
+note = "The HAR model: average realised volatility over several horizons to capture long memory without fractional integration. Rice, Wirjanto and Zhao's historical mean variation *curve* is its functional analogue, and it is also the proper citation for the averaged realised measures `jump.covariates` builds."
+
+[damon-guillas-2002]
+kind = "article"
+authors = ["Damon, J.", "Guillas, S."]
+year = 2002
+title = "The inclusion of exogenous variables in functional autoregressive ozone forecasting"
+journal = "Environmetrics"
+volume = "13"
+issue = "7"
+pages = "759-774"
+doi = "10.1002/env.527"
+note = "The FAR(1) with exogenous variables. The curve equation of `jump.joint_dgp` is one, with the overnight jump as the exogenous regressor."
+
+[davidson-mackinnon-1981]
+kind = "article"
+authors = ["Davidson, R.", "MacKinnon, J. G."]
+year = 1981
+title = "Several tests for model specification in the presence of alternative hypotheses"
+journal = "Econometrica"
+volume = "49"
+issue = "3"
+pages = "781-793"
+doi = "10.2307/1911522"
+note = "The J test for non-nested models. With one non-shared regressor on each side, the J test of one model against the other is the t-test on that regressor in the model that contains both, which is what `jump.joint_est.nesting_test` computes for a step on the curve's level against a step on its returns."
 
 [engle-ito-lin-1990]
 kind = "article"
@@ -265,6 +371,18 @@ pages = "359-378"
 doi = "10.1198/016214506000001437"
 note = "Section 6.2 defines the interval score `ftsa.evaluation.interval_score` computes."
 
+[guan-lin-cao-2020]
+kind = "article"
+authors = ["Guan, T.", "Lin, Z.", "Cao, J."]
+year = 2020
+title = "Estimating truncated functional linear models with a nested group bridge approach"
+journal = "Journal of Computational and Graphical Statistics"
+volume = "29"
+issue = "3"
+pages = "620-628"
+doi = "10.1080/10618600.2020.1713797"
+note = "Sits between this repository's two poles, which its README frames as a choice between estimating an endpoint and penalising towards a null set. This estimates the endpoint *by* penalising: a nested group bridge shrinks the tail of the coefficient function specifically, so a locally sparse estimate yields the cutoff. Hall & Hooker's model with Stefanucci, Bernardi & Canale's machinery."
+
 [hall-hooker-2016]
 kind = "article"
 authors = ["Hall, P.", "Hooker, G."]
@@ -277,6 +395,18 @@ pages = "637-653"
 doi = "10.1111/rssb.12125"
 note = "Methods A and B are `truncFLR.HH_A` and `truncFLR.HH`; section 3.2 is the one `notebooks/truncFLR_lambdadegen.ipynb` takes apart."
 
+[hall-horowitz-2007]
+kind = "article"
+authors = ["Hall, P.", "Horowitz, J. L."]
+year = 2007
+title = "Methodology and convergence rates for functional linear regression"
+journal = "The Annals of Statistics"
+volume = "35"
+issue = "1"
+pages = "70-91"
+doi = "10.1214/009053606000000957"
+note = "The minimax rates for the slope function, and the reason the covariance operator's eigenvalue decay decides how hard a design is. Every curve process in this repository -- `core.gp.sample_gp`, `bench.design.variance_profile`, `far.far_dgp` -- prescribes exponentially decaying eigenvalues, which is the favourable regime; a cumulative intraday return curve is closer to Brownian motion, whose eigenvalues decay polynomially."
+
 [hamao-masulis-ng-1990]
 kind = "article"
 authors = ["Hamao, Y.", "Masulis, R. W.", "Ng, V."]
@@ -286,6 +416,17 @@ journal = "Review of Financial Studies"
 volume = "3"
 issue = "2"
 pages = "281-307"
+
+[hansen-lunde-2006]
+kind = "article"
+authors = ["Hansen, P. R.", "Lunde, A."]
+year = 2006
+title = "Realized variance and market microstructure noise"
+journal = "Journal of Business and Economic Statistics"
+volume = "24"
+issue = "2"
+pages = "127-161"
+note = "Cited by the functional volatility literature for the importance of the overnight effect, and so for why the overnight cumulative intraday return is preferred to the ordinary one when the target is volatility rather than shape."
 
 [hendershott-livdan-rosch-2020]
 kind = "article"
@@ -297,6 +438,62 @@ volume = "138"
 issue = "3"
 pages = "635-662"
 url = "https://www.sciencedirect.com/science/article/abs/pii/S0304405X20301732"
+
+[holm-1979]
+kind = "article"
+authors = ["Holm, S."]
+year = 1979
+title = "A simple sequentially rejective multiple test procedure"
+journal = "Scandinavian Journal of Statistics"
+volume = "6"
+issue = "2"
+pages = "65-70"
+url = "https://www.jstor.org/stable/4615733"
+url_label = "JSTOR"
+note = "The step-down adjustment `jump.basic_est.holm` applies across the null model's thirteen diagnostics in `notebooks/basic_jump_equation.ipynb`, so that a verdict is not read off one p-value among many."
+
+[hormann-horvath-reeder-2013]
+kind = "article"
+authors = ["Hörmann, S.", "Horváth, L.", "Reeder, R."]
+year = 2013
+title = "A functional version of the ARCH model"
+journal = "Econometric Theory"
+volume = "29"
+issue = "2"
+pages = "267-288"
+doi = "10.1017/S0266466612000345"
+note = "The first functional conditional-variance model, generalised to fGARCH by Aue, Horváth & Pellatt. Its recursion sigma_t^2(s) = omega(s) + int alpha(s,r) X_{t-1}^2(r) dr is the data-generating process the intraday panels here call for, and the one `far.far_dgp` does not supply: a FAR(1) puts the serial dependence in the conditional mean, where these curves do not have any."
+
+[hormann-kokoszka-2010]
+kind = "article"
+authors = ["Hörmann, S.", "Kokoszka, P."]
+year = 2010
+title = "Weakly dependent functional data"
+journal = "The Annals of Statistics"
+volume = "38"
+issue = "3"
+pages = "1845-1884"
+doi = "10.1214/09-AOS768"
+note = "L^p-m-approximability, the dependence condition under which the usual functional estimators keep their consistency. It is what licenses running `truncFLR` and `fdaSP` on serially dependent curves at all, and it is also the boundary of that licence: it buys consistency, not the variance calculations that every selection rule in this repository is built out of."
+
+[horvath-kokoszka-2012]
+kind = "book"
+authors = ["Horváth, L.", "Kokoszka, P."]
+year = 2012
+title = "Inference for Functional Data with Applications"
+publisher = "Springer"
+note = "The standard monograph on functional time series, and the background reference every paper in the volatility strand points at. Until it was added, `bosq-2000` was the only book in this bibliography."
+
+[horvath-kokoszka-rice-2014]
+kind = "article"
+authors = ["Horváth, L.", "Kokoszka, P.", "Rice, G."]
+year = 2014
+title = "Testing stationarity of functional time series"
+journal = "Journal of Econometrics"
+volume = "179"
+issue = "1"
+pages = "66-82"
+note = "The KPSS-type test the volatility papers use to check that each candidate transform of a price curve is stationary before modelling it. This repository asserts the stationarity of its own transforms rather than testing it."
 
 [hyndman-khandakar-2008]
 kind = "article"
@@ -321,6 +518,54 @@ issue = "3"
 pages = "199-211"
 doi = "10.1016/j.jkss.2009.06.002"
 
+[imhof-1961]
+kind = "article"
+authors = ["Imhof, J. P."]
+year = 1961
+title = "Computing the distribution of quadratic forms in normal variables"
+journal = "Biometrika"
+volume = "48"
+issue = "3-4"
+pages = "419-426"
+doi = "10.1093/biomet/48.3-4.419"
+note = "The numerical inversion `jump.joint_est.imhof_sf` implements, for the exact null distribution of the gap-fill shape test."
+
+[james-wang-zhu-2009]
+kind = "article"
+authors = ["James, G. M.", "Wang, J.", "Zhu, J."]
+year = 2009
+title = "Functional linear regression that's interpretable"
+journal = "The Annals of Statistics"
+volume = "37"
+issue = "5A"
+pages = "2083-2108"
+doi = "10.1214/08-AOS641"
+note = "FLiRTI: local sparsity imposed through an L1 penalty on *derivatives* of the coefficient function rather than on the function itself, so what is zeroed is curvature or slope and the recovered structure is piecewise constant or piecewise linear. The main alternative to the overlap group lasso `fdaSP.SBC` implements, and the one whose null sets come with a different meaning."
+
+[jarque-bera-1987]
+kind = "article"
+authors = ["Jarque, C. M.", "Bera, A. K."]
+year = 1987
+title = "A test for normality of observations and regression residuals"
+journal = "International Statistical Review"
+volume = "55"
+issue = "2"
+pages = "163-172"
+doi = "10.2307/1403192"
+note = "The skewness-and-kurtosis test of normality, applied in `notebooks/basic_jump_equation.ipynb` to the overnight jumps and to the standardised curve increments."
+
+[kneip-poss-sarda-2016]
+kind = "article"
+authors = ["Kneip, A.", "Poß, D.", "Sarda, P."]
+year = 2016
+title = "Functional linear regression with points of impact"
+journal = "The Annals of Statistics"
+volume = "44"
+issue = "1"
+pages = "1-30"
+doi = "10.1214/15-AOS1323"
+note = "Adds point evaluations X(tau_k) to the integral term, and estimates the impact points tau_k. This is the model for the finding `notebooks/overnight_jumps.ipynb` and `notebooks/jump_equation.ipynb` both arrive at from the other direction -- that a bounded coefficient function integrated against a curve cannot evaluate that curve at a point, so where a curve's informative summary is one of its values the functional slot cannot express it."
+
 [kokoszka-reimherr-2013]
 kind = "article"
 authors = ["Kokoszka, P.", "Reimherr, M."]
@@ -332,6 +577,16 @@ issue = "3"
 pages = "285-308"
 url = "https://academic.oup.com/ectj/article-abstract/16/3/285/5061235"
 
+[kokoszka-rice-shang-2017]
+kind = "article"
+authors = ["Kokoszka, P.", "Rice, G.", "Shang, H. L."]
+year = 2017
+title = "Inference for the autocovariance of a functional time series under conditional heteroscedasticity"
+journal = "Journal of Multivariate Analysis"
+volume = "162"
+pages = "32-50"
+note = "The portmanteau statistic on an autocovariance kernel that Rice, Wirjanto and Zhao apply to *squared* curves to get their fully functional test. Also the paper that makes the point this repository needs: a portmanteau test calibrated under independence is the wrong reference when the alternative is conditional heteroscedasticity."
+
 [kurov-wolfe-gilbert-2021]
 kind = "article"
 authors = ["Kurov, A.", "Wolfe, M. H.", "Gilbert, T."]
@@ -341,6 +596,27 @@ journal = "Finance Research Letters"
 volume = "40"
 pages = "101781"
 url = "https://www.sciencedirect.com/science/article/abs/pii/S1544612320315956"
+
+[lin-cao-wang-wang-2017]
+kind = "article"
+authors = ["Lin, Z.", "Cao, J.", "Wang, L.", "Wang, H."]
+year = 2017
+title = "Locally sparse estimator for functional linear regression models"
+journal = "Journal of Computational and Graphical Statistics"
+volume = "26"
+issue = "2"
+pages = "306-318"
+note = "The functional SCAD route to local sparsity, and the immediate predecessor of the overlap group lasso `fdaSP.SBC` implements. Its non-convex penalty buys the oracle property that a group lasso does not have, at the cost of the convexity that makes Stefanucci, Bernardi & Canale's ADMM work. No DOI recorded here: the one search returned was inferred from the volume rather than read off the article, and this file does not carry guesses."
+
+[liu-divani-petersen-2022]
+kind = "article"
+authors = ["Liu, X.", "Divani, A. A.", "Petersen, A."]
+year = 2022
+title = "Truncated estimation in functional generalized linear regression models"
+journal = "Computational Statistics and Data Analysis"
+volume = "169"
+doi = "10.1016/j.csda.2022.107421"
+note = "Hall & Hooker's truncation carried to generalised linear models, by a nested group lasso rather than Guan, Lin & Cao's group bridge, so the problem stays convex. Two things here bear directly on this repository: it separates the smoothing penalty from the truncation penalty, where `fdaSP.SBC` has one lambda doing both, and it selects both by BIC rather than by cross-validation. Implemented as CRAN `FGLMtrunc`. The nearest prior art to a locally sparse model for a conditional scale, and the reference that decides how much of that idea is left."
 
 [ljung-box-1978]
 kind = "article"
@@ -409,6 +685,15 @@ issue = "3"
 pages = "703-708"
 doi = "10.2307/1913610"
 
+[nicholls-quinn-1982]
+kind = "book"
+authors = ["Nicholls, D. F.", "Quinn, B. G."]
+year = 1982
+title = "Random Coefficient Autoregressive Models: An Introduction"
+publisher = "Springer"
+series = "Lecture Notes in Statistics 11"
+note = "Second-order stationarity of an autoregression with random coefficients is a condition on the mean-square operator rather than on the mean coefficient. A random gap-fill coefficient makes the joint jump-and-curve model one, which is why `jump.joint_dgp.stationarity` reports both radii."
+
 [overnight-not-simultaneous-2026]
 kind = "article"
 year = 2026
@@ -462,6 +747,28 @@ journal = "Journal of Finance"
 volume = "68"
 issue = "4"
 pages = "1633-1662"
+
+[rice-wirjanto-zhao-2020]
+kind = "article"
+authors = ["Rice, G.", "Wirjanto, T.", "Zhao, Y."]
+year = 2020
+title = "Tests for conditional heteroscedasticity of functional data"
+journal = "Journal of Time Series Analysis"
+volume = "41"
+issue = "6"
+pages = "733-758"
+doi = "10.1111/jtsa.12532"
+note = "The formal test for what `notebooks/overnight_jumps.ipynb` established by hand, that the dependence in a sequence of intraday curves is in its conditional variance. The portmanteau test there rejects independence of the curves and the norm-standardisation removes it; this is the test that names the alternative rather than leaving it to be inferred from the pair."
+
+[rice-wirjanto-zhao-2021]
+kind = "working-paper"
+authors = ["Rice, G.", "Wirjanto, T.", "Zhao, Y."]
+year = 2021
+title = "Exploring volatility of crude oil intra-day return curves: a functional GARCH-X model"
+series = "MPRA Paper"
+url = "https://mpra.ub.uni-muenchen.de/109231/"
+url_label = "MPRA 109231"
+note = "Where the four variation-curve covariates come from -- a Corsi-style mean absolute-return curve, an intraday range curve, a bipower-variation curve and a volume curve -- which are the functional analogues of the scalar covariates `jump.covariates` screens. Reports an in-sample gain from the covariate with no out-of-sample improvement, which is the case for shrinkage stated as a measurement. Cited from the working paper because the published version was not consulted."
 
 [shah-samworth-2013]
 kind = "article"
@@ -522,6 +829,30 @@ issue = "7"
 pages = "1310-1324"
 doi = "10.1016/j.matcom.2010.04.027"
 
+[shapiro-wilk-1965]
+kind = "article"
+authors = ["Shapiro, S. S.", "Wilk, M. B."]
+year = 1965
+title = "An analysis of variance test for normality (complete samples)"
+journal = "Biometrika"
+volume = "52"
+issue = "3-4"
+pages = "591-611"
+doi = "10.1093/biomet/52.3-4.591"
+note = "The test of normality used on the overnight jumps in `notebooks/basic_jump_equation.ipynb`, chosen there for its power at a few dozen observations."
+
+[shen-faraway-2004]
+kind = "article"
+authors = ["Shen, Q.", "Faraway, J."]
+year = 2004
+title = "An F test for linear models with functional responses"
+journal = "Statistica Sinica"
+volume = "14"
+issue = "4"
+pages = "1239-1257"
+url = "https://www3.stat.sinica.edu.tw/statistica/J14N4/J14N415/J14N415.html"
+note = "Tests nested linear models for a functional response through an L2 norm whose null law is a weighted sum of chi-squares. `jump.joint_est.shape_test` is that construction for one restriction, `b(s) = -gamma G(s)`, with a robust covariance and Imhof's exact tail in place of their approximation."
+
 [stefanucci-bernardi-canale-2025]
 kind = "chapter"
 authors = ["Stefanucci, M.", "Bernardi, M.", "Canale, A."]
@@ -565,6 +896,18 @@ year = 2025
 title = "Cross-market overnight time-series momentum"
 journal = "Journal of International Financial Markets, Institutions and Money"
 url = "https://www.sciencedirect.com/science/article/abs/pii/S1042443125001295"
+
+[yao-muller-wang-2005]
+kind = "article"
+authors = ["Yao, F.", "Müller, H.-G.", "Wang, J.-L."]
+year = 2005
+title = "Functional linear regression analysis for longitudinal data"
+journal = "The Annals of Statistics"
+volume = "33"
+issue = "6"
+pages = "2873-2903"
+doi = "10.1214/009053605000000660"
+note = "Function-on-function regression through the principal component scores of the predictor. `jump.joint_est.fit_curve_equation` fits the FAR term of the curve equation this way."
 
 [zou-2006]
 kind = "article"

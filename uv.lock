@@ -526,7 +526,7 @@ wheels = [
 ]
 
 [[package]]
-name = "fts-research"
+name = "fts-research-rough"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

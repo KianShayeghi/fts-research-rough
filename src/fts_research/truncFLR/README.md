@@ -5,7 +5,7 @@ Scalar-on-function regression where the coefficient function is zero on part of 
     y_i = ∫_T x_i(t) psi(t) dt + eps_i,
 
 with the informative region assumed to be a single interval, so the problem is to estimate its
-endpoint. Follows Hall & Hooker [[26]][hall-hooker-2016].
+endpoint. Follows Hall & Hooker [[37]][hall-hooker-2016].
 
 ## Modules
 
@@ -32,6 +32,47 @@ an estimator run on either sees curves with the same spectrum.
 (step 1), the parametric target `b_simp` (step 3), the truncated-domain components
 `phi_j^theta` and eigenvalues `tau_j^theta`, the step-7 weight densities, and the step 6-7
 quantities `theta_lam_variance` and `weighted_S_b`.
+
+**`HH_continuous.py`**: drops the assumption both methods share, that the coefficient function
+is exactly zero on one side of the truncation point. Instead `b(t) = b1(t)` for `t <= theta`,
+`b2(t)` for `t > theta`, each its own empirical-FPC expansion of `X` restricted to that side,
+joined by one linear constraint `b1(theta) = b2(theta)`. Hall & Hooker's model is the special
+case `b2 == 0`, reachable but never assumed, so this is the one to reach for on a coefficient
+function with no true null region at all -- a sine wave before the kink and a ramp after it,
+say. There is no `n lambda theta^2` penalty and no section-3.2 analogue here (deriving one
+would be new asymptotic theory, not an implementation detail); `theta` is chosen by
+cross-validated prediction error instead, the same tool `HH_A.truncation_profile` reaches for
+where §3.2 cannot be trusted, and read at the minimiser directly rather than at an elbow, since
+with no null tail there is no flat stretch for the minimiser to wander over.
+
+**`HH_multi.py`**: drops the other assumption both methods share, that there is only *one*
+break. `binary_segment` recurses Hall & Hooker's single-split estimator over the domain --
+standard binary segmentation, adapted to a functional-coefficient break instead of a mean shift.
+At each segment it fits three candidates (no split, truncated from the left, truncated from the
+right -- the same orientation contest `bench.study.run_cell` runs once globally, run here per
+segment) and splits only if the better orientation beats the no-split fit by more than one
+standard error of their *paired*, fold-by-fold CV difference; an unpaired comparison of the two
+candidates' marginal CV errors does not have the power to detect a real but modest break, since
+a BIC-selected FPCA pilot is itself flexible enough to track a step-like coefficient function
+fairly closely. Once the recursion settles on a set of breakpoints, `select_joint_refit` does
+one BIC-selected joint refit across every leaf, sharing a single intercept -- the many-break
+analogue of `ab_methodB`'s refit at a single `theta_hat`, and needed because a fixed component
+count fits a leaf with no real signal in it almost exactly in sample.
+
+This recovers a clean single break reliably (it is, after all, one call to the same estimator
+`HH.py` already validates), but it misses an informative region with null on both sides of it.
+That is not because a single-edge window cannot represent one -- inside the kept window `b` is
+unrestricted, so `[0, 0.5]` contains a bump on `[0.2, 0.5]` exactly -- but because of how method
+B *chooses* the window. Its theta scan takes the first interior minimum of
+`T(theta) = RSS + n lambda theta^2` (step 6'), and a null stretch at the window's anchored end
+makes `T` nearly flat there, so the pilot's ringing over that stretch produces a shallow early
+dip. On the bump design of `tests/test_hh_multi.py` (SNR 200) `T` has interior minima at 0.06
+and 0.50; the global minimum, 0.50, is the bump's right edge, and the first-minimum rule takes
+0.06. `HH_multi` inherits the rule by calling `HH.fit`/`fit_mirror` per segment, and the test pins
+the resulting behaviour. Method A takes the global minimum and is the obvious per-segment detector
+to try instead (untested); `fdaSP.SBC`'s overlap group lasso already handles "any union of
+intervals" in one fit (`region/README.md`). `scripts/make_truncflr_extensions_figures.py` draws
+the objective (`figures/ext_t2_bump_mechanism`).
 
 **`HH_A.truncation_profile`**: the model-free alternative to §3.2, for real data where there
 is no true endpoint to check a criterion against. It fits the truncated model at each candidate
@@ -149,7 +190,34 @@ print(prof["theta_1se"], "elbow, against", prof["theta_hat"], "at the minimum")
 ```
 
 For the "any union of intervals" locally sparse approach (Stefanucci, Bernardi & Canale
-[[48]][stefanucci-bernardi-canale-2025]), see `fdaSP` (`fdaSP/README.md`).
+[[77]][stefanucci-bernardi-canale-2025]), see `fdaSP` (`fdaSP/README.md`).
+
+Where the assumption behind both methods -- a coefficient function exactly zero on one side --
+does not hold at all, `HH_continuous` drops it instead of working around it:
+
+```python
+from fts_research.truncFLR import HH_continuous
+
+# A coefficient function with no null region on either side of its kink
+def beta_fn(t, theta=0.5):
+    return np.where(t < theta, np.sin(6 * np.pi * t), 1.0 + 2 * (t - theta))
+
+data = HH_dgp.sim_dataset(n=300, n_grid=151, beta_fn=beta_fn, snr=50.0, rng=3)
+res = HH_continuous.fit(data["X"], data["Y"], data["grid"], m1=5, m2=5)
+print(res["theta_hat"], "vs true", 0.5)
+```
+
+Where there might be more than one break, `HH_multi.binary_segment` recurses `HH.fit`/
+`fit_mirror` over the domain instead of calling either once:
+
+```python
+from fts_research.truncFLR import HH_multi
+
+data = HH_dgp.sim_dataset(n=300, n_grid=101, u=0.3, v=1.0, snr=40.0, rng=1)
+res = HH_multi.binary_segment(data["X"], data["Y"], data["grid"], lambdas,
+                              n_folds=5, max_depth=3)
+print(res["breakpoints"], "vs true", [data["u"]])
+```
 
 ## Tests
 
@@ -160,6 +228,16 @@ and 7, end-to-end endpoint recovery, and the profile's elbow recovering an endpo
 orientations where its minimum does not. `test_scaling.py` is the one that holds §3.2 to its
 own definitions: it re-derives every S_Y and S_b term from the least-squares algebra,
 independently of `lambda_select`, and confirms that derivation by simulating the step-4' noise.
+`pytest tests/test_hh_continuous.py` checks the continuity constraint directly against the
+fitted coefficients (not just that the array has one entry at theta), the whole-grid/split
+quadrature identity `continuous_predict` relies on, and endpoint recovery on both a design with
+a true null region and one with none at all. `pytest tests/test_hh_multi.py` checks
+`joint_refit`'s partition has no gap or overlap, that BIC selection actually controls the
+overfitting a fixed component count produces on a short null leaf, that `segment_contest` finds
+a clean break and declines to invent one on pure noise, that `binary_segment` reproduces both
+end to end and stops once the true structure is found, and pins the informative-flanked-by-null
+(or reverse) limitation as known rather than accidental. `-m "not slow"` skips the pipelines
+that call `HH.fit`/`fit_mirror` inside cross-validation.
 `-m "not slow"` skips the full pipelines.
 
 ## References
@@ -169,8 +247,8 @@ The works this package rests on. Full entries, with journals and DOIs, are in
 link into it.
 
 <!-- references: hall-hooker-2016, stefanucci-bernardi-canale-2025 -->
-- **[26]** Hall & Hooker (2016), [Truncated linear models for functional data][hall-hooker-2016].
-- **[48]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
+- **[37]** Hall & Hooker (2016), [Truncated linear models for functional data][hall-hooker-2016].
+- **[77]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
   models with scalar response][stefanucci-bernardi-canale-2025].
 <!-- /references -->
 

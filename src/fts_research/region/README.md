@@ -37,7 +37,7 @@ taking it on trust, because everything else rests on it.
 
 **The probabilities come from complementary pairs.** Refit the estimator on disjoint halves of the
 data, `n_pairs` times, and record how often each group survives. Shah and Samworth's
-[[43]][shah-samworth-2013] Theorem 1 then bounds the expected number of rarely-selected groups a
+[[70]][shah-samworth-2013] Theorem 1 then bounds the expected number of rarely-selected groups a
 threshold keeps, under no assumption about the model, the estimator, or the number of pairs.
 
 **Both halves of the claim use the same theorem.** Theorem 1 has a second part bounding what
@@ -161,14 +161,14 @@ link into it.
   chen-chen-2008, meinshausen-2007, meinshausen-buhlmann-2010, shah-samworth-2013, wang-leng-2008,
   zou-2006
 -->
-- **[16]** Chen & Chen (2008), [Extended Bayesian information criteria for model selection with
+- **[21]** Chen & Chen (2008), [Extended Bayesian information criteria for model selection with
   large model spaces][chen-chen-2008].
-- **[36]** Meinshausen (2007), [Relaxed lasso][meinshausen-2007].
-- **[37]** Meinshausen & Bühlmann (2010), [Stability selection][meinshausen-buhlmann-2010].
-- **[43]** Shah & Samworth (2013), [Variable selection with error control: another look at
+- **[60]** Meinshausen (2007), [Relaxed lasso][meinshausen-2007].
+- **[61]** Meinshausen & Bühlmann (2010), [Stability selection][meinshausen-buhlmann-2010].
+- **[70]** Shah & Samworth (2013), [Variable selection with error control: another look at
   stability selection][shah-samworth-2013].
-- **[49]** Wang & Leng (2008), [A note on adaptive group lasso][wang-leng-2008].
-- **[53]** Zou (2006), [The adaptive lasso and its oracle properties][zou-2006].
+- **[78]** Wang & Leng (2008), [A note on adaptive group lasso][wang-leng-2008].
+- **[83]** Zou (2006), [The adaptive lasso and its oracle properties][zou-2006].
 <!-- /references -->
 
 <!-- reference-links -->

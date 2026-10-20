@@ -11,13 +11,23 @@ comments cite in the author-year form because nothing renders markdown for them.
 `docs/references.bib` is the same list as BibTeX. `python scripts/bibliography.py --check`
 fails if any citation in the repository has drifted from what is written here.
 
-<a id="ref-andersen-bollerslev-diebold-2007"></a>**[1]** Andersen, T. G., Bollerslev, T. and
+<a id="ref-andersen-bollerslev-1997"></a>**[1]** Andersen, T. G. and Bollerslev, T. (1997).
+Intraday periodicity and volatility persistence in financial markets. *Journal of Empirical
+Finance* 4(2-3), 115-158.
+[doi:10.1016/S0927-5398(97)00004-2](https://doi.org/10.1016/S0927-5398(97)00004-2). The U-shaped
+intraday volatility pattern. `jump.joint_dgp.intraday_variance` gives the curve noise that shape,
+its ends two and a half times its middle in the design of `notebooks/jump_equation_v2.ipynb`.
+
+Cited in `notebooks/basic_jump_equation.ipynb`, `notebooks/jump_equation_v2.ipynb`,
+`src/fts_research/jump/README.md`.
+
+<a id="ref-andersen-bollerslev-diebold-2007"></a>**[2]** Andersen, T. G., Bollerslev, T. and
 Diebold, F. X. (2007). Roughing it up: including jump components in the measurement, modeling, and
 forecasting of return volatility. *Review of Economics and Statistics* 89(4), 701-720.
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-aue-norinho-hormann-2015"></a>**[2]** Aue, A., Norinho, D. D. and Hörmann, S. (2015). On
+<a id="ref-aue-norinho-hormann-2015"></a>**[3]** Aue, A., Norinho, D. D. and Hörmann, S. (2015). On
 the prediction of stationary functional time series. *Journal of the American Statistical
 Association* 110(509), 378-392.
 [doi:10.1080/01621459.2014.909317](https://doi.org/10.1080/01621459.2014.909317). The vector
@@ -26,7 +36,17 @@ forecaster `ftsa` scores its own against.
 
 Cited in `README.md`, `src/fts_research/far/README.md`, `src/fts_research/ftsa/README.md`.
 
-<a id="ref-bao-chen-ma-2025"></a>**[3]** Bao, Chen and Ma (2025). Cited in
+<a id="ref-aue-horvath-pellatt-2017"></a>**[4]** Aue, A., Horváth, L. and Pellatt, D. F. (2017).
+Functional generalized autoregressive conditional heteroskedasticity. *Journal of Time Series
+Analysis* 38(1), 3-21. [doi:10.1111/jtsa.12192](https://doi.org/10.1111/jtsa.12192). The
+fGARCH(1,1) generalisation of Hörmann, Horváth and Reeder's fARCH. This is the process
+`notebooks/overnight_jumps.ipynb` describes without naming: the curve sequence's dependence
+survives in its norms and vanishes once each curve is divided by its own, which is conditional
+heteroscedasticity rather than the conditional-mean dependence a FAR(1) carries.
+
+Cited in `docs/finance-fda-literature.md`.
+
+<a id="ref-bao-chen-ma-2025"></a>**[5]** Bao, Chen and Ma (2025). Cited in
 `docs/overnight-jumps-literature.md` for the result that the US last half-hour return predicts the
 next day's first half-hour return in international markets, in and out of sample and after
 transaction costs. No title, journal or DOI was ever recorded here and none is guessed: the
@@ -34,287 +54,535 @@ citation needs chasing down before it is used in the thesis.
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-barclay-hendershott-2003"></a>**[4]** Barclay, M. J. and Hendershott, T. (2003). Price
+<a id="ref-barclay-hendershott-2003"></a>**[6]** Barclay, M. J. and Hendershott, T. (2003). Price
 discovery and trading after hours. *Review of Financial Studies* 16(4), 1041-1073.
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-barndorff-nielsen-shephard-2006"></a>**[5]** Barndorff-Nielsen, O. E. and Shephard, N.
+<a id="ref-barndorff-nielsen-shephard-2006"></a>**[7]** Barndorff-Nielsen, O. E. and Shephard, N.
 (2006). Econometrics of testing for jumps in financial economics using bipower variation. *Journal
 of Financial Econometrics* 4(1), 1-30.
 
-Cited in `docs/overnight-jumps-literature.md`.
+Cited in `docs/finance-fda-literature.md`, `docs/overnight-jumps-literature.md`.
 
-<a id="ref-barndorff-nielsen-kinnebrock-shephard-2010"></a>**[6]** Barndorff-Nielsen, O. E.,
+<a id="ref-barndorff-nielsen-kinnebrock-shephard-2010"></a>**[8]** Barndorff-Nielsen, O. E.,
 Kinnebrock, S. and Shephard, N. (2010). Measuring downside risk: realised semivariance. In T.
 Bollerslev, J. Russell and M. Watson (eds.), *Volatility and Time Series Econometrics*, pp.
 117-136. Oxford University Press.
 
 Cited in `docs/overnight-jumps-literature.md`, `notebooks/jump_covariates.ipynb`.
 
-<a id="ref-benjamini-hochberg-1995"></a>**[7]** Benjamini, Y. and Hochberg, Y. (1995). Controlling
+<a id="ref-bartlett-1937"></a>**[9]** Bartlett, M. S. (1937). Properties of sufficiency and
+statistical tests. *Proceedings of the Royal Society of London. Series A* 160(901), 268-282.
+[doi:10.1098/rspa.1937.0109](https://doi.org/10.1098/rspa.1937.0109). Bartlett's test of equal
+variances. `jump.basic_est.bartlett_from_variances` computes it from pooled variance estimates and
+their degrees of freedom, and `notebooks/basic_jump_equation.ipynb` uses it to ask whether the
+curve's volatility is constant through the session.
+
+Cited in `notebooks/basic_jump_equation.ipynb`, `src/fts_research/jump/README.md`.
+
+<a id="ref-benjamini-hochberg-1995"></a>**[10]** Benjamini, Y. and Hochberg, Y. (1995). Controlling
 the false discovery rate: a practical and powerful approach to multiple testing. *Journal of the
 Royal Statistical Society: Series B* 57(1), 289-300.
 
 Cited in `README.md`, `notebooks/jump_covariates.ipynb`.
 
-<a id="ref-berkman-etal-2012"></a>**[8]** Berkman, H., Koch, P. D., Tuttle, L. and Zhang, Y. J.
+<a id="ref-berkman-etal-2012"></a>**[11]** Berkman, H., Koch, P. D., Tuttle, L. and Zhang, Y. J.
 (2012). Paying attention: overnight returns and the hidden cost of buying at the open. *Journal of
 Financial and Quantitative Analysis* 47(4), 715-741.
 [cambridge.org](https://www.cambridge.org/core/journals/journal-of-financial-and-quantitative-analysis/article/abs/paying-attention-overnight-returns-and-the-hidden-cost-of-buying-at-the-open/F9AAD159B512C651F09D5D52011D88E0).
 
 Cited in `docs/overnight-jumps-literature.md`, `notebooks/jump_covariates.ipynb`.
 
-<a id="ref-bernardi-stefanucci-2023"></a>**[9]** Bernardi, M. and Stefanucci, M. (2023). fdaSP:
+<a id="ref-bernardi-stefanucci-2023"></a>**[12]** Bernardi, M. and Stefanucci, M. (2023). fdaSP:
 sparse functional data analysis methods. R package.
 [doi:10.32614/CRAN.package.fdaSP](https://doi.org/10.32614/CRAN.package.fdaSP). The implementation
 `fdaSP.SBC` is checked against, whose outputs are committed under `artifacts/reference/`.
 
 Cited in `src/fts_research/fdaSP/README.md`.
 
-<a id="ref-bogousslavsky-2021"></a>**[10]** Bogousslavsky, V. (2021). The cross-section of intraday
+<a id="ref-bogousslavsky-2021"></a>**[13]** Bogousslavsky, V. (2021). The cross-section of intraday
 and overnight returns. *Journal of Financial Economics* 141(1), 172-194.
 [sciencedirect.com](https://www.sciencedirect.com/science/article/abs/pii/S0304405X21000854).
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-bogousslavsky-muravyev-2023a"></a>**[11]** Bogousslavsky, V. and Muravyev, D. (2023a).
+<a id="ref-bogousslavsky-muravyev-2023a"></a>**[14]** Bogousslavsky, V. and Muravyev, D. (2023a).
 Market return around the clock: a puzzle. *Journal of Financial and Quantitative Analysis*.
 [cambridge.org](https://www.cambridge.org/core/journals/journal-of-financial-and-quantitative-analysis/article/abs/market-return-around-the-clock-a-puzzle/089E33AC0B4D3B9A02CBA31EDF6505B3).
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-bogousslavsky-muravyev-2023b"></a>**[12]** Bogousslavsky, V. and Muravyev, D. (2023b).
+<a id="ref-bogousslavsky-muravyev-2023b"></a>**[15]** Bogousslavsky, V. and Muravyev, D. (2023b).
 Who trades at the close? Implications for price discovery and liquidity. *Journal of Financial
 Markets* 66.
 [sciencedirect.com](https://www.sciencedirect.com/science/article/abs/pii/S1386418123000502).
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-bosq-2000"></a>**[13]** Bosq, D. (2000). *Linear Processes in Function Spaces*.
+<a id="ref-bosq-2000"></a>**[16]** Bosq, D. (2000). *Linear Processes in Function Spaces*.
 Springer. [doi:10.1007/978-1-4612-1154-9](https://doi.org/10.1007/978-1-4612-1154-9). Chapter 3 is
 the source of the FAR(1) kernels `far.far_dgp` simulates from.
 
-Cited in `README.md`, `notebooks/FAR1_nonIID.ipynb`, `src/fts_research/far/README.md`.
+Cited in `README.md`, `docs/fda-foundations.md`, `notebooks/FAR1_nonIID.ipynb`,
+`src/fts_research/far/README.md`.
 
-<a id="ref-boyarchenko-larsen-whelan-2023"></a>**[14]** Boyarchenko, N., Larsen, L. C. and Whelan,
+<a id="ref-boyarchenko-larsen-whelan-2023"></a>**[17]** Boyarchenko, N., Larsen, L. C. and Whelan,
 P. (2023). The overnight drift. *Review of Financial Studies* 36(9), 3502-3547.
 [academic.oup.com](https://academic.oup.com/rfs/article-abstract/36/9/3502/7076616).
 
 Cited in `docs/overnight-jumps-literature.md`, `notebooks/jump_covariates.ipynb`.
 
-<a id="ref-boyarchenko-larsen-whelan-2026"></a>**[15]** Boyarchenko, N., Larsen, L. C. and Whelan,
+<a id="ref-boyarchenko-larsen-whelan-2026"></a>**[18]** Boyarchenko, N., Larsen, L. C. and Whelan,
 P. (2026). *The disappearing overnight drift*. Liberty Street Economics, Federal Reserve Bank of
 New York, 1 July 2026.
 [libertystreeteconomics.newyorkfed.org](https://libertystreeteconomics.newyorkfed.org/2026/07/the-disappearing-overnight-drift/).
 
 Cited in `docs/overnight-jumps-literature.md`, `notebooks/jump_covariates.ipynb`.
 
-<a id="ref-chen-chen-2008"></a>**[16]** Chen, J. and Chen, Z. (2008). Extended Bayesian information
+<a id="ref-cai-hall-2006"></a>**[19]** Cai, T. T. and Hall, P. (2006). Prediction in functional
+linear regression. *The Annals of Statistics* 34(5), 2159-2179.
+[doi:10.1214/009053606000000830](https://doi.org/10.1214/009053606000000830). Prediction and
+estimation of the slope function converge at different rates and under different conditions. This
+is the formal statement of the split this repository keeps meeting from the applied side:
+cross-validation never delivers a null set (`notebooks/LocSpaFLR_f2s.ipynb`), held-out error is
+flat past the true endpoint (`HH_A.truncation_profile`), and a rule chosen for prediction risk
+discards a signal too small to pay for itself.
+
+Cited in `docs/fda-foundations.md`, `notebooks/jump_equation_v2.ipynb`.
+
+<a id="ref-cerovecki-etal-2019"></a>**[20]** Cerovecki, C., Francq, C., Hörmann, S. and Zakoïan,
+J.-M. (2019). Functional GARCH models: the quasi-likelihood approach and its applications. *Journal
+of Econometrics* 209(2), 353-375. The FGARCH(p, q) generalisation, and the quasi-likelihood
+estimator both Rice, Wirjanto and Zhao papers use. Its data-driven basis truncates the negative
+part of the empirical principal components of y^2, since a conditional variance has to stay
+non-negative -- a constraint none of this repository's estimators carries, because none of them
+estimates a variance.
+
+Cited in `docs/finance-fda-literature.md`.
+
+<a id="ref-chen-chen-2008"></a>**[21]** Chen, J. and Chen, Z. (2008). Extended Bayesian information
 criteria for model selection with large model spaces. *Biometrika* 95(3), 759-771.
 [doi:10.1093/biomet/asn034](https://doi.org/10.1093/biomet/asn034).
 
 Cited in `README.md`, `src/fts_research/region/README.md`.
 
-<a id="ref-cliff-cooper-gulen-2008"></a>**[17]** Cliff, M. T., Cooper, M. J. and Gulen, H. (2008).
+<a id="ref-chen-guo-qiao-2022"></a>**[22]** Chen, C., Guo, S. and Qiao, X. (2022). Functional
+linear regression: dependence and error contamination. *Journal of Business and Economic
+Statistics* 40(1), 444-457.
+[doi:10.1080/07350015.2020.1832503](https://doi.org/10.1080/07350015.2020.1832503). Drops the two
+assumptions `truncFLR` and `fdaSP` both make, that the curves are independent realisations and the
+measurement error is i.i.d. The estimator is an autocovariance-based generalised method of moments,
+which works because the autocovariance of the observed curves filters out the noise term. The
+nearest existing treatment of the dependence this repository's panels have, and the baseline any
+dependence-aware selection rule has to be argued against.
+
+Cited in `docs/fda-foundations.md`, `docs/finance-fda-literature.md`.
+
+<a id="ref-cliff-cooper-gulen-2008"></a>**[23]** Cliff, M. T., Cooper, M. J. and Gulen, H. (2008).
 *Return differences between trading and non-trading hours: like night and day*. Working paper.
 [SSRN 1004081](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1004081).
 
-Cited in `docs/overnight-jumps-literature.md`.
+Cited in `docs/overnight-jumps-literature.md`, `notebooks/jump_equation_v2.ipynb`.
 
-<a id="ref-engle-ito-lin-1990"></a>**[18]** Engle, R. F., Ito, T. and Lin, W.-L. (1990). Meteor
+<a id="ref-corsi-2009"></a>**[24]** Corsi, F. (2009). A simple approximate long-memory model of
+realized volatility. *Journal of Financial Econometrics* 7(2), 174-196. The HAR model: average
+realised volatility over several horizons to capture long memory without fractional integration.
+Rice, Wirjanto and Zhao's historical mean variation *curve* is its functional analogue, and it is
+also the proper citation for the averaged realised measures `jump.covariates` builds.
+
+Cited in `docs/finance-fda-literature.md`.
+
+<a id="ref-damon-guillas-2002"></a>**[25]** Damon, J. and Guillas, S. (2002). The inclusion of
+exogenous variables in functional autoregressive ozone forecasting. *Environmetrics* 13(7),
+759-774. [doi:10.1002/env.527](https://doi.org/10.1002/env.527). The FAR(1) with exogenous
+variables. The curve equation of `jump.joint_dgp` is one, with the overnight jump as the exogenous
+regressor.
+
+Cited in `notebooks/jump_equation_v2.ipynb`, `src/fts_research/jump/README.md`.
+
+<a id="ref-davidson-mackinnon-1981"></a>**[26]** Davidson, R. and MacKinnon, J. G. (1981). Several
+tests for model specification in the presence of alternative hypotheses. *Econometrica* 49(3),
+781-793. [doi:10.2307/1911522](https://doi.org/10.2307/1911522). The J test for non-nested models.
+With one non-shared regressor on each side, the J test of one model against the other is the t-test
+on that regressor in the model that contains both, which is what `jump.joint_est.nesting_test`
+computes for a step on the curve's level against a step on its returns.
+
+Cited in `docs/jump-model-choices.md`, `notebooks/jump_equation_v2.ipynb`,
+`src/fts_research/jump/README.md`.
+
+<a id="ref-engle-ito-lin-1990"></a>**[27]** Engle, R. F., Ito, T. and Lin, W.-L. (1990). Meteor
 showers or heat waves? Heteroskedastic intra-daily volatility in the foreign exchange market.
 *Econometrica* 58, 525-542.
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-french-roll-1986"></a>**[19]** French, K. R. and Roll, R. (1986). Stock return
+<a id="ref-french-roll-1986"></a>**[28]** French, K. R. and Roll, R. (1986). Stock return
 variances: the arrival of information and the reaction of traders. *Journal of Financial Economics*
 17(1), 5-26.
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-gabrys-kokoszka-2007"></a>**[20]** Gabrys, R. and Kokoszka, P. (2007). Portmanteau test
+<a id="ref-gabrys-kokoszka-2007"></a>**[29]** Gabrys, R. and Kokoszka, P. (2007). Portmanteau test
 of independence for functional observations. *Journal of the American Statistical Association*
 102(480), 1338-1348. [doi:10.1198/016214507000001111](https://doi.org/10.1198/016214507000001111).
 
-Cited in `src/fts_research/far/README.md`.
+Cited in `notebooks/basic_jump_equation.ipynb`, `src/fts_research/far/README.md`,
+`src/fts_research/jump/README.md`.
 
-<a id="ref-gabrys-horvath-kokoszka-2010"></a>**[21]** Gabrys, R., Horváth, L. and Kokoszka, P.
+<a id="ref-gabrys-horvath-kokoszka-2010"></a>**[30]** Gabrys, R., Horváth, L. and Kokoszka, P.
 (2010). Tests for error correlation in the functional linear model. *Journal of the American
 Statistical Association* 105(491), 1113-1125. The paper the cumulative intraday return transform in
 `fdaSP.intraday` comes from.
 
-Cited in `docs/overnight-jumps-literature.md`.
+Cited in `docs/fda-foundations.md`, `docs/finance-fda-literature.md`,
+`docs/overnight-jumps-literature.md`.
 
-<a id="ref-gao-etal-2018"></a>**[22]** Gao, L., Han, Y., Li, S. Z. and Zhou, G. (2018). Market
+<a id="ref-gao-etal-2018"></a>**[31]** Gao, L., Han, Y., Li, S. Z. and Zhou, G. (2018). Market
 intraday momentum. *Journal of Financial Economics* 129(2), 394-414.
 [sciencedirect.com](https://www.sciencedirect.com/science/article/abs/pii/S0304405X18301351).
 
 Cited in `docs/overnight-jumps-literature.md`, `notebooks/jump_covariates.ipynb`.
 
-<a id="ref-gao-etal-2022"></a>**[23]** Gao, R., Zhang, X., Zhang, H., Zhao, Q. and Wang, Y. (2022).
+<a id="ref-gao-etal-2022"></a>**[32]** Gao, R., Zhang, X., Zhang, H., Zhao, Q. and Wang, Y. (2022).
 Forecasting the overnight return direction of stock market index combining global market indices: a
 multiple-branch deep learning approach. *Expert Systems with Applications* 194, 116506.
 [doi:10.1016/j.eswa.2022.116506](https://doi.org/10.1016/j.eswa.2022.116506).
 
 Cited in `docs/overnight-jumps-literature.md`, `notebooks/jump_covariates.ipynb`.
 
-<a id="ref-glasserman-etal-2024"></a>**[24]** Glasserman, P., Krstovski, K., Laliberte, P. and
+<a id="ref-glasserman-etal-2024"></a>**[33]** Glasserman, P., Krstovski, K., Laliberte, P. and
 Mamaysky, H. (2024). *Does overnight news explain overnight returns?*. arXiv:2507.04481.
 [arxiv.org](https://arxiv.org/abs/2507.04481).
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-gneiting-raftery-2007"></a>**[25]** Gneiting, T. and Raftery, A. E. (2007). Strictly
+<a id="ref-gneiting-raftery-2007"></a>**[34]** Gneiting, T. and Raftery, A. E. (2007). Strictly
 proper scoring rules, prediction, and estimation. *Journal of the American Statistical Association*
 102(477), 359-378. [doi:10.1198/016214506000001437](https://doi.org/10.1198/016214506000001437).
 Section 6.2 defines the interval score `ftsa.evaluation.interval_score` computes.
 
 Cited in `src/fts_research/ftsa/README.md`.
 
-<a id="ref-hall-hooker-2016"></a>**[26]** Hall, P. and Hooker, G. (2016). Truncated linear models
+<a id="ref-guan-lin-cao-2020"></a>**[35]** Guan, T., Lin, Z. and Cao, J. (2020). Estimating
+truncated functional linear models with a nested group bridge approach. *Journal of Computational
+and Graphical Statistics* 29(3), 620-628.
+[doi:10.1080/10618600.2020.1713797](https://doi.org/10.1080/10618600.2020.1713797). Sits between
+this repository's two poles, which its README frames as a choice between estimating an endpoint and
+penalising towards a null set. This estimates the endpoint *by* penalising: a nested group bridge
+shrinks the tail of the coefficient function specifically, so a locally sparse estimate yields the
+cutoff. Hall & Hooker's model with Stefanucci, Bernardi & Canale's machinery.
+
+Cited in `docs/finance-fda-literature.md`.
+
+<a id="ref-hall-horowitz-2007"></a>**[36]** Hall, P. and Horowitz, J. L. (2007). Methodology and
+convergence rates for functional linear regression. *The Annals of Statistics* 35(1), 70-91.
+[doi:10.1214/009053606000000957](https://doi.org/10.1214/009053606000000957). The minimax rates for
+the slope function, and the reason the covariance operator's eigenvalue decay decides how hard a
+design is. Every curve process in this repository -- `core.gp.sample_gp`,
+`bench.design.variance_profile`, `far.far_dgp` -- prescribes exponentially decaying eigenvalues,
+which is the favourable regime; a cumulative intraday return curve is closer to Brownian motion,
+whose eigenvalues decay polynomially.
+
+Cited in `docs/fda-foundations.md`, `docs/finance-fda-literature.md`,
+`notebooks/jump_equation_v2.ipynb`.
+
+<a id="ref-hall-hooker-2016"></a>**[37]** Hall, P. and Hooker, G. (2016). Truncated linear models
 for functional data. *Journal of the Royal Statistical Society: Series B* 78(3), 637-653.
 [doi:10.1111/rssb.12125](https://doi.org/10.1111/rssb.12125). Methods A and B are `truncFLR.HH_A`
 and `truncFLR.HH`; section 3.2 is the one `notebooks/truncFLR_lambdadegen.ipynb` takes apart.
 
-Cited in `README.md`, `docs/overnight-jumps-literature.md`, `notebooks/HH_vs_SBC.ipynb`,
+Cited in `README.md`, `docs/fda-foundations.md`, `docs/finance-fda-literature.md`,
+`docs/jump-model-choices.md`, `docs/overnight-jumps-literature.md`,
+`docs/session-2026-09-hh-multi.md`, `notebooks/HH_vs_SBC.ipynb`,
 `notebooks/tecator_application.ipynb`, `notebooks/truncFLR.ipynb`,
 `notebooks/truncFLR_lambdadegen.ipynb`, `src/fts_research/bench/README.md`,
 `src/fts_research/core/README.md`, `src/fts_research/truncFLR/README.md`.
 
-<a id="ref-hamao-masulis-ng-1990"></a>**[27]** Hamao, Y., Masulis, R. W. and Ng, V. (1990).
+<a id="ref-hamao-masulis-ng-1990"></a>**[38]** Hamao, Y., Masulis, R. W. and Ng, V. (1990).
 Correlations in price changes and volatility across international stock markets. *Review of
 Financial Studies* 3(2), 281-307.
 
 Cited in `docs/overnight-jumps-literature.md`, `notebooks/jump_covariates.ipynb`.
 
-<a id="ref-hendershott-livdan-rosch-2020"></a>**[28]** Hendershott, T., Livdan, D. and Rösch, D.
+<a id="ref-hansen-lunde-2006"></a>**[39]** Hansen, P. R. and Lunde, A. (2006). Realized variance
+and market microstructure noise. *Journal of Business and Economic Statistics* 24(2), 127-161.
+Cited by the functional volatility literature for the importance of the overnight effect, and so
+for why the overnight cumulative intraday return is preferred to the ordinary one when the target
+is volatility rather than shape.
+
+Cited in `docs/finance-fda-literature.md`.
+
+<a id="ref-hendershott-livdan-rosch-2020"></a>**[40]** Hendershott, T., Livdan, D. and Rösch, D.
 (2020). Asset pricing: a tale of night and day. *Journal of Financial Economics* 138(3), 635-662.
 [sciencedirect.com](https://www.sciencedirect.com/science/article/abs/pii/S0304405X20301732).
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-hyndman-khandakar-2008"></a>**[29]** Hyndman, R. J. and Khandakar, Y. (2008). Automatic
+<a id="ref-holm-1979"></a>**[41]** Holm, S. (1979). A simple sequentially rejective multiple test
+procedure. *Scandinavian Journal of Statistics* 6(2), 65-70.
+[JSTOR](https://www.jstor.org/stable/4615733). The step-down adjustment `jump.basic_est.holm`
+applies across the null model's thirteen diagnostics in `notebooks/basic_jump_equation.ipynb`, so
+that a verdict is not read off one p-value among many.
+
+Cited in `notebooks/basic_jump_equation.ipynb`, `src/fts_research/jump/README.md`.
+
+<a id="ref-hormann-kokoszka-2010"></a>**[42]** Hörmann, S. and Kokoszka, P. (2010). Weakly
+dependent functional data. *The Annals of Statistics* 38(3), 1845-1884.
+[doi:10.1214/09-AOS768](https://doi.org/10.1214/09-AOS768). L^p-m-approximability, the dependence
+condition under which the usual functional estimators keep their consistency. It is what licenses
+running `truncFLR` and `fdaSP` on serially dependent curves at all, and it is also the boundary of
+that licence: it buys consistency, not the variance calculations that every selection rule in this
+repository is built out of.
+
+Cited in `docs/fda-foundations.md`, `docs/finance-fda-literature.md`.
+
+<a id="ref-hormann-horvath-reeder-2013"></a>**[43]** Hörmann, S., Horváth, L. and Reeder, R.
+(2013). A functional version of the ARCH model. *Econometric Theory* 29(2), 267-288.
+[doi:10.1017/S0266466612000345](https://doi.org/10.1017/S0266466612000345). The first functional
+conditional-variance model, generalised to fGARCH by Aue, Horváth & Pellatt. Its recursion
+sigma_t^2(s) = omega(s) + int alpha(s,r) X_{t-1}^2(r) dr is the data-generating process the
+intraday panels here call for, and the one `far.far_dgp` does not supply: a FAR(1) puts the serial
+dependence in the conditional mean, where these curves do not have any.
+
+Cited in `docs/finance-fda-literature.md`.
+
+<a id="ref-horvath-kokoszka-2012"></a>**[44]** Horváth, L. and Kokoszka, P. (2012). *Inference for
+Functional Data with Applications*. Springer. The standard monograph on functional time series, and
+the background reference every paper in the volatility strand points at. Until it was added,
+`bosq-2000` was the only book in this bibliography.
+
+Cited in `docs/finance-fda-literature.md`.
+
+<a id="ref-horvath-kokoszka-rice-2014"></a>**[45]** Horváth, L., Kokoszka, P. and Rice, G. (2014).
+Testing stationarity of functional time series. *Journal of Econometrics* 179(1), 66-82. The
+KPSS-type test the volatility papers use to check that each candidate transform of a price curve is
+stationary before modelling it. This repository asserts the stationarity of its own transforms
+rather than testing it.
+
+Cited in `docs/finance-fda-literature.md`.
+
+<a id="ref-hyndman-khandakar-2008"></a>**[46]** Hyndman, R. J. and Khandakar, Y. (2008). Automatic
 time series forecasting: the forecast package for R. *Journal of Statistical Software* 27(3), 1-22.
 [doi:10.18637/jss.v027.i03](https://doi.org/10.18637/jss.v027.i03). The order search
 `ftsa.forecast` reproduces, including the corrected AIC it selects on.
 
 Cited in `src/fts_research/ftsa/README.md`.
 
-<a id="ref-hyndman-shang-2009"></a>**[30]** Hyndman, R. J. and Shang, H. L. (2009). Forecasting
+<a id="ref-hyndman-shang-2009"></a>**[47]** Hyndman, R. J. and Shang, H. L. (2009). Forecasting
 functional time series. *Journal of the Korean Statistical Society* 38(3), 199-211.
 [doi:10.1016/j.jkss.2009.06.002](https://doi.org/10.1016/j.jkss.2009.06.002).
 
 Cited in `README.md`, `notebooks/shang_replication.ipynb`, `src/fts_research/ftsa/README.md`.
 
-<a id="ref-kokoszka-reimherr-2013"></a>**[31]** Kokoszka, P. and Reimherr, M. (2013).
+<a id="ref-imhof-1961"></a>**[48]** Imhof, J. P. (1961). Computing the distribution of quadratic
+forms in normal variables. *Biometrika* 48(3-4), 419-426.
+[doi:10.1093/biomet/48.3-4.419](https://doi.org/10.1093/biomet/48.3-4.419). The numerical inversion
+`jump.joint_est.imhof_sf` implements, for the exact null distribution of the gap-fill shape test.
+
+Cited in `docs/jump-model-choices.md`, `notebooks/jump_equation_v2.ipynb`,
+`src/fts_research/jump/README.md`.
+
+<a id="ref-james-wang-zhu-2009"></a>**[49]** James, G. M., Wang, J. and Zhu, J. (2009). Functional
+linear regression that's interpretable. *The Annals of Statistics* 37(5A), 2083-2108.
+[doi:10.1214/08-AOS641](https://doi.org/10.1214/08-AOS641). FLiRTI: local sparsity imposed through
+an L1 penalty on *derivatives* of the coefficient function rather than on the function itself, so
+what is zeroed is curvature or slope and the recovered structure is piecewise constant or piecewise
+linear. The main alternative to the overlap group lasso `fdaSP.SBC` implements, and the one whose
+null sets come with a different meaning.
+
+Cited in `docs/fda-foundations.md`, `docs/finance-fda-literature.md`.
+
+<a id="ref-jarque-bera-1987"></a>**[50]** Jarque, C. M. and Bera, A. K. (1987). A test for
+normality of observations and regression residuals. *International Statistical Review* 55(2),
+163-172. [doi:10.2307/1403192](https://doi.org/10.2307/1403192). The skewness-and-kurtosis test of
+normality, applied in `notebooks/basic_jump_equation.ipynb` to the overnight jumps and to the
+standardised curve increments.
+
+Cited in `notebooks/basic_jump_equation.ipynb`, `src/fts_research/jump/README.md`.
+
+<a id="ref-kneip-poss-sarda-2016"></a>**[51]** Kneip, A., Poß, D. and Sarda, P. (2016). Functional
+linear regression with points of impact. *The Annals of Statistics* 44(1), 1-30.
+[doi:10.1214/15-AOS1323](https://doi.org/10.1214/15-AOS1323). Adds point evaluations X(tau_k) to
+the integral term, and estimates the impact points tau_k. This is the model for the finding
+`notebooks/overnight_jumps.ipynb` and `notebooks/jump_equation.ipynb` both arrive at from the other
+direction -- that a bounded coefficient function integrated against a curve cannot evaluate that
+curve at a point, so where a curve's informative summary is one of its values the functional slot
+cannot express it.
+
+Cited in `docs/finance-fda-literature.md`.
+
+<a id="ref-kokoszka-reimherr-2013"></a>**[52]** Kokoszka, P. and Reimherr, M. (2013).
 Predictability of shapes of intraday price curves. *Econometrics Journal* 16(3), 285-308.
 [academic.oup.com](https://academic.oup.com/ectj/article-abstract/16/3/285/5061235).
 
-Cited in `docs/overnight-jumps-literature.md`.
+Cited in `docs/finance-fda-literature.md`, `docs/overnight-jumps-literature.md`.
 
-<a id="ref-kurov-wolfe-gilbert-2021"></a>**[32]** Kurov, A., Wolfe, M. H. and Gilbert, T. (2021).
+<a id="ref-kokoszka-rice-shang-2017"></a>**[53]** Kokoszka, P., Rice, G. and Shang, H. L. (2017).
+Inference for the autocovariance of a functional time series under conditional heteroscedasticity.
+*Journal of Multivariate Analysis* 162, 32-50. The portmanteau statistic on an autocovariance
+kernel that Rice, Wirjanto and Zhao apply to *squared* curves to get their fully functional test.
+Also the paper that makes the point this repository needs: a portmanteau test calibrated under
+independence is the wrong reference when the alternative is conditional heteroscedasticity.
+
+Cited in `docs/finance-fda-literature.md`.
+
+<a id="ref-kurov-wolfe-gilbert-2021"></a>**[54]** Kurov, A., Wolfe, M. H. and Gilbert, T. (2021).
 The disappearing pre-FOMC announcement drift. *Finance Research Letters* 40, 101781.
 [sciencedirect.com](https://www.sciencedirect.com/science/article/abs/pii/S1544612320315956).
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-ljung-box-1978"></a>**[33]** Ljung, G. M. and Box, G. E. P. (1978). On a measure of lack
+<a id="ref-lin-cao-wang-wang-2017"></a>**[55]** Lin, Z., Cao, J., Wang, L. and Wang, H. (2017).
+Locally sparse estimator for functional linear regression models. *Journal of Computational and
+Graphical Statistics* 26(2), 306-318. The functional SCAD route to local sparsity, and the
+immediate predecessor of the overlap group lasso `fdaSP.SBC` implements. Its non-convex penalty
+buys the oracle property that a group lasso does not have, at the cost of the convexity that makes
+Stefanucci, Bernardi & Canale's ADMM work. No DOI recorded here: the one search returned was
+inferred from the volume rather than read off the article, and this file does not carry guesses.
+
+Cited in `docs/fda-foundations.md`, `docs/finance-fda-literature.md`.
+
+<a id="ref-liu-divani-petersen-2022"></a>**[56]** Liu, X., Divani, A. A. and Petersen, A. (2022).
+Truncated estimation in functional generalized linear regression models. *Computational Statistics
+and Data Analysis* 169.
+[doi:10.1016/j.csda.2022.107421](https://doi.org/10.1016/j.csda.2022.107421). Hall & Hooker's
+truncation carried to generalised linear models, by a nested group lasso rather than Guan, Lin &
+Cao's group bridge, so the problem stays convex. Two things here bear directly on this repository:
+it separates the smoothing penalty from the truncation penalty, where `fdaSP.SBC` has one lambda
+doing both, and it selects both by BIC rather than by cross-validation. Implemented as CRAN
+`FGLMtrunc`. The nearest prior art to a locally sparse model for a conditional scale, and the
+reference that decides how much of that idea is left.
+
+Cited in `docs/finance-fda-literature.md`.
+
+<a id="ref-ljung-box-1978"></a>**[57]** Ljung, G. M. and Box, G. E. P. (1978). On a measure of lack
 of fit in time series models. *Biometrika* 65(2), 297-303.
 [doi:10.1093/biomet/65.2.297](https://doi.org/10.1093/biomet/65.2.297). The scalar statistic that
 `far.far_est.portmanteau_test` generalises to functional observations, and which
 `notebooks/overnight_jumps.ipynb` applies directly to the jump series.
 
-Cited in `src/fts_research/far/README.md`.
+Cited in `notebooks/basic_jump_equation.ipynb`, `src/fts_research/far/README.md`,
+`src/fts_research/jump/README.md`.
 
-<a id="ref-lou-polk-skouras-2019"></a>**[34]** Lou, D., Polk, C. and Skouras, S. (2019). A tug of
+<a id="ref-lou-polk-skouras-2019"></a>**[58]** Lou, D., Polk, C. and Skouras, S. (2019). A tug of
 war: overnight versus intraday expected returns. *Journal of Financial Economics* 134(1), 192-213.
 [sciencedirect.com](https://www.sciencedirect.com/science/article/abs/pii/S0304405X19300650).
 
 Cited in `docs/overnight-jumps-literature.md`, `notebooks/jump_covariates.ipynb`.
 
-<a id="ref-lucca-moench-2015"></a>**[35]** Lucca, D. O. and Moench, E. (2015). The pre-FOMC
+<a id="ref-lucca-moench-2015"></a>**[59]** Lucca, D. O. and Moench, E. (2015). The pre-FOMC
 announcement drift. *Journal of Finance* 70(1), 329-371.
 [doi:10.1111/jofi.12196](https://doi.org/10.1111/jofi.12196).
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-meinshausen-2007"></a>**[36]** Meinshausen, N. (2007). Relaxed lasso. *Computational
+<a id="ref-meinshausen-2007"></a>**[60]** Meinshausen, N. (2007). Relaxed lasso. *Computational
 Statistics and Data Analysis* 52(1), 374-393.
 [doi:10.1016/j.csda.2006.12.019](https://doi.org/10.1016/j.csda.2006.12.019).
 
 Cited in `src/fts_research/region/README.md`.
 
-<a id="ref-meinshausen-buhlmann-2010"></a>**[37]** Meinshausen, N. and Bühlmann, P. (2010).
+<a id="ref-meinshausen-buhlmann-2010"></a>**[61]** Meinshausen, N. and Bühlmann, P. (2010).
 Stability selection. *Journal of the Royal Statistical Society: Series B* 72(4), 417-473.
 [doi:10.1111/j.1467-9868.2010.00740.x](https://doi.org/10.1111/j.1467-9868.2010.00740.x).
 
-Cited in `README.md`, `src/fts_research/region/README.md`.
+Cited in `README.md`, `docs/fda-foundations.md`, `src/fts_research/region/README.md`.
 
-<a id="ref-newey-west-1987"></a>**[38]** Newey, W. K. and West, K. D. (1987). A simple, positive
+<a id="ref-newey-west-1987"></a>**[62]** Newey, W. K. and West, K. D. (1987). A simple, positive
 semi-definite, heteroskedasticity and autocorrelation consistent covariance matrix. *Econometrica*
 55(3), 703-708. [doi:10.2307/1913610](https://doi.org/10.2307/1913610).
 
 Cited in `src/fts_research/jump/README.md`.
 
-<a id="ref-pagan-1984"></a>**[39]** Pagan, A. (1984). Econometric issues in the analysis of
+<a id="ref-nicholls-quinn-1982"></a>**[63]** Nicholls, D. F. and Quinn, B. G. (1982). *Random
+Coefficient Autoregressive Models: An Introduction*. Lecture Notes in Statistics 11. Springer.
+Second-order stationarity of an autoregression with random coefficients is a condition on the
+mean-square operator rather than on the mean coefficient. A random gap-fill coefficient makes the
+joint jump-and-curve model one, which is why `jump.joint_dgp.stationarity` reports both radii.
+
+Cited in `notebooks/jump_equation_v2.ipynb`, `src/fts_research/jump/README.md`.
+
+<a id="ref-pagan-1984"></a>**[64]** Pagan, A. (1984). Econometric issues in the analysis of
 regressions with generated regressors. *International Economic Review* 25(1), 221-247.
 [doi:10.2307/2648877](https://doi.org/10.2307/2648877). Why the principal component scores entering
 the jump equation are generated regressors, and what that costs the standard errors.
 
-Cited in `src/fts_research/jump/README.md`.
+Cited in `notebooks/jump_equation_v2.ipynb`, `src/fts_research/jump/README.md`.
 
-<a id="ref-parkinson-1980"></a>**[40]** Parkinson, M. (1980). The extreme value method for
+<a id="ref-parkinson-1980"></a>**[65]** Parkinson, M. (1980). The extreme value method for
 estimating the variance of the rate of return. *The Journal of Business* 53(1), 61-65.
 [doi:10.1086/296071](https://doi.org/10.1086/296071). The range `fdaSP.intraday.session_summary`
 reports, which is the summary of a session that best predicts the size of the jump that follows it.
 
-Cited in `docs/overnight-jumps-literature.md`, `src/fts_research/fdaSP/README.md`.
+Cited in `docs/finance-fda-literature.md`, `docs/overnight-jumps-literature.md`,
+`src/fts_research/fdaSP/README.md`.
 
-<a id="ref-patton-sheppard-2015"></a>**[41]** Patton, A. J. and Sheppard, K. (2015). Good
+<a id="ref-patton-sheppard-2015"></a>**[66]** Patton, A. J. and Sheppard, K. (2015). Good
 volatility, bad volatility: signed jumps and the persistence of volatility. *Review of Economics
 and Statistics* 97(3), 683-697.
 [direct.mit.edu](https://direct.mit.edu/rest/article/97/3/683/58249).
 
 Cited in `docs/overnight-jumps-literature.md`, `notebooks/jump_covariates.ipynb`.
 
-<a id="ref-rapach-strauss-zhou-2013"></a>**[42]** Rapach, D. E., Strauss, J. K. and Zhou, G.
+<a id="ref-rapach-strauss-zhou-2013"></a>**[67]** Rapach, D. E., Strauss, J. K. and Zhou, G.
 (2013). International stock return predictability: what is the role of the United States?. *Journal
 of Finance* 68(4), 1633-1662.
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-shah-samworth-2013"></a>**[43]** Shah, R. D. and Samworth, R. J. (2013). Variable
+<a id="ref-rice-wirjanto-zhao-2020"></a>**[68]** Rice, G., Wirjanto, T. and Zhao, Y. (2020). Tests
+for conditional heteroscedasticity of functional data. *Journal of Time Series Analysis* 41(6),
+733-758. [doi:10.1111/jtsa.12532](https://doi.org/10.1111/jtsa.12532). The formal test for what
+`notebooks/overnight_jumps.ipynb` established by hand, that the dependence in a sequence of
+intraday curves is in its conditional variance. The portmanteau test there rejects independence of
+the curves and the norm-standardisation removes it; this is the test that names the alternative
+rather than leaving it to be inferred from the pair.
+
+Cited in `docs/finance-fda-literature.md`.
+
+<a id="ref-rice-wirjanto-zhao-2021"></a>**[69]** Rice, G., Wirjanto, T. and Zhao, Y. (2021).
+*Exploring volatility of crude oil intra-day return curves: a functional GARCH-X model*. MPRA
+Paper. [MPRA 109231](https://mpra.ub.uni-muenchen.de/109231/). Where the four variation-curve
+covariates come from -- a Corsi-style mean absolute-return curve, an intraday range curve, a
+bipower-variation curve and a volume curve -- which are the functional analogues of the scalar
+covariates `jump.covariates` screens. Reports an in-sample gain from the covariate with no
+out-of-sample improvement, which is the case for shrinkage stated as a measurement. Cited from the
+working paper because the published version was not consulted.
+
+Cited in `docs/finance-fda-literature.md`.
+
+<a id="ref-shah-samworth-2013"></a>**[70]** Shah, R. D. and Samworth, R. J. (2013). Variable
 selection with error control: another look at stability selection. *Journal of the Royal
 Statistical Society: Series B* 75(1), 55-80.
 [doi:10.1111/j.1467-9868.2011.01034.x](https://doi.org/10.1111/j.1467-9868.2011.01034.x). Theorem 1
 is the bound `region.bounds` implements, in both of its directions.
 
-Cited in `README.md`, `notebooks/region_selection.ipynb`, `src/fts_research/region/README.md`.
+Cited in `README.md`, `docs/fda-foundations.md`, `notebooks/region_selection.ipynb`,
+`src/fts_research/region/README.md`.
 
-<a id="ref-shang-hyndman-2011"></a>**[44]** Shang, H. L. and Hyndman, R. J. (2011). Nonparametric
+<a id="ref-shang-hyndman-2011"></a>**[71]** Shang, H. L. and Hyndman, R. J. (2011). Nonparametric
 time series forecasting with dynamic updating. *Mathematics and Computers in Simulation* 81(7),
 1310-1324. [doi:10.1016/j.matcom.2010.04.027](https://doi.org/10.1016/j.matcom.2010.04.027).
 
 Cited in `README.md`, `notebooks/shang_updating.ipynb`, `src/fts_research/ftsa/README.md`.
 
-<a id="ref-shang-2013"></a>**[45]** Shang, H. L. (2013). ftsa: an R package for analyzing
+<a id="ref-shang-2013"></a>**[72]** Shang, H. L. (2013). ftsa: an R package for analyzing
 functional time series. *The R Journal* 5(1), 64-72.
 [doi:10.32614/RJ-2013-006](https://doi.org/10.32614/RJ-2013-006).
 
 Cited in `src/fts_research/ftsa/README.md`.
 
-<a id="ref-shang-2017a"></a>**[46]** Shang, H. L. (2017a). Forecasting intraday S&P 500 index
+<a id="ref-shang-2017a"></a>**[73]** Shang, H. L. (2017a). Forecasting intraday S&P 500 index
 returns: a functional time series approach. *Journal of Forecasting* 36(7), 741-755.
 [doi:10.1002/for.2467](https://doi.org/10.1002/for.2467). The paper
 `notebooks/shang_replication.ipynb` rebuilds, and the design `fdaSP.intraday`'s 2017 panel exists
 to serve.
 
-Cited in `README.md`, `docs/research-log.md`, `notebooks/shang_replication.ipynb`,
-`src/fts_research/ftsa/README.md`.
+Cited in `README.md`, `docs/finance-fda-literature.md`, `docs/research-log.md`,
+`notebooks/shang_replication.ipynb`, `src/fts_research/ftsa/README.md`.
 
-<a id="ref-shang-2017b"></a>**[47]** Shang, H. L. (2017b). Functional time series forecasting with
+<a id="ref-shang-2017b"></a>**[74]** Shang, H. L. (2017b). Functional time series forecasting with
 dynamic updating: an application to intraday particulate matter concentration. *Econometrics and
 Statistics* 1, 184-200.
 [doi:10.1016/j.ecosta.2016.08.004](https://doi.org/10.1016/j.ecosta.2016.08.004). The companion
@@ -323,25 +591,45 @@ particulate matter and develops the dynamic updating at greater length.
 
 Cited in `README.md`, `notebooks/shang_replication.ipynb`, `src/fts_research/ftsa/README.md`.
 
-<a id="ref-stefanucci-bernardi-canale-2025"></a>**[48]** Stefanucci, M., Bernardi, M. and Canale,
+<a id="ref-shapiro-wilk-1965"></a>**[75]** Shapiro, S. S. and Wilk, M. B. (1965). An analysis of
+variance test for normality (complete samples). *Biometrika* 52(3-4), 591-611.
+[doi:10.1093/biomet/52.3-4.591](https://doi.org/10.1093/biomet/52.3-4.591). The test of normality
+used on the overnight jumps in `notebooks/basic_jump_equation.ipynb`, chosen there for its power at
+a few dozen observations.
+
+Cited in `notebooks/basic_jump_equation.ipynb`, `src/fts_research/jump/README.md`.
+
+<a id="ref-shen-faraway-2004"></a>**[76]** Shen, Q. and Faraway, J. (2004). An F test for linear
+models with functional responses. *Statistica Sinica* 14(4), 1239-1257.
+[www3.stat.sinica.edu.tw](https://www3.stat.sinica.edu.tw/statistica/J14N4/J14N415/J14N415.html).
+Tests nested linear models for a functional response through an L2 norm whose null law is a
+weighted sum of chi-squares. `jump.joint_est.shape_test` is that construction for one restriction,
+`b(s) = -gamma G(s)`, with a robust covariance and Imhof's exact tail in place of their
+approximation.
+
+Cited in `docs/jump-model-choices.md`, `notebooks/jump_equation_v2.ipynb`,
+`src/fts_research/jump/README.md`.
+
+<a id="ref-stefanucci-bernardi-canale-2025"></a>**[77]** Stefanucci, M., Bernardi, M. and Canale,
 A. (2025). Locally sparse estimation for functional linear models with scalar response. In G.
 Aneiros, E. G. Bongiorno, A. Goia and M. Hušková (eds.), *New Trends in Functional Statistics and
 Related Fields*, Contributions to Statistics, chapter 62, pp. 521-527. Springer.
 [doi:10.1007/978-3-031-92383-8_62](https://doi.org/10.1007/978-3-031-92383-8_62). Problem (62.3) is
 what `fdaSP.SBC` solves.
 
-Cited in `README.md`, `docs/overnight-jumps-literature.md`, `notebooks/HH_vs_SBC.ipynb`,
+Cited in `README.md`, `docs/fda-foundations.md`, `docs/finance-fda-literature.md`,
+`docs/overnight-jumps-literature.md`, `notebooks/HH_vs_SBC.ipynb`,
 `notebooks/tecator_application.ipynb`, `src/fts_research/bench/README.md`,
 `src/fts_research/core/README.md`, `src/fts_research/fdaSP/README.md`,
 `src/fts_research/truncFLR/README.md`.
 
-<a id="ref-wang-leng-2008"></a>**[49]** Wang, H. and Leng, C. (2008). A note on adaptive group
+<a id="ref-wang-leng-2008"></a>**[78]** Wang, H. and Leng, C. (2008). A note on adaptive group
 lasso. *Computational Statistics and Data Analysis* 52(12), 5277-5286.
 [doi:10.1016/j.csda.2008.05.006](https://doi.org/10.1016/j.csda.2008.05.006).
 
 Cited in `src/fts_research/region/README.md`.
 
-<a id="ref-overnight-not-simultaneous-2026"></a>**[50]** When "overnight" is not simultaneous:
+<a id="ref-overnight-not-simultaneous-2026"></a>**[79]** When "overnight" is not simultaneous:
 turning cross index overnight returns into feasible forecasts of morning gaps (2026). *The Journal
 of Finance and Data Science*.
 [sciencedirect.com](https://www.sciencedirect.com/science/article/pii/S2214845026000918). Cited by
@@ -351,21 +639,29 @@ and the two statements need reconciling before either is used.
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-wu-jegadeesh-2022"></a>**[51]** Wu, Y. and Jegadeesh, N. (2022). Closing auctions:
+<a id="ref-wu-jegadeesh-2022"></a>**[80]** Wu, Y. and Jegadeesh, N. (2022). Closing auctions:
 Nasdaq versus NYSE. *Journal of Financial Economics* 143(3), 1120-1139.
 [sciencedirect.com](https://www.sciencedirect.com/science/article/abs/pii/S0304405X21005092).
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-xu-etal-2025"></a>**[52]** Xu, D., Li, B., Singh, T., Chen, X. and Li, J. (2025).
+<a id="ref-xu-etal-2025"></a>**[81]** Xu, D., Li, B., Singh, T., Chen, X. and Li, J. (2025).
 Cross-market overnight time-series momentum. *Journal of International Financial Markets,
 Institutions and Money*.
 [sciencedirect.com](https://www.sciencedirect.com/science/article/abs/pii/S1042443125001295).
 
 Cited in `docs/overnight-jumps-literature.md`, `notebooks/jump_covariates.ipynb`.
 
-<a id="ref-zou-2006"></a>**[53]** Zou, H. (2006). The adaptive lasso and its oracle properties.
+<a id="ref-yao-muller-wang-2005"></a>**[82]** Yao, F., Müller, H.-G. and Wang, J.-L. (2005).
+Functional linear regression analysis for longitudinal data. *The Annals of Statistics* 33(6),
+2873-2903. [doi:10.1214/009053605000000660](https://doi.org/10.1214/009053605000000660).
+Function-on-function regression through the principal component scores of the predictor.
+`jump.joint_est.fit_curve_equation` fits the FAR term of the curve equation this way.
+
+Cited in `notebooks/jump_equation_v2.ipynb`, `src/fts_research/jump/README.md`.
+
+<a id="ref-zou-2006"></a>**[83]** Zou, H. (2006). The adaptive lasso and its oracle properties.
 *Journal of the American Statistical Association* 101(476), 1418-1429.
 [doi:10.1198/016214506000000735](https://doi.org/10.1198/016214506000000735).
 
-Cited in `README.md`, `src/fts_research/region/README.md`.
+Cited in `README.md`, `docs/fda-foundations.md`, `src/fts_research/region/README.md`.

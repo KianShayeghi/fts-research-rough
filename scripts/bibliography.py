@@ -595,8 +595,15 @@ def _notebook_prose(text):
         if cell.get("cell_type") != "markdown":
             continue
         for line in cell.get("source", []):
-            encoded = json.dumps(line)[1:-1]
-            found = text.find(encoded, pos)
+            # nbformat writes non-ASCII characters as themselves and `json.dumps` escapes
+            # them by default, so a line holding a `×` or an accented name is searched for in
+            # both spellings. Searching for only the escaped one skipped such lines silently,
+            # and with them every citation they carried.
+            for ascii_only in (False, True):
+                encoded = json.dumps(line, ensure_ascii=ascii_only)[1:-1]
+                found = text.find(encoded, pos)
+                if found >= 0:
+                    break
             if found < 0:
                 continue
             keep.append((found, found + len(encoded)))

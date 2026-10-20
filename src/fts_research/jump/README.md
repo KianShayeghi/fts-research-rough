@@ -46,7 +46,7 @@ Two things travel with the point estimate and are why `fit_mle` reports more tha
   Newey-West errors agree; on real jumps the volatility clusters even where the AR(1) mean is
   correct, and the sandwich is then the honest one. `tests/test_jump.py` measures both cases.
 - The scores are **generated regressors** — estimated from the same curves — so errors that
-  condition on the decomposition understate the uncertainty in `d` (Pagan [[39]][pagan-1984]).
+  condition on the decomposition understate the uncertainty in `d` (Pagan [[64]][pagan-1984]).
   Nothing here corrects for that, and both sets are conditional on it.
 
 `fit_lasso` is the overfitting diagnostic. The MLE shrinks nothing, and the `d` block is as wide
@@ -98,6 +98,164 @@ estimator can be exercised on serially dependent curves. It should survive them:
 predetermined regressor here, not an i.i.d. draw, and `tests/test_jump.py` checks that it does.
 `snr` is the signal-to-noise convention `truncFLR.HH_dgp` and `fdaSP.SBC_sim` use, measured
 against the exogenous part of the conditional mean.
+
+**`joint_dgp.py`** and **`joint_est.py`**: the jump and the session after it, as one model.
+`jump_eq` takes the curve as given and asks what it says about tonight's jump; the joint model
+also writes down where the curve comes from, so that the two can be simulated together and
+every identity between them holds on the simulated path:
+
+    J_t    = alpha + rho J_{t-1} + ∫ beta(u) X_{t-1}(u) du + eta_t,
+    X_t(s) = mu(s) - gamma_t G(s) J_t + ∫ Psi(s, r) X_{t-1}(r) dr + eps_t(s),
+    eps_t(s) = ∫_0^s sigma(v) dW_t(v),
+
+with `P_t(s) = P_{t-1}(1) + J_t + X_t(s)` putting the log-price curve back together.
+`gamma_t G(s)` is the share of the jump the session has given back by `s` -- the gap filling
+-- and the curve equation is a FAR(1) with the jump as an exogenous regressor
+([[25]][damon-guillas-2002]). `X_t(0) = 0` needs `mu(0) = G(0) = Psi(0, .) = 0` and
+`eps_t(0) = 0`; `JointModel` refuses a parameter set that breaks the first three, and the
+fourth holds because the curve noise is an integral of Brownian motion, drawn exactly on the
+grid from independent increments whose variances follow a U-shaped `sigma^2`
+([[1]][andersen-bollerslev-1997]).
+
+`joint_dgp` holds the theory as well as the simulator, so a simulation is checked against what
+it should produce rather than against itself. Substituting the jump into the curve equation
+writes the pair as one autoregression on `(J_t, X_t)`, and stationarity is a property of that,
+not of the two equations separately: with `Psi = 0` the jump's effective persistence is
+`rho - gamma <beta, G>`, and a random `gamma_t` makes it a random-coefficient autoregression
+whose second moments need the mean-square operator inside the unit circle
+([[63]][nicholls-quinn-1982]). `stationarity` reports both radii, `moments` solves for the
+stationary mean and covariance on the grid, `calibrate` uses those to match four target
+moments exactly, and `scale_to_r2` sets the signal strength of `beta` by the population
+R-squared it implies, which is the fair way to compare two shapes of it. `population_fit` is
+the regression an infinite sample would converge to, for any set of regressors built from
+yesterday's curve, so a misspecified model is costed without sampling error in the way;
+`step_functional` builds the two regressors a step coefficient can mean, on the curve's level
+or on its returns; and `forecast` is the model's conditional expectation of tomorrow given
+today, which is the plainest way to see what a parameter does.
+
+`joint_est` fits the two equations one at a time, which loses nothing: the system is recursive
+and its errors independent, so the conditional likelihood factorises and `J_t` is exogenous in
+the curve equation. The curve equation is regressed at every grid point on the jump and the
+scores of yesterday's curve ([[82]][yao-muller-wang-2005]), and the slope on the jump, `b(s)`,
+is the unrestricted gap-fill profile. `gamma` is read off it by L2 projection onto `G`, and
+by generalised least squares on its increments -- the Brownian noise has independent
+increments, so that is the Gaussian MLE given the rest, and in the notebook's Monte Carlo it
+has about a fifth less variance. `gamma_variance` reads `Var(gamma_t)` off the
+heteroskedasticity a random `gamma_t` leaves. `shape_test` asks whether `b` is a multiple of
+`G` at all, by the L2 norm of its orthogonal part, a weighted sum of chi-squares under the
+null ([[76]][shen-faraway-2004]) whose exact tail `imhof_sf` computes ([[48]][imhof-1961]).
+`onset_profile` locates the onset of a step `beta`, on the curve's level or on its returns,
+and `nesting_test` asks which of the two the jump follows, by regressing it on both: each
+t-test there is a J test of one model against the other ([[26]][davidson-mackinnon-1981]).
+
+Two findings belong with the code, because they decide how it should be used.
+`notes_beta(kind="return")` exists because a coefficient on the *level* of a cumulative curve
+and one on its *returns* are different models: a step on the level weights every return before
+the onset equally and is a kink in the weight on returns, while a step on the returns is a
+switch. `docs/jump-model-choices.md` explains the difference and
+`notebooks/jump_equation_v2.ipynb` measures it. And when the model does meet real curves, they
+only satisfy its identities when built by `fdaSP.intraday.session_curves(...,
+anchor="open")`; under the default anchor the first bar's return is in neither the curve nor
+the jump.
+
+**`basic_dgp.py`** and **`basic_est.py`**: the GBM of *Basic Jump Equation*, and the null
+model it is a special case of. These go with `notebooks/basic_jump_equation.ipynb`, which
+builds the basic model up one step at a time. So far it covers the null and nothing past it:
+there is no regression of a jump on a curve here yet.
+
+`basic_dgp` simulates a geometric Brownian motion observed on the bars of each session. One
+session is the unit of time, and the night has length `T`, so session `t` runs over
+`[a_t, a_t + 1]` with `a_t = t (1 + T) - 1`. The prices are drawn exactly at the observation
+times, so they carry no discretisation error. `split_sessions` cuts them into the notes'
+two pieces, both in percent: the jump `J_t = P_t(0) - P_{t-1}(1)` and the CIDR curve
+`X_t(s) = P_t(s) - P_t(0)`. `gbm_null_parameters` maps the GBM onto the null model:
+
+- `alpha = 100 m T`;
+- `sigma_eta = 100 sigma sqrt(T)`;
+- `mu(s) = 100 m s`;
+- `sigma_eps = 100 sigma`.
+
+That mapping is the truth every estimate in the notebook is held against. `T` is variance
+time, not clock time. With the same `sigma` running through the night, the clock-time ratio
+of 17.5 to 6.5 hours would give the night almost three quarters of each day's variance.
+
+`basic_est` fits the null: `J_t = alpha + eta_t`, and `X_t(s) = mu(s) + sigma_eps W_t(s)` with
+`mu` free apart from `mu(0) = 0`. The fit goes through the curve's increments. Those are
+independent Gaussians with variance `sigma_eps^2 ds`, so the likelihood is exact on the grid
+and every estimate has a closed form:
+
+- `alpha_hat` is the mean jump;
+- `mu_hat` is the mean curve;
+- `s_eps^2` is realised variance pooled over days.
+
+Every interval is exact (t, chi-squared or F), and `tests/test_basic_jump.py` measures the
+coverage of each.
+
+`null_diagnostics` tests each assumption of the null on its own, so a failure says which
+assumption failed. The checks are:
+
+- the jumps are normal: Shapiro-Wilk ([[75]][shapiro-wilk-1965]) and Jarque-Bera
+  ([[50]][jarque-bera-1987]);
+- the jumps and their squares are independent over days: Ljung-Box ([[57]][ljung-box-1978]);
+- the jump is independent of the same day's session;
+- the volatility is constant through the session: Bartlett ([[9]][bartlett-1937]), across
+  half-hour buckets. This is where the U shape of [[1]][andersen-bollerslev-1997] would show;
+- the increments within a session are independent and Gaussian;
+- the covariance is `sigma_eps^2 min(s, s')`: an exact Monte Carlo test, since the distance
+  it uses is invariant to `mu` and `sigma_eps`;
+- the drift is linear, as the GBM requires and the null does not: an exact F test;
+- the curves are independent over days: the portmanteau test of [[29]][gabrys-kokoszka-2007].
+
+With thirteen checks at 5%, a dataset drawn from the null fails at least one of them about two
+times in five, so each row also carries the Holm ([[41]][holm-1979]) adjusted p-value, which is the
+column to read a verdict from. `goodness_of_fit` reports the numbers the basic model will be
+compared against: both maximised log-likelihoods with their AIC and BIC, the jump's in-sample
+root mean squared error about its mean, and the coverage of the fitted 95% predictive band.
+The basic model regresses `J_t` on `X_{t-1}` and so can use only days `2, ..., n`, and the
+null has to be scored on those same days. Out of sample, the benchmark is
+`expanding_mean_forecast`, the null's own forecast of each jump from the jumps before it.
+Its error runs above the in-sample one by about `sqrt(1 + 1/m)`. And because the jump
+equation, given the curves, is a Gaussian linear regression, the test of `beta = 0` is an
+exact F test. `lr_test_size` gives the true size of the chi-squared likelihood ratio in its
+place, which at a quarter's worth of days rises from 5.5% with one component to 8.2% with
+eight.
+
+The main finding sits in the fit rather than in the code. The two halves of the model are
+estimated at very different rates. `sigma_eps` has `(n - 1) K` degrees of freedom and is
+fixed to a fraction of a percent within one quarter. `alpha` and `mu(1)` have standard errors
+of `sigma / sqrt(n)` and cannot be told from zero in the same quarter. Whatever the basic model
+finds in the jump equation, it has to find it against a mean that the data barely pin down.
+
+**`window_dgp.py`**: data for the basic model, with a known answer. It keeps the GBM's
+sessions from `basic_dgp` and replaces its nights with jumps that read the end of the session
+before:
+
+    J_t = 100 m T + kappa T (dhat_{t-1} - 100 m) + 100 sigma sqrt(T) Z_t,
+
+where `dhat_{t-1}` is the least-squares slope of `X_{t-1}` over the last 20% of the session.
+`dhat` is a statistic of the observed curve, not the drift. It is exactly
+`N(100 m, sigma_eps^2 sum g^2 ds)`, with sd 2.43% per session against a drift of 0.02%, so it
+is almost entirely the window's realised trend. That trend is what the jump responds to: the
+DGP is late-session momentum. `window_return_weights` writes `dhat` as a parabola-weighted
+average of the window's returns. `window_slope_sd` and `window_slope_ci` give its exact
+standard deviation and a valid interval for the drift. The textbook OLS standard error of the
+slope treats a Brownian path's deviations from the line as independent, and it is about eleven
+times too small.
+
+`kappa = 0` is the null, and `kappa = 1` is a night that carries on the window's slope in full
+(`R^2 = 0.60`). The slope is a linear functional of the curve, so this is exactly the basic
+model, with `beta(u) = kappa T 12 (u - 0.9) / 0.2^3` on `[0.8, 1]` and zero before it
+(`window_beta`). Three properties hold:
+
+- the overnight path is never simulated, because its Gaussian end point is all the jump is;
+- the curves are unchanged, and with the same seed they are `gbm_sessions`' own;
+- a burn-in curve, drawn after the sample, gives the first jump its previous session.
+
+`window_jump_truth` gives the moments of `dhat` and of the jump exactly on the grid.
+`vol="realised"` sets the night's variance from the window's realised variance instead. Under
+a constant `sigma` that carries almost nothing and makes the noise heteroskedastic, so it is
+off by default.
+`notebooks/window_jump_dgp.ipynb` builds and checks these data.
 
 ## Usage
 
@@ -159,6 +317,39 @@ print(fit.wald("k", hac=True))                     # are the three of them joint
 `benjamini_hochberg` over the whole table of tests rather than a five per cent level over
 each of them.
 
+The null model of *Basic Jump Equation*, on the three months of GBM prices it is first
+studied on:
+
+```python
+import numpy as np
+
+from fts_research.jump import basic_dgp as bd
+from fts_research.jump import basic_est as be
+
+path = bd.gbm_sessions(n_days=63, n_bars=390, S0=100.0, sigma=0.01, T=0.25, nu=2.5e-4,
+                       rng=np.random.default_rng(0))
+J, X = bd.split_sessions(path["S"], S0=100.0)
+
+fit = be.fit_null(J, X, path["s"])
+truth = bd.gbm_null_parameters(sigma=0.01, T=0.25, nu=2.5e-4)
+print(be.parameter_table(fit, truth))              # estimates, exact intervals, truth
+print(be.null_diagnostics(fit, J, X, rng=np.random.default_rng(1)))
+print(be.goodness_of_fit(fit, J, X))               # the baseline for the basic model
+```
+
+`notebooks/basic_jump_equation.ipynb` runs it with every figure and reads every table.
+
+The same GBM, with nights that carry on half of the late-session drift:
+
+```python
+from fts_research.jump import window_dgp as wd
+
+sim = wd.window_jump_sessions(n_days=63, kappa=0.5, rng=np.random.default_rng(0))
+truth = wd.window_jump_truth(sim["s"], kappa=0.5)
+print(truth["r2"], truth["kappa_T"])               # 0.27 of the jump is predictable
+J, X = bd.split_sessions(sim["S"], sim["S0"])      # the same J and X as sim["J"], sim["X"]
+```
+
 ## Tests
 
 `pytest tests/test_jump.py` — the design matrix against a hand-built lag, since putting `psi_t`
@@ -182,20 +373,105 @@ volume excludes the session it describes, and that a cutoff really drops the bar
 rather than down-weighting them. Then the multiple-testing step, against a four-test example
 worked by hand and against uniform p-values, where it must reject almost nothing.
 
+`pytest tests/test_joint.py` -- the model before the estimators. The three identities on a
+simulated path, and every curve and jump recomputed from its own equation with the simulator's
+draws; a parameter set that would move the open refused; the curve noise's covariance against
+Brownian motion's, and its increments independent; the mean-square radius against a dense
+Kronecker eigendecomposition, and a pair of equations each stationary on its own that explodes
+together; the stationary mean against both expectation equations, and the solved moments
+against 100,000 simulated days; calibration hitting its targets exactly. Then the estimators:
+Frisch-Waugh consistency, exact recovery with the curve noise switched off, every scalar in a
+large sample, `Var(gamma_t)` found where it exists and not invented where it does not, the
+onset found on returns, Imhof against the chi-squared and against simulation, and -- marked
+slow -- the shape test holding its size and the gamma intervals holding their coverage.
+
+`pytest tests/test_basic_jump.py` -- in four groups, one per thing the notebook leans on.
+
+- **The simulator.** It reproduces, bit for bit, the path the notebook was first run on. Its
+  jumps and curves have the moments `gbm_null_parameters` claims, which is what makes the
+  truth columns true.
+- **The slicing.** The curves start at zero, and the jumps and session returns rebuild every
+  close. The same prices written as one-minute bars and passed through
+  `fdaSP.intraday.session_curves(anchor="open")` and `overnight_jumps` give the same curves
+  and jumps, so moving to market data will change the data and nothing else.
+- **The fit.** Its closed forms are checked on three hand-written curves over an uneven grid,
+  and its log-likelihoods against `scipy.stats.norm`. It recovers a nonlinear `mu` in a large
+  sample, and each of its five exact intervals covers 95% over 500 replications.
+- **The diagnostics.**
+  - The Ljung-Box, Bartlett and Holm helpers agree with statsmodels and scipy.
+  - The exact checks reject 5% of the time on null data, and the portmanteau test no more
+    than that.
+  - The fitted band covers 95% of null data.
+  - Each check rejects, after the Holm adjustment, an alternative that breaks only its own
+    assumption: a U-shaped volatility, AR and GARCH jumps, t-distributed jumps and
+    increments, a jump tied to its session, MA increments, Ornstein-Uhlenbeck curves, a
+    sinusoidal drift and AR curves.
+
+`pytest tests/test_window_jump.py` -- seven tests, one per claim the notebook makes:
+
+- the slope weights give the least-squares slope, and the return weights give the same number;
+- the curves are the GBM's and the restitched prices slice back exactly;
+- each jump reads the previous curve, and `beta` integrates to the same signal;
+- `kappa = 0` is the null;
+- the variance of the jump and its slope on `dhat` match `window_jump_truth`;
+- `dhat` has the stated sd, both intervals cover 95%, the plug-in one uses the window's 77
+  degrees of freedom, and the textbook OLS standard error is far too small;
+- the realised-variance switch is unbiased and bad settings are refused.
+
 ## References
 
 The works this package rests on. Full entries, with journals and DOIs, are in
 [the repository's one bibliography](../../../docs/references.md); the numbers below
 link into it.
 
-<!-- references: pagan-1984, newey-west-1987 -->
-- **[38]** Newey & West (1987), [A simple, positive semi-definite, heteroskedasticity and
+<!-- references:
+  pagan-1984, newey-west-1987, damon-guillas-2002, andersen-bollerslev-1997, nicholls-quinn-1982,
+  yao-muller-wang-2005, shen-faraway-2004, imhof-1961, davidson-mackinnon-1981, shapiro-wilk-1965,
+  jarque-bera-1987, ljung-box-1978, bartlett-1937, gabrys-kokoszka-2007, holm-1979
+-->
+- **[1]** Andersen & Bollerslev (1997), [Intraday periodicity and volatility persistence in
+  financial markets][andersen-bollerslev-1997].
+- **[9]** Bartlett (1937), [Properties of sufficiency and statistical tests][bartlett-1937].
+- **[25]** Damon & Guillas (2002), [The inclusion of exogenous variables in functional
+  autoregressive ozone forecasting][damon-guillas-2002].
+- **[26]** Davidson & MacKinnon (1981), [Several tests for model specification in the presence of
+  alternative hypotheses][davidson-mackinnon-1981].
+- **[29]** Gabrys & Kokoszka (2007), [Portmanteau test of independence for functional
+  observations][gabrys-kokoszka-2007].
+- **[41]** Holm (1979), [A simple sequentially rejective multiple test procedure][holm-1979].
+- **[48]** Imhof (1961), [Computing the distribution of quadratic forms in normal
+  variables][imhof-1961].
+- **[50]** Jarque & Bera (1987), [A test for normality of observations and regression
+  residuals][jarque-bera-1987].
+- **[57]** Ljung & Box (1978), [On a measure of lack of fit in time series models][ljung-box-1978].
+- **[62]** Newey & West (1987), [A simple, positive semi-definite, heteroskedasticity and
   autocorrelation consistent covariance matrix][newey-west-1987].
-- **[39]** Pagan (1984), [Econometric issues in the analysis of regressions with generated
+- **[63]** Nicholls & Quinn (1982), [*Random Coefficient Autoregressive Models: An
+  Introduction*][nicholls-quinn-1982].
+- **[64]** Pagan (1984), [Econometric issues in the analysis of regressions with generated
   regressors][pagan-1984].
+- **[75]** Shapiro & Wilk (1965), [An analysis of variance test for normality (complete
+  samples)][shapiro-wilk-1965].
+- **[76]** Shen & Faraway (2004), [An F test for linear models with functional
+  responses][shen-faraway-2004].
+- **[82]** Yao, Müller & Wang (2005), [Functional linear regression analysis for longitudinal
+  data][yao-muller-wang-2005].
 <!-- /references -->
 
 <!-- reference-links -->
+[andersen-bollerslev-1997]: ../../../docs/references.md#ref-andersen-bollerslev-1997
+[bartlett-1937]: ../../../docs/references.md#ref-bartlett-1937
+[damon-guillas-2002]: ../../../docs/references.md#ref-damon-guillas-2002
+[davidson-mackinnon-1981]: ../../../docs/references.md#ref-davidson-mackinnon-1981
+[gabrys-kokoszka-2007]: ../../../docs/references.md#ref-gabrys-kokoszka-2007
+[holm-1979]: ../../../docs/references.md#ref-holm-1979
+[imhof-1961]: ../../../docs/references.md#ref-imhof-1961
+[jarque-bera-1987]: ../../../docs/references.md#ref-jarque-bera-1987
+[ljung-box-1978]: ../../../docs/references.md#ref-ljung-box-1978
 [newey-west-1987]: ../../../docs/references.md#ref-newey-west-1987
+[nicholls-quinn-1982]: ../../../docs/references.md#ref-nicholls-quinn-1982
 [pagan-1984]: ../../../docs/references.md#ref-pagan-1984
+[shapiro-wilk-1965]: ../../../docs/references.md#ref-shapiro-wilk-1965
+[shen-faraway-2004]: ../../../docs/references.md#ref-shen-faraway-2004
+[yao-muller-wang-2005]: ../../../docs/references.md#ref-yao-muller-wang-2005
 <!-- /reference-links -->

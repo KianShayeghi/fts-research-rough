@@ -21,7 +21,7 @@ Add a naive method to HH.py, seeing what happens if we choose to circumvent the 
 ## 2026-08-31 -- the overnight-jump project, folded in
 
 Brought the old `overnight-jump` repository into this one. Two things came out of it: the Shang
-[[46]][shang-2017a] forecaster, now `ftsa`, and the jump equation, now `jump`. Notes on what
+[[73]][shang-2017a] forecaster, now `ftsa`, and the jump equation, now `jump`. Notes on what
 changed and what is still open.
 
 The FPCA front end was the duplication worth killing. Both of the old modules ran their own
@@ -111,10 +111,113 @@ Open:
 
 Fix citations and layout of repo. Bibliography section, merge packages, merge readmes, clean up notebooks and tests.
 
+## 2026-10-15 -- the basic jump equation, step 2: the null model
+
+`notebooks/basic_jump_equation.ipynb` now slices the simulated GBM quarter into jumps and CIDR
+curves, fits the null model and tests it. The simulator and the slicing moved into
+`jump.basic_dgp` without changing a draw, and the fit and diagnostics are in `jump.basic_est`.
+
+The curve's likelihood is exact through its increments, so every estimate is closed-form and
+every interval exact, with nothing asymptotic about them. Every parameter is covered.
+
+The useful finding is the identification asymmetry. Three months fix `sigma_eps` to under half
+a percent, while `alpha` and `mu(1)` have t-statistics under 1 against zero and against five
+times their truth alike. The true session drift would need about forty years of days to sit
+two standard errors from zero.
+
+Thirteen diagnostics, one per assumption, all pass after Holm. Two raw p-values came in under
+5% (linear drift and the portmanteau test). The notebook's own Monte Carlo shows that two in
+five null datasets do that at this design, so it is expected rather than a warning.
+
+One thing I got wrong on the way and that is worth remembering: calibrating the diagnostics by
+simulating from the *fitted* null fails every dataset. The fitted mean is the free `mu_hat`,
+which carries the sample's noise, so data drawn from it fail the linear-drift test by
+construction. Calibration has to simulate from the data-generating process.
+`basic_est.simulate_null` now says so.
+
+Open:
+
+- the power of the test of `beta = 0` against sample length and effect size. Over 63 days only
+  a large `beta` can be visible, because the jump's mean is not identified and `beta` has to
+  show up in the jump's variance. That is the next step's first question.
+- the free `mu` costs 390 parameters to describe noise, and the F test does not reject
+  linearity. The basic model could take `mu(s) = mu_1 s` instead. It changes nothing in the
+  jump equation, but it would matter once the jump enters the curve (v2).
+
+Corrections, made the same day after checking the notebook's numbers:
+
+- "Two in five null datasets do that" was wrong for *two* raw failures. Two in five is the
+  rate of at least one. The same Monte Carlo puts two or more at 14%: rarer, still not a
+  warning.
+- The baseline for the basic model was on the wrong days. The basic model regresses `J_t` on
+  `X_{t-1}` and can only use days 2-63, so the null's jump log-likelihood has to be computed on
+  those too: -38.2903, not -38.4060 on all 63.
+- The out-of-sample benchmark is the expanding mean's forecast error (0.4630 over days 22-63,
+  `basic_est.expanding_mean_forecast`), not the in-sample RMSE.
+- The test of `beta = 0` is exact as an F test, because the jump equation is a Gaussian
+  regression given the curves. The chi-squared likelihood ratio is oversized at 62 days, from
+  5.5% with one component to 8.2% with eight (`basic_est.lr_test_size`).
+- Wording: `alpha` and `mu` are identified, just imprecisely estimated, and `nu` is the drift
+  of the price (8% a year), not of its log (6.3%).
+
+## 2026-10-16 -- jumps that read the end of the session
+
+New DGP for the basic model: `jump.window_dgp`, with `notebooks/window_jump_dgp.ipynb`. The
+GBM's sessions are kept and its nights replaced, so that each jump depends on the
+least-squares slope of the last 20% of the session before. A dial `kappa` runs from the null
+(0) to a night that carries on that slope in full (1).
+
+Decisions, and why:
+
+- **Least-squares slope rather than the endpoint return `(X(1) - X(0.8)) / 0.2`.** The endpoint
+  return is the GBM drift MLE, but its `beta` is two point masses. The slope has an L2
+  `beta(u) = kappa T 12 (u - 0.9) / 0.2^3` on the window, so the DGP is exactly the basic
+  model with a target a fit can be held against.
+- **Free `kappa`, noise at the GBM's size.** Taken literally (`kappa = 1`), the proposal gives
+  `R^2 = 0.60` and `sd(J) = 0.79%` against 0.50%. That is far stronger than any market will
+  show, so the notebook runs `kappa` in {0, 0.25, 0.5, 1}, with `R^2` = 0, 0.08, 0.27, 0.60.
+- **Realised-variance switch, off by default.** Under a constant `sigma` the window's realised
+  variance is `chi^2_77 / 77` noise and makes `eta` heteroskedastic. A real variance channel
+  needs stochastic session volatility, which is not built yet.
+
+Open:
+
+- fit `beta(u)` by PC regression and see how badly the discontinuity at 0.8 is smeared;
+- power of the F test of `beta = 0` against `kappa` and `n`;
+- a stochastic-volatility version, so that late-session realised variance informs the night.
+
+## 2026-10-19 -- what `dhat` actually is
+
+Correction to the 2026-10-16 entry and the first version of the notebook, which called `dhat`
+"the drift of the last 20%". It is a statistic, the least-squares slope of the observed curve,
+and almost none of it is the drift: `dhat = 100 m + sigma_eps xi`, with `xi` a
+parabola-weighted average of the window's Brownian increments, sd 2.43% per session against a
+drift of 0.02%. The drift is constant across days and predicts nothing. All the signal in the
+DGP is `xi_{t-1}`, so what is built in is late-session momentum in the realised path.
+
+Inference on `dhat` (`window_dgp.window_slope_sd`, `window_slope_ci`; section 2 of the
+notebook):
+
+- it is exactly Gaussian and i.i.d. over days, with variance `sigma_eps^2 sum g^2 ds`
+  (about `1.2 sigma_eps^2 / w`);
+- the textbook OLS interval for the slope treats the 79 points as independent. It is 11.2
+  times too narrow and covers the drift 13.6% of the time. Never use it on a Brownian curve;
+- the Brownian interval covers 95%, whether `sigma_eps` is known or taken from the window's
+  realised variance on 77 df (95.03% over 500,000 sessions). Either way it is about +-4.8% per
+  session wide;
+- none of this enters the jump equation. The jump is defined by `dhat` itself, which is
+  observed exactly, so the regression of `J_t` on `dhat_{t-1}` has no errors-in-variables
+  problem.
+
+A bug found on the way: `window_slope_ci` first counted the degrees of freedom with
+`count_nonzero` on the return weights, whose pre-window entries are 1e-14 rather than zero. It
+used t(389) instead of t(77), and its coverage was 94.7%. Fixed, and the test now checks the
+quantile directly, since coverage at n = 20,000 could not see a 0.3-point shortfall.
+
 ## References
 
 <!-- references: cited -->
-- **[46]** Shang (2017a), [Forecasting intraday S&P 500 index returns: a functional time series
+- **[73]** Shang (2017a), [Forecasting intraday S&P 500 index returns: a functional time series
   approach][shang-2017a].
 <!-- /references -->
 

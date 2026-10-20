@@ -1,7 +1,7 @@
 # ftsa
 
 Forecasting a functional time series through its principal component scores, after Hyndman & Shang
-[[30]][hyndman-shang-2009] and the intraday application of Shang [[46]][shang-2017a]. The sample of
+[[47]][hyndman-shang-2009] and the intraday application of Shang [[73]][shang-2017a]. The sample of
 curves is decomposed once,
 
     X_t(s) = mu(s) + sum_{k=1}^{M} psi_{t,k} phi_k(s) + e_t(s),
@@ -12,7 +12,7 @@ the temporal modelling happens in `R^M` and none of it in function space, which 
 the method as cheap as it is.
 
 The package is named for the R package it ports, as `fdaSP` is: Shang's `ftsa::forecast.ftsm`
-(Shang [[45]][shang-2013]) is the routine reproduced here. It shares its decomposition with `far`
+(Shang [[72]][shang-2013]) is the routine reproduced here. It shares its decomposition with `far`
 rather than keeping a second one — `far_est.fpca` is what both call — so the scores forecast here
 are the scores `far_est.far1_fit` regresses, and the two forecasters below differ in what they do
 with those scores and in nothing else.
@@ -30,7 +30,7 @@ which the bootstrap needs. `forecast_scores` takes the two routes Shang compares
   of it, so on a near-tie the two can pick different orders; that is the one place a replication of
   Shang cannot be made exact, and it is not a Python limitation.
 - `method="far"` — one vector autoregression on the whole score vector, at order one. That is Aue,
-  Norinho & Hörmann's [[2]][aue-norinho-hormann-2015] route, and at order one it *is*
+  Norinho & Hörmann's [[3]][aue-norinho-hormann-2015] route, and at order one it *is*
   `far.far_est`'s operator: `forecast_scores` calls `far_est.score_operator`, so the comparison
   between the two methods is a comparison of Shang's forecaster against this repository's FAR(1) on
   identical components rather than against a second implementation of one.
@@ -44,7 +44,7 @@ model's `h`-step to its one-step forecast standard deviation; at `h = 1` that fa
 the scheme is Shang's exactly.
 
 **`updating.py`**: the second half of both 2017 papers, after Shang & Hyndman
-[[44]][shang-hyndman-2011]. Once the first `m` points of a day are observed, the forecast of the
+[[71]][shang-hyndman-2011]. Once the first `m` points of a day are observed, the forecast of the
 rest of it is revised. Four methods differ only in which score vector they rebuild the unobserved
 block from: `ols` regresses the observed block on the same block of the components, `ridge` shrinks
 that toward the mean curve, `pls` shrinks it toward the day-ahead forecast instead, and `block`
@@ -63,7 +63,7 @@ value so that only the shape of the remainder is judged.
 
 **`evaluation.py`**: the protocol the accuracy tables come from — expanding window, one step ahead,
 re-estimated at every split, so nothing is fitted on a curve it is later scored against. Shang's
-three measures, `interval_score` being Gneiting & Raftery's [[25]][gneiting-raftery-2007], each
+three measures, `interval_score` being Gneiting & Raftery's [[34]][gneiting-raftery-2007], each
 reported both averaged over the holdout and profiled along the intraday grid, since *when* in the
 session a forecaster goes wrong is what a grand mean throws away. `replication_curves` builds the
 design itself, from the committed 2017 S&P 500 panel through `fdaSP.intraday.session_curves`, so
@@ -142,19 +142,19 @@ link into it.
   aue-norinho-hormann-2015, gneiting-raftery-2007, hyndman-khandakar-2008, hyndman-shang-2009,
   shang-hyndman-2011, shang-2013, shang-2017a, shang-2017b
 -->
-- **[2]** Aue, Norinho & Hörmann (2015), [On the prediction of stationary functional time
+- **[3]** Aue, Norinho & Hörmann (2015), [On the prediction of stationary functional time
   series][aue-norinho-hormann-2015].
-- **[25]** Gneiting & Raftery (2007), [Strictly proper scoring rules, prediction, and
+- **[34]** Gneiting & Raftery (2007), [Strictly proper scoring rules, prediction, and
   estimation][gneiting-raftery-2007].
-- **[29]** Hyndman & Khandakar (2008), [Automatic time series forecasting: the forecast package for
+- **[46]** Hyndman & Khandakar (2008), [Automatic time series forecasting: the forecast package for
   R][hyndman-khandakar-2008].
-- **[30]** Hyndman & Shang (2009), [Forecasting functional time series][hyndman-shang-2009].
-- **[44]** Shang & Hyndman (2011), [Nonparametric time series forecasting with dynamic
+- **[47]** Hyndman & Shang (2009), [Forecasting functional time series][hyndman-shang-2009].
+- **[71]** Shang & Hyndman (2011), [Nonparametric time series forecasting with dynamic
   updating][shang-hyndman-2011].
-- **[45]** Shang (2013), [ftsa: an R package for analyzing functional time series][shang-2013].
-- **[46]** Shang (2017a), [Forecasting intraday S&P 500 index returns: a functional time series
+- **[72]** Shang (2013), [ftsa: an R package for analyzing functional time series][shang-2013].
+- **[73]** Shang (2017a), [Forecasting intraday S&P 500 index returns: a functional time series
   approach][shang-2017a].
-- **[47]** Shang (2017b), [Functional time series forecasting with dynamic updating: an application
+- **[74]** Shang (2017b), [Functional time series forecasting with dynamic updating: an application
   to intraday particulate matter concentration][shang-2017b].
 <!-- /references -->
 

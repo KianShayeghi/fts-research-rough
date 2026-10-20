@@ -99,8 +99,8 @@ The works this package rests on. Full entries, with journals and DOIs, are in
 link into it.
 
 <!-- references: hall-hooker-2016, stefanucci-bernardi-canale-2025 -->
-- **[26]** Hall & Hooker (2016), [Truncated linear models for functional data][hall-hooker-2016].
-- **[48]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
+- **[37]** Hall & Hooker (2016), [Truncated linear models for functional data][hall-hooker-2016].
+- **[77]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
   models with scalar response][stefanucci-bernardi-canale-2025].
 <!-- /references -->
 

@@ -1,7 +1,7 @@
 # fdaSP
 
 Locally sparse scalar-on-function regression, following Stefanucci, Bernardi & Canale
-[[48]][stefanucci-bernardi-canale-2025]:
+[[77]][stefanucci-bernardi-canale-2025]:
 
     y_i = ∫_T x_i(t) ψ(t) dt + z_i ^ T γ + ε_i,    i = 1, ..., n
 
@@ -173,11 +173,11 @@ The works this package rests on. Full entries, with journals and DOIs, are in
 link into it.
 
 <!-- references: stefanucci-bernardi-canale-2025, bernardi-stefanucci-2023, parkinson-1980 -->
-- **[9]** Bernardi & Stefanucci (2023), [fdaSP: sparse functional data analysis
+- **[12]** Bernardi & Stefanucci (2023), [fdaSP: sparse functional data analysis
   methods][bernardi-stefanucci-2023].
-- **[40]** Parkinson (1980), [The extreme value method for estimating the variance of the rate of
+- **[65]** Parkinson (1980), [The extreme value method for estimating the variance of the rate of
   return][parkinson-1980].
-- **[48]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
+- **[77]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
   models with scalar response][stefanucci-bernardi-canale-2025].
 <!-- /references -->
 

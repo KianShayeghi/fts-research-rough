@@ -441,3 +441,19 @@ def test_no_marker_is_left_dangling():
         for match in bib.BROKEN_MARKER.finditer(bib.rendered_prose(rel, text)):
             broken.append(f"{rel}:{text.count(chr(10), 0, match.start()) + 1}")
     assert not broken, f"markers with no link: {broken}"
+
+
+@pytest.mark.parametrize("ensure_ascii", [False, True])
+def test_a_notebook_line_with_a_non_ascii_character_is_still_read(ensure_ascii):
+    """nbformat writes `×` as itself and `json.dumps` escapes it by default, so a notebook may
+    hold either spelling. A citation on such a line must be seen, and numbered, under both:
+    it once went unseen, and the checker reported the file in step with `[[0]]` still in it."""
+    cell = {"cell_type": "markdown", "metadata": {},
+            "source": ["| ratio | 2.5× | see [[0]](../docs/references.md#ref-hall-hooker-2016) |"]}
+    text = json.dumps({"cells": [cell], "metadata": {}, "nbformat": 4, "nbformat_minor": 5},
+                      ensure_ascii=ensure_ascii, indent=1)
+    rel = "notebooks/example.ipynb"
+    assert [key for _n, key, _s in bib.markers(rel, text)] == ["hall-hooker-2016"]
+    fixed = bib.rewrite(rel, text, ENTRIES)
+    assert f"[[{REFS['hall-hooker-2016']['number']}]](" in fixed
+    assert json.loads(fixed)["cells"][0]["source"][0].count("×") == 1

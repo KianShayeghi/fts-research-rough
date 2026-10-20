@@ -130,12 +130,16 @@ def theta_lam_variance(S_Y, theta_grid, idx, lam, sigma2, n):
     return (sigma2 / n) * s_Y2 / (s_Y2 + lam) ** 2
 
 
-def weighted_S_b(S_b, theta_grid, theta_lam, V, w, per_sd=8, n_sd=6.0):
+_STEP7_PER_SD = 8      # integration points per standard deviation of the weight
+_STEP7_N_SD = 6.0      # half-width of the integration range, in standard deviations
+
+
+def weighted_S_b(S_b, theta_grid, theta_lam, V, w):
     """Step-7 criterion P_b(lambda) = int S_b(theta) w(theta; theta_lambda, V) dtheta.
 
     The weight has standard deviation sqrt(V), which is finer than the spacing of
-    `theta_grid`, so the integral is taken on a grid refined to `per_sd` points per standard
-    deviation with S_b interpolated linearly onto it. Returns P_b (float).
+    `theta_grid`, so the integral is taken on a grid refined to `_STEP7_PER_SD` points per
+    standard deviation with S_b interpolated linearly onto it. Returns P_b (float).
 
     Integrating on `theta_grid` itself is exact up to aliasing, and by Poisson summation
     overstates the integral by sum_m exp(-2 pi^2 m^2 V / h^2) for h the grid spacing: harmless
@@ -145,14 +149,12 @@ def weighted_S_b(S_b, theta_grid, theta_lam, V, w, per_sd=8, n_sd=6.0):
     resolvable by a grid chosen for something else.
 
     PARAMETERS
-    w      : callable, the weighting density, called as `w(theta, theta_lam, V)`;
-    per_sd : int, integration points per standard deviation of the weight;
-    n_sd   : float, half-width of the integration range, in standard deviations.
+    w : callable, the weighting density, called as `w(theta, theta_lam, V)`.
     """
     sd = np.sqrt(V)
-    lo = max(theta_grid[0], theta_lam - n_sd * sd)
-    hi = min(theta_grid[-1], theta_lam + n_sd * sd)
-    n_points = max(int(np.ceil((hi - lo) * per_sd / sd)) + 1, 33)
+    lo = max(theta_grid[0], theta_lam - _STEP7_N_SD * sd)
+    hi = min(theta_grid[-1], theta_lam + _STEP7_N_SD * sd)
+    n_points = int(np.ceil((hi - lo) * _STEP7_PER_SD / sd)) + 1
     fine = np.linspace(lo, hi, n_points)
     return float(np.trapezoid(np.interp(fine, theta_grid, S_b) * w(fine, theta_lam, V), fine))
 

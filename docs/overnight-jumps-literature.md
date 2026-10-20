@@ -20,35 +20,35 @@ same thing from many directions at once.
 ## 1. The stylised facts the sign has to be explained against
 
 **Overnight and intraday returns are different animals.** Almost the whole of the equity premium
-accrues while the market is shut. French and Roll [[19]][french-roll-1986] established that
+accrues while the market is shut. French and Roll [[28]][french-roll-1986] established that
 variance per hour is far higher during trading than during non-trading hours, so the overnight
 window is long, quiet, and carries most of the drift. Cliff, Cooper and Gulen
-[[17]][cliff-cooper-gulen-2008] put the point bluntly: essentially all of the US equity premium is
+[[23]][cliff-cooper-gulen-2008] put the point bluntly: essentially all of the US equity premium is
 earned overnight, and the intraday return is on average negative. Berkman, Koch, Tuttle and Zhang
-[[8]][berkman-etal-2012] sharpen it into a cross-section -- positive overnight returns
+[[11]][berkman-etal-2012] sharpen it into a cross-section -- positive overnight returns
 systematically reverse during the day -- and locate the effect in stocks that have just drawn
 retail attention, that are hard to value and costly to arbitrage, and in periods of high retail
 sentiment. Their conclusion is a cost, not a signal: buying at the open is expensive in a way the
 quoted spread does not show.
 
 <!-- references: cliff-cooper-gulen-2008, french-roll-1986, berkman-etal-2012 -->
-- **[8]** Berkman et al. (2012), [Paying attention: overnight returns and the hidden cost of buying
-  at the open][berkman-etal-2012].
-- **[17]** Cliff, Cooper & Gulen (2008), [*Return differences between trading and non-trading
+- **[11]** Berkman et al. (2012), [Paying attention: overnight returns and the hidden cost of
+  buying at the open][berkman-etal-2012].
+- **[23]** Cliff, Cooper & Gulen (2008), [*Return differences between trading and non-trading
   hours: like night and day*][cliff-cooper-gulen-2008].
-- **[19]** French & Roll (1986), [Stock return variances: the arrival of information and the
+- **[28]** French & Roll (1986), [Stock return variances: the arrival of information and the
   reaction of traders][french-roll-1986].
 <!-- /references -->
 
 **The two components have opposite risk prices.** Hendershott, Livdan and Rösch
-[[28]][hendershott-livdan-rosch-2020] find returns positively related to beta overnight and
+[[40]][hendershott-livdan-rosch-2020] find returns positively related to beta overnight and
 negatively related to it during the day, in the United States and internationally, across
 beta-sorted, industry and book-to-market portfolios. The CAPM fails over twenty-four hours because
 it is two offsetting regressions stacked on top of each other. Lou, Polk and Skouras
-[[34]][lou-polk-skouras-2019] find firm-level continuation *within* each period and reversal
+[[58]][lou-polk-skouras-2019] find firm-level continuation *within* each period and reversal
 *across* them, persisting when the signal is lagged by up to sixty months, and trace it to a tug of
 war between institutional traders who transact during the day and retail flow that arrives at the
-open. Bogousslavsky [[10]][bogousslavsky-2021] shows the anomalies themselves accrue on radically
+open. Bogousslavsky [[13]][bogousslavsky-2021] shows the anomalies themselves accrue on radically
 different intraday schedules, with the size and illiquidity premia realised in the last thirty
 minutes of trading.
 
@@ -56,17 +56,17 @@ minutes of trading.
   hendershott-livdan-rosch-2020, lou-polk-skouras-2019, bogousslavsky-2021,
   bogousslavsky-muravyev-2023a
 -->
-- **[10]** Bogousslavsky (2021), [The cross-section of intraday and overnight
+- **[13]** Bogousslavsky (2021), [The cross-section of intraday and overnight
   returns][bogousslavsky-2021].
-- **[11]** Bogousslavsky & Muravyev (2023a), [Market return around the clock: a
+- **[14]** Bogousslavsky & Muravyev (2023a), [Market return around the clock: a
   puzzle][bogousslavsky-muravyev-2023a].
-- **[28]** Hendershott, Livdan & Rösch (2020), [Asset pricing: a tale of night and
+- **[40]** Hendershott, Livdan & Rösch (2020), [Asset pricing: a tale of night and
   day][hendershott-livdan-rosch-2020].
-- **[34]** Lou, Polk & Skouras (2019), [A tug of war: overnight versus intraday expected
+- **[58]** Lou, Polk & Skouras (2019), [A tug of war: overnight versus intraday expected
   returns][lou-polk-skouras-2019].
 <!-- /references -->
 
-**The session has its own internal momentum.** Gao, Han, Li and Zhou [[22]][gao-etal-2018] find the
+**The session has its own internal momentum.** Gao, Han, Li and Zhou [[31]][gao-etal-2018] find the
 first half-hour return of the S&P 500 ETF predicting the last half-hour return, with a predictive
 R-squared of 1.6% rising to 2.6% when the twelfth half-hour is added, stronger on volatile days,
 high-volume days, recession days and macroeconomic release days, and present in ten other actively
@@ -76,7 +76,7 @@ fractions of a session separately from the whole of it: if a session's beginning
 its beginning and its end are not interchangeable as predictors of what follows the close either.
 
 <!-- references: gao-etal-2018 -->
-- **[22]** Gao et al. (2018), [Market intraday momentum][gao-etal-2018].
+- **[31]** Gao et al. (2018), [Market intraday momentum][gao-etal-2018].
 <!-- /references -->
 
 **What this buys the sign question:** the cross-period reversal is the one stylised fact that
@@ -87,7 +87,7 @@ the previous session's return, `ret`, a candidate rather than a control.
 
 ## 2. Inventory and the closing imbalance: the strongest mechanical story
 
-Boyarchenko, Larsen and Whelan [[14]][boyarchenko-larsen-whelan-2023] is the sharpest result in the
+Boyarchenko, Larsen and Whelan [[17]][boyarchenko-larsen-whelan-2023] is the sharpest result in the
 literature and the one this project should take most seriously. Almost the whole US equity premium
 accrues in a one-hour window between 02:00 and 03:00 New York time -- the European open -- and that
 return is strongly related to the **order imbalance at the close of the preceding US session**,
@@ -97,16 +97,16 @@ selloffs generating robust positive overnight reversals and rallies generating m
 
 This is a directional prediction with a sign attached, from a quantity observable before the close.
 Its companion result matters as much: Boyarchenko, Larsen and Whelan
-[[15]][boyarchenko-larsen-whelan-2026] report that the drift **has vanished since 2021**, averaging
+[[18]][boyarchenko-larsen-whelan-2026] report that the drift **has vanished since 2021**, averaging
 close to zero over 2021-2025 against roughly 3.7% a year before, and attribute it to the
 compression of end-of-day imbalance dispersion -- a standard deviation falling from 6.5% to 2.9%.
 Volatility and overnight liquidity were unchanged; the imbalance was the channel and the channel
 closed.
 
 <!-- references: boyarchenko-larsen-whelan-2023, boyarchenko-larsen-whelan-2026 -->
-- **[14]** Boyarchenko, Larsen & Whelan (2023), [The overnight
+- **[17]** Boyarchenko, Larsen & Whelan (2023), [The overnight
   drift][boyarchenko-larsen-whelan-2023].
-- **[15]** Boyarchenko, Larsen & Whelan (2026), [*The disappearing overnight
+- **[18]** Boyarchenko, Larsen & Whelan (2026), [*The disappearing overnight
   drift*][boyarchenko-larsen-whelan-2026].
 <!-- /references -->
 
@@ -118,9 +118,9 @@ Nasdaq. Systematic reversals follow the publication of imbalance information, wh
 temporary price pressure from liquidity trading looks like.
 
 <!-- references: bogousslavsky-muravyev-2023b, wu-jegadeesh-2022 -->
-- **[12]** Bogousslavsky & Muravyev (2023b), [Who trades at the close? Implications for price
+- **[15]** Bogousslavsky & Muravyev (2023b), [Who trades at the close? Implications for price
   discovery and liquidity][bogousslavsky-muravyev-2023b].
-- **[51]** Wu & Jegadeesh (2022), [Closing auctions: Nasdaq versus NYSE][wu-jegadeesh-2022].
+- **[80]** Wu & Jegadeesh (2022), [Closing auctions: Nasdaq versus NYSE][wu-jegadeesh-2022].
 <!-- /references -->
 
 **What this buys, and what it does not.** Signed order imbalance is not in a bar panel. The
@@ -137,13 +137,13 @@ covers, it is the result the literature now predicts.
 ## 3. Information arriving from markets that are open while this one is shut
 
 This is the strand that works, and it is the oldest. Hamao, Masulis and Ng
-[[27]][hamao-masulis-ng-1990] and Engle, Ito and Lin [[18]][engle-ito-lin-1990] established
+[[38]][hamao-masulis-ng-1990] and Engle, Ito and Lin [[27]][engle-ito-lin-1990] established
 transmission across non-overlapping sessions -- the "meteor shower", volatility and returns
 propagating from a closing market to one opening hours later, as against the "heat wave" of a
 market's own persistence. Everything since is a refinement of where the information is and how
 quickly it travels.
 
-The modern versions are directional and specific. Bao, Chen and Ma [[3]][bao-chen-ma-2025] show the
+The modern versions are directional and specific. Bao, Chen and Ma [[5]][bao-chen-ma-2025] show the
 **US last half-hour return predicts the next day's first half-hour return in international
 markets**, in and out of sample, and that a strategy on it survives transaction costs, working best
 where spreads are low or information uncertainty high. Running the clock the other way -- which is
@@ -154,21 +154,21 @@ through the New York night and is the natural predictor of the New York open.
   hamao-masulis-ng-1990, engle-ito-lin-1990, bao-chen-ma-2025, xu-etal-2025,
   rapach-strauss-zhou-2013
 -->
-- **[3]** [Bao, Chen & Ma (2025)][bao-chen-ma-2025].
-- **[18]** Engle, Ito & Lin (1990), [Meteor showers or heat waves? Heteroskedastic intra-daily
+- **[5]** [Bao, Chen & Ma (2025)][bao-chen-ma-2025].
+- **[27]** Engle, Ito & Lin (1990), [Meteor showers or heat waves? Heteroskedastic intra-daily
   volatility in the foreign exchange market][engle-ito-lin-1990].
-- **[27]** Hamao, Masulis & Ng (1990), [Correlations in price changes and volatility across
+- **[38]** Hamao, Masulis & Ng (1990), [Correlations in price changes and volatility across
   international stock markets][hamao-masulis-ng-1990].
-- **[42]** Rapach, Strauss & Zhou (2013), [International stock return predictability: what is the
+- **[67]** Rapach, Strauss & Zhou (2013), [International stock return predictability: what is the
   role of the United States?][rapach-strauss-zhou-2013].
-- **[52]** Xu et al. (2025), [Cross-market overnight time-series momentum][xu-etal-2025].
+- **[81]** Xu et al. (2025), [Cross-market overnight time-series momentum][xu-etal-2025].
 <!-- /references -->
 
 ### 3.1 The look-ahead that inflates the machine-learning results
 
 The applied literature reports overnight *direction* accuracies far above anything in the finance
 literature, and the gap is a timing artefact rather than a modelling advance. Gao, Zhang, Zhang,
-Zhao and Wang [[23]][gao-etal-2022] forecast the close-to-open direction of nine indices with a
+Zhao and Wang [[32]][gao-etal-2022] forecast the close-to-open direction of nine indices with a
 multi-branch convolutional network selected by a genetic algorithm, and report accuracies of 0.6923
 for the S&P 500 against 0.5160 using domestic data alone -- a stated gain of eighteen points from
 adding international indices. The paper is explicit that its third input block is "the current
@@ -177,7 +177,7 @@ American target that block includes European markets, which open at 07:00 UTC **
 UTC** -- four and a half hours after the 14:30 UTC New York open. A same-day European return
 therefore contains most of the New York session it is being used to forecast the start of.
 
-The correction is recent and explicit. Bai and Li [[50]][overnight-not-simultaneous-2026] impose a
+The correction is recent and explicit. Bai and Li [[79]][overnight-not-simultaneous-2026] impose a
 common-clock ordering, build predictors only from markets that have already closed, and use a
 last-known-value rule where a market is on holiday, precisely so that same-date variables cannot
 embed an implicit look-ahead; their point is that "overnight" is not simultaneous and that the
@@ -186,9 +186,9 @@ table also shows the diagnostic that gives the game away in the 2022 paper: its 
 99.945% "down" rate and an imbalance ratio of 1820, which is a stale opening print, not a market.
 
 <!-- references: gao-etal-2022, overnight-not-simultaneous-2026 -->
-- **[23]** Gao et al. (2022), [Forecasting the overnight return direction of stock market index
+- **[32]** Gao et al. (2022), [Forecasting the overnight return direction of stock market index
   combining global market indices: a multiple-branch deep learning approach][gao-etal-2022].
-- **[50]** [When "overnight" is not simultaneous: turning cross index overnight returns into
+- **[79]** [When "overnight" is not simultaneous: turning cross index overnight returns into
   feasible forecasts of morning gaps][overnight-not-simultaneous-2026] (2026).
 <!-- /references -->
 
@@ -201,12 +201,12 @@ session, and why `notebooks/overnight_jumps.ipynb` truncates the London session 
 ## 4. Volatility, jumps and the sign of past variation
 
 The size of the overnight move is forecastable and the literature on it is settled. Realised
-volatility, the Parkinson [[40]][parkinson-1980] range and the overnight gap itself all persist.
+volatility, the Parkinson [[65]][parkinson-1980] range and the overnight gap itself all persist.
 Two results go further and bear on the *sign*.
 
-Barndorff-Nielsen, Kinnebrock and Shephard [[6]][barndorff-nielsen-kinnebrock-shephard-2010] split
+Barndorff-Nielsen, Kinnebrock and Shephard [[8]][barndorff-nielsen-kinnebrock-shephard-2010] split
 realised variance into upside and downside semivariances. Patton and Sheppard
-[[41]][patton-sheppard-2015] show that future volatility responds much more strongly to the
+[[66]][patton-sheppard-2015] show that future volatility responds much more strongly to the
 volatility of past *negative* returns than of positive ones, and that the impact of a jump on
 future volatility depends on the jump's sign: negative jumps raise future volatility and positive
 ones lower it. Their signed jump variation, the difference of the two semivariances, is therefore a
@@ -217,15 +217,15 @@ sessions can end flat with identical realised volatility and opposite signed var
   barndorff-nielsen-kinnebrock-shephard-2010, patton-sheppard-2015,
   andersen-bollerslev-diebold-2007, barndorff-nielsen-shephard-2006, parkinson-1980
 -->
-- **[1]** Andersen, Bollerslev & Diebold (2007), [Roughing it up: including jump components in the
+- **[2]** Andersen, Bollerslev & Diebold (2007), [Roughing it up: including jump components in the
   measurement, modeling, and forecasting of return volatility][andersen-bollerslev-diebold-2007].
-- **[5]** Barndorff-Nielsen & Shephard (2006), [Econometrics of testing for jumps in financial
+- **[7]** Barndorff-Nielsen & Shephard (2006), [Econometrics of testing for jumps in financial
   economics using bipower variation][barndorff-nielsen-shephard-2006].
-- **[6]** Barndorff-Nielsen, Kinnebrock & Shephard (2010), [Measuring downside risk: realised
+- **[8]** Barndorff-Nielsen, Kinnebrock & Shephard (2010), [Measuring downside risk: realised
   semivariance][barndorff-nielsen-kinnebrock-shephard-2010].
-- **[40]** Parkinson (1980), [The extreme value method for estimating the variance of the rate of
+- **[65]** Parkinson (1980), [The extreme value method for estimating the variance of the rate of
   return][parkinson-1980].
-- **[41]** Patton & Sheppard (2015), [Good volatility, bad volatility: signed jumps and the
+- **[66]** Patton & Sheppard (2015), [Good volatility, bad volatility: signed jumps and the
   persistence of volatility][patton-sheppard-2015].
 <!-- /references -->
 
@@ -233,7 +233,7 @@ sessions can end flat with identical realised volatility and opposite signed var
 
 ## 5. Scheduled news, and why it is a calendar rather than a signal
 
-Lucca and Moench [[35]][lucca-moench-2015] find US equity returns of 49 basis points on average in
+Lucca and Moench [[59]][lucca-moench-2015] find US equity returns of 49 basis points on average in
 the twenty-four hours before a scheduled FOMC announcement, more than 80% of the equity premium
 over their sample, with no counterpart in Treasuries or money-market futures and none before other
 macroeconomic releases. Since it is a *scheduled* event the drift is a directional forecast of
@@ -242,20 +242,20 @@ pre-FOMC drift essentially disappeared after 2015, in announcements with and wit
 conference.
 
 Overnight news more broadly is a weaker instrument than it looks. Glasserman, Krstovski, Laliberte
-and Mamaysky [[24]][glasserman-etal-2024] model overnight news topics and find them more
+and Mamaysky [[33]][glasserman-etal-2024] model overnight news topics and find them more
 informative about the *magnitude* of the overnight move than about its sign, which is the same
 asymmetry everything else in this document reports.
 
 <!-- references:
   lucca-moench-2015, kurov-wolfe-gilbert-2021, glasserman-etal-2024, barclay-hendershott-2003
 -->
-- **[4]** Barclay & Hendershott (2003), [Price discovery and trading after
+- **[6]** Barclay & Hendershott (2003), [Price discovery and trading after
   hours][barclay-hendershott-2003].
-- **[24]** Glasserman et al. (2024), [*Does overnight news explain overnight
+- **[33]** Glasserman et al. (2024), [*Does overnight news explain overnight
   returns?*][glasserman-etal-2024].
-- **[32]** Kurov, Wolfe & Gilbert (2021), [The disappearing pre-FOMC announcement
+- **[54]** Kurov, Wolfe & Gilbert (2021), [The disappearing pre-FOMC announcement
   drift][kurov-wolfe-gilbert-2021].
-- **[35]** Lucca & Moench (2015), [The pre-FOMC announcement drift][lucca-moench-2015].
+- **[59]** Lucca & Moench (2015), [The pre-FOMC announcement drift][lucca-moench-2015].
 <!-- /references -->
 
 Neither the FOMC calendar nor a news feed is in `data/`, so both are outside what this
@@ -300,7 +300,7 @@ rule -- which is the whole argument for `truncFLR` and `fdaSP`, arriving from th
 position in the session's range predicts the sign for any instrument. Two readings are consistent
 with the literature and both should be said: an hourly bar's return is a poor proxy for a signed
 order imbalance, and the panel covers 2024 to 2026, over which Boyarchenko, Larsen and Whelan
-[[15]][boyarchenko-larsen-whelan-2026] report the imbalance channel itself as having closed.
+[[18]][boyarchenko-larsen-whelan-2026] report the imbalance channel itself as having closed.
 
 ---
 
@@ -327,12 +327,12 @@ next chapter turns on.
   gabrys-horvath-kokoszka-2010, kokoszka-reimherr-2013, hall-hooker-2016,
   stefanucci-bernardi-canale-2025
 -->
-- **[21]** Gabrys, Horváth & Kokoszka (2010), [Tests for error correlation in the functional linear
+- **[30]** Gabrys, Horváth & Kokoszka (2010), [Tests for error correlation in the functional linear
   model][gabrys-horvath-kokoszka-2010].
-- **[26]** Hall & Hooker (2016), [Truncated linear models for functional data][hall-hooker-2016].
-- **[31]** Kokoszka & Reimherr (2013), [Predictability of shapes of intraday price
+- **[37]** Hall & Hooker (2016), [Truncated linear models for functional data][hall-hooker-2016].
+- **[52]** Kokoszka & Reimherr (2013), [Predictability of shapes of intraday price
   curves][kokoszka-reimherr-2013].
-- **[48]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
+- **[77]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
   models with scalar response][stefanucci-bernardi-canale-2025].
 <!-- /references -->
 
@@ -345,7 +345,7 @@ In rough order of how much each would buy.
 1. **Signed order imbalance at the close**, from TAQ or from an exchange imbalance feed. This is
    the one variable the strongest mechanism in the literature is stated in, and every proxy in
    `jump.covariates` is a proxy for it. Boyarchenko, Larsen and Whelan
-   [[15]][boyarchenko-larsen-whelan-2026] also make it the variable that decides whether the
+   [[18]][boyarchenko-larsen-whelan-2026] also make it the variable that decides whether the
    mechanism is still alive.
 2. **A scheduled-announcement calendar.** FOMC dates are public and would test Lucca and Moench's
    drift directly on this panel, and would let every other coefficient be estimated with
@@ -353,7 +353,7 @@ In rough order of how much each would buy.
 3. **Index futures traded overnight.** The ES contract prices the American index continuously
    through the night, which turns the jump from an unobserved gap into an observed path and changes
    the question from forecasting to filtering.
-4. **After-hours and pre-market volume.** Barclay and Hendershott [[4]][barclay-hendershott-2003]
+4. **After-hours and pre-market volume.** Barclay and Hendershott [[6]][barclay-hendershott-2003]
    show price discovery after hours is real but thin; the Yahoo endpoint the panels come from
    serves regular-session bars only.
 5. **A longer panel.** The hourly panel is 730 days by construction of the endpoint, and the drift

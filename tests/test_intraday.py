@@ -425,3 +425,45 @@ def test_date_blocked_folds_keep_a_date_whole_and_contiguous():
 def test_date_blocked_folds_refuse_more_folds_than_dates():
     with pytest.raises(ValueError, match="cannot fill"):
         itd.date_blocked_folds(np.array(["a", "a", "b"]), 5)
+
+
+def _with_opening_moves(bars):
+    """The same bars with every session's first bar moving between its open and close, which
+    `make_bars` never does -- and which is exactly the return the default anchor loses."""
+    bars = bars.copy()
+    first = bars.groupby("session")["ts"].transform("min") == bars["ts"]
+    bars.loc[first, "open"] = bars.loc[first, "close"] * 0.98
+    return bars
+
+
+def test_the_default_anchor_loses_the_first_bar_and_the_open_anchor_keeps_it(three_days):
+    """Against bars whose first bar moves, the open anchor rebuilds every close-to-close return
+    from `J_{t+1} + X_t(1)` and the default anchor does not, by exactly the first bar."""
+    bars = _with_opening_moves(three_days)
+    days = itd.sessions(bars)
+    closes = np.array([g["close"].iloc[-1] for g in days])
+    jumps = itd.overnight_jumps(bars)["jump"].to_numpy()
+
+    X_open, grid, _ = itd.session_curves(bars, anchor="open")
+    X_old, _, _ = itd.session_curves(bars)
+    for i in range(1, len(days)):
+        close_to_close = np.log(closes[i]) - np.log(closes[i - 1])
+        assert jumps[i - 1] + X_open[i, -1] == pytest.approx(close_to_close, abs=1e-12)
+        lost = np.log(1 / 0.98)
+        assert jumps[i - 1] + X_old[i, -1] == pytest.approx(close_to_close - lost, abs=1e-12)
+    assert grid.size == 6, "five bars and the open are six prices"
+    assert np.all(X_open[:, 0] == 0.0)
+
+
+def test_the_open_anchor_places_each_close_at_the_end_of_its_bar(three_days):
+    bars = _with_opening_moves(three_days)
+    X, grid, _ = itd.session_curves(bars, anchor="open")
+    day = itd.sessions(bars)[0]
+    # five one-hour bars: the first close is one hour into a five-hour span, at s = 0.2
+    assert grid[1] == pytest.approx(0.2)
+    assert X[0, 1] == pytest.approx(np.log(day["close"].iloc[0] / day["open"].iloc[0]))
+
+
+def test_session_curves_rejects_an_unknown_anchor(three_days):
+    with pytest.raises(ValueError, match="anchor"):
+        itd.session_curves(three_days, anchor="midday")

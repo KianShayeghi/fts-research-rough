@@ -10,15 +10,15 @@ Research code for scalar-on-function regression,
 
 where the coefficient function `psi` is zero on part of its domain, so the estimation problem
 includes finding *where*. Two approaches are implemented: `truncFLR`, which assumes the informative
-set is a single interval and estimates its endpoint (Hall & Hooker [[26]][hall-hooker-2016]), and
+set is a single interval and estimates its endpoint (Hall & Hooker [[37]][hall-hooker-2016]), and
 `fdaSP`, which lets it be any union of intervals and induces the sparsity by penalisation
-(Stefanucci, Bernardi & Canale [[48]][stefanucci-bernardi-canale-2025]). `far` supplies serially
+(Stefanucci, Bernardi & Canale [[77]][stefanucci-bernardi-canale-2025]). `far` supplies serially
 dependent curves, so both can be run without the i.i.d. assumption, and also estimates and tests a
 FAR(1) from observed curves; `bench` runs all three methods over a matched grid of designs.
 
 Two further packages take the same curves in the other direction, forward in time rather than onto
 a scalar. `ftsa` forecasts the next curve through its principal component scores, which is Shang's
-[[46]][shang-2017a] method, scores it against the FAR(1) on identical components, and revises it
+[[73]][shang-2017a] method, scores it against the FAR(1) on identical components, and revises it
 through the day as the session is observed; `jump` is the model for the quantity that forecaster
 cannot see, the overnight move between one session's close and the next one's open.
 
@@ -251,6 +251,37 @@ from 5 components to 12 improves the best reconstruction available in the retain
 `1.2968` -- more information, a worse estimate, by a factor of eight. That is the case for
 shrinkage stated as a measurement. `notebooks/jump_equation.ipynb`.
 
+**Written as one system, the jump and the session after it are recoverable bar one function.**
+`jump.joint_dgp` adds the curve's own equation to the jump's -- a FAR(1) with the jump as an
+exogenous regressor and a gap-fill term `-gamma_t G(s) J_t` -- and solves for the stationary
+moments, so a simulation is checked against what it should produce rather than against
+itself. Stationarity is joint, not per equation: the gap-fill feeds yesterday's jump back into
+tonight's through the coefficient function, so with `Psi = 0` the jump's persistence is
+`rho - gamma <beta, G>`. On a design built from first principles, with no market data in it,
+every scalar is unbiased at the parametric rate with intervals that cover, and generalised
+least squares on the increments of the gap-fill profile -- the MLE under the Brownian curve
+noise -- has less variance than the projection estimate of `gamma`. The coefficient function's
+effect on the jump is recovered; the function itself is ill-posed, as it should be.
+`notebooks/jump_equation_v2.ipynb`.
+
+**A coefficient on the level of a cumulative curve and one on its returns are different
+models, and the data can tell them apart.** Integrating by parts, `beta = 1{u >= 0.85}` on the
+CIDR curve weights every return made before 0.85 by `0.15`: it says the jump responds to the
+whole day's move, while the same step on the returns says only the last stretch matters. The
+two regressors are nearly uncorrelated, because the level carries the morning's accumulated
+move; each model, fitted to the other's data, recovers a fraction of the signal even in
+population; a comprehensive regression on both, whose t-tests are Davidson-MacKinnon J tests,
+names the right one from a year of simulated data; and an onset on returns is located sharply
+where an onset on levels barely is. `notebooks/jump_equation_v2.ipynb`,
+`docs/jump-model-choices.md`.
+
+**The intraday curves did not start at the open.** `fdaSP.intraday.session_curves` put each
+bar's close at the bar's start time, so a curve began at the first bar's close and the first
+bar's return was in neither the curve nor the overnight jump -- on the hourly panel, an hour
+whose return has half the session's standard deviation. `anchor="open"` builds the curve the
+jump identities need; the default is unchanged so that the earlier notebooks still reproduce.
+`tests/test_intraday.py`.
+
 **The standard FAR(1) test kernel is rank one.** Bosq's `exp{-(s^2 + r^2)/2}` factorises, so
 it autocorrelates a single direction in L² and leaves every orthogonal direction i.i.d., a much
 narrower departure from independence than it appears. `far` also supplies a full-rank kernel.
@@ -369,6 +400,19 @@ will discard a signal too small to pay for itself in held-out error, which is th
 when the question is which part of the domain matters. The sweep and what it would take are in
 `docs/research-log.md`. `notebooks/region_selection.ipynb`.
 
+**Three months pin down the volatility of the session and not its drift.** Under the null of
+the basic jump equation -- a jump that is i.i.d. normal and a curve that is a Brownian motion
+with a free mean -- the likelihood is exact on the grid through the curve's increments. Every
+estimator is closed-form and every interval exact. On a quarter of one-minute GBM sessions the
+curve volatility has 24,180 degrees of freedom and a relative standard error under half a
+percent. The mean jump and the session drift, sharpened only by the number of days, cannot be
+told from zero or from five times their true values. Thirteen diagnostics, one per assumption,
+pass after a Holm adjustment. Without the adjustment two in five datasets drawn from the null
+fail at least one of them. The baseline the basic model is tested against is scored on the
+62 days it can use, out of sample against the expanding mean, and through the exact F test
+rather than the chi-squared likelihood ratio. `jump.basic_est`,
+`notebooks/basic_jump_equation.ipynb`, `docs/basic-jump-equation.md`.
+
 ## Layout
 
 ```
@@ -382,8 +426,9 @@ src/fts_research/
                 that forecast as the session is observed, and the rolling-origin protocol every
                 route is scored under (ftsa/README.md)
   jump/         The overnight jump equation: closed-form MLE of a scalar-on-function
-                autoregression, its shrinkage diagnostic, and the covariates the scalar block
-                is built from (jump/README.md)
+                autoregression, its shrinkage diagnostic, the covariates the scalar block
+                is built from, the joint model of the jump with the session after it, and
+                the GBM and null model of the basic jump equation (jump/README.md)
   region/       Where the coefficient function is zero, selected for that rather than for
                 prediction, with an error bound on the answer (region/README.md)
   bench/        Matched-spectrum three-way comparison across bases and targets (bench/README.md)
@@ -406,11 +451,18 @@ notebooks/
                               martingale it has to beat
   jump_equation.ipynb         The overnight jump equation, on simulated curves and then on
                               nine instruments of real sessions
+  jump_equation_v2.ipynb      The jump and the session after it as one recursive model,
+                              studied on simulated data only: its consistency, what of it
+                              can be recovered from how many days, and the three modelling
+                              choices that decide what it means
   jump_covariates.ipynb       What predicts the sign of an overnight jump, and what only
                               predicts its size: thirteen covariates from the literature,
                               screened with a false-discovery correction
   region_selection.ipynb      Choosing the null set for support recovery rather than for
                               prediction, with the error bound that comes with it
+  basic_jump_equation.ipynb   The basic jump equation built up one step at a time on a
+                              simulated GBM: the slicing into jumps and curves, the null
+                              model fitted exactly, and every assumption of it tested
 tests/          pytest suite covering all five packages, the documentation, the notebooks
                 and the layout itself
 scripts/        bibliography.py      -- generate and check the bibliography (see below)
@@ -433,6 +485,10 @@ docs/           references.toml -- the bibliography, and the only place a journa
                 research-log.md -- the open questions and dead ends, in date order
                 overnight-jumps-literature.md -- what is known about the close-to-open
                 return, by mechanism, and which of it these panels can test
+                jump-model-choices.md -- levels or returns, the sign of the FAR kernel and
+                the shape of the gap-fill in the joint jump model, explained
+                basic-jump-equation.md -- the null jump model on simulated GBM data: the
+                fit, the diagnostics and the baseline the basic model is tested against
 ```
 
 The eight packages are layered: `core` depends on nothing, `truncFLR` and `fdaSP` on `core`,
@@ -562,27 +618,27 @@ test about each one.
   shang-hyndman-2011, hyndman-shang-2009, shah-samworth-2013, meinshausen-buhlmann-2010,
   chen-chen-2008, zou-2006, benjamini-hochberg-1995, aue-norinho-hormann-2015
 -->
-- **[2]** Aue, Norinho & Hörmann (2015), [On the prediction of stationary functional time
+- **[3]** Aue, Norinho & Hörmann (2015), [On the prediction of stationary functional time
   series][aue-norinho-hormann-2015].
-- **[7]** Benjamini & Hochberg (1995), [Controlling the false discovery rate: a practical and
+- **[10]** Benjamini & Hochberg (1995), [Controlling the false discovery rate: a practical and
   powerful approach to multiple testing][benjamini-hochberg-1995].
-- **[13]** Bosq (2000), [*Linear Processes in Function Spaces*][bosq-2000].
-- **[16]** Chen & Chen (2008), [Extended Bayesian information criteria for model selection with
+- **[16]** Bosq (2000), [*Linear Processes in Function Spaces*][bosq-2000].
+- **[21]** Chen & Chen (2008), [Extended Bayesian information criteria for model selection with
   large model spaces][chen-chen-2008].
-- **[26]** Hall & Hooker (2016), [Truncated linear models for functional data][hall-hooker-2016].
-- **[30]** Hyndman & Shang (2009), [Forecasting functional time series][hyndman-shang-2009].
-- **[37]** Meinshausen & Bühlmann (2010), [Stability selection][meinshausen-buhlmann-2010].
-- **[43]** Shah & Samworth (2013), [Variable selection with error control: another look at
+- **[37]** Hall & Hooker (2016), [Truncated linear models for functional data][hall-hooker-2016].
+- **[47]** Hyndman & Shang (2009), [Forecasting functional time series][hyndman-shang-2009].
+- **[61]** Meinshausen & Bühlmann (2010), [Stability selection][meinshausen-buhlmann-2010].
+- **[70]** Shah & Samworth (2013), [Variable selection with error control: another look at
   stability selection][shah-samworth-2013].
-- **[44]** Shang & Hyndman (2011), [Nonparametric time series forecasting with dynamic
+- **[71]** Shang & Hyndman (2011), [Nonparametric time series forecasting with dynamic
   updating][shang-hyndman-2011].
-- **[46]** Shang (2017a), [Forecasting intraday S&P 500 index returns: a functional time series
+- **[73]** Shang (2017a), [Forecasting intraday S&P 500 index returns: a functional time series
   approach][shang-2017a].
-- **[47]** Shang (2017b), [Functional time series forecasting with dynamic updating: an application
+- **[74]** Shang (2017b), [Functional time series forecasting with dynamic updating: an application
   to intraday particulate matter concentration][shang-2017b].
-- **[48]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
+- **[77]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
   models with scalar response][stefanucci-bernardi-canale-2025].
-- **[53]** Zou (2006), [The adaptive lasso and its oracle properties][zou-2006].
+- **[83]** Zou (2006), [The adaptive lasso and its oracle properties][zou-2006].
 <!-- /references -->
 
 ## Licence
