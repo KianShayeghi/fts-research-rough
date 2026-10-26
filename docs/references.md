@@ -242,7 +242,8 @@ Cited in `docs/fda-foundations.md`, `docs/finance-fda-literature.md`,
 intraday momentum. *Journal of Financial Economics* 129(2), 394-414.
 [sciencedirect.com](https://www.sciencedirect.com/science/article/abs/pii/S0304405X18301351).
 
-Cited in `docs/overnight-jumps-literature.md`, `notebooks/jump_covariates.ipynb`.
+Cited in `docs/overnight-jumps-literature.md`, `notebooks/jump_covariates.ipynb`,
+`notebooks/window_jump_dgp.ipynb`.
 
 <a id="ref-gao-etal-2022"></a>**[32]** Gao, R., Zhang, X., Zhang, H., Zhao, Q. and Wang, Y. (2022).
 Forecasting the overnight return direction of stock market index combining global market indices: a
@@ -296,8 +297,9 @@ Cited in `README.md`, `docs/fda-foundations.md`, `docs/finance-fda-literature.md
 `docs/jump-model-choices.md`, `docs/overnight-jumps-literature.md`,
 `docs/session-2026-09-hh-multi.md`, `notebooks/HH_vs_SBC.ipynb`,
 `notebooks/tecator_application.ipynb`, `notebooks/truncFLR.ipynb`,
-`notebooks/truncFLR_lambdadegen.ipynb`, `src/fts_research/bench/README.md`,
-`src/fts_research/core/README.md`, `src/fts_research/truncFLR/README.md`.
+`notebooks/truncFLR_lambdadegen.ipynb`, `notebooks/window_jump_dgp.ipynb`,
+`src/fts_research/bench/README.md`, `src/fts_research/core/README.md`,
+`src/fts_research/truncFLR/README.md`.
 
 <a id="ref-hamao-masulis-ng-1990"></a>**[38]** Hamao, Y., Masulis, R. W. and Ng, V. (1990).
 Correlations in price changes and volatility across international stock markets. *Review of
@@ -619,9 +621,9 @@ what `fdaSP.SBC` solves.
 
 Cited in `README.md`, `docs/fda-foundations.md`, `docs/finance-fda-literature.md`,
 `docs/overnight-jumps-literature.md`, `notebooks/HH_vs_SBC.ipynb`,
-`notebooks/tecator_application.ipynb`, `src/fts_research/bench/README.md`,
-`src/fts_research/core/README.md`, `src/fts_research/fdaSP/README.md`,
-`src/fts_research/truncFLR/README.md`.
+`notebooks/tecator_application.ipynb`, `notebooks/window_jump_dgp.ipynb`,
+`src/fts_research/bench/README.md`, `src/fts_research/core/README.md`,
+`src/fts_research/fdaSP/README.md`, `src/fts_research/truncFLR/README.md`.
 
 <a id="ref-wang-leng-2008"></a>**[78]** Wang, H. and Leng, C. (2008). A note on adaptive group
 lasso. *Computational Statistics and Data Analysis* 52(12), 5277-5286.

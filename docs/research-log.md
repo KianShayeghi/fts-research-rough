@@ -186,16 +186,16 @@ Open:
 - power of the F test of `beta = 0` against `kappa` and `n`;
 - a stochastic-volatility version, so that late-session realised variance informs the night.
 
-## 2026-10-19 -- what `dhat` actually is
+## 2026-10-19 -- what `bhat` actually is
 
-Correction to the 2026-10-16 entry and the first version of the notebook, which called `dhat`
+Correction to the 2026-10-16 entry and the first version of the notebook, which called `bhat`
 "the drift of the last 20%". It is a statistic, the least-squares slope of the observed curve,
-and almost none of it is the drift: `dhat = 100 m + sigma_eps xi`, with `xi` a
+and almost none of it is the drift: `bhat = 100 m + sigma_eps xi`, with `xi` a
 parabola-weighted average of the window's Brownian increments, sd 2.43% per session against a
 drift of 0.02%. The drift is constant across days and predicts nothing. All the signal in the
 DGP is `xi_{t-1}`, so what is built in is late-session momentum in the realised path.
 
-Inference on `dhat` (`window_dgp.window_slope_sd`, `window_slope_ci`; section 2 of the
+Inference on `bhat` (`window_dgp.window_slope_sd`, `window_slope_ci`; section 2 of the
 notebook):
 
 - it is exactly Gaussian and i.i.d. over days, with variance `sigma_eps^2 sum g^2 ds`
@@ -205,14 +205,59 @@ notebook):
 - the Brownian interval covers 95%, whether `sigma_eps` is known or taken from the window's
   realised variance on 77 df (95.03% over 500,000 sessions). Either way it is about +-4.8% per
   session wide;
-- none of this enters the jump equation. The jump is defined by `dhat` itself, which is
-  observed exactly, so the regression of `J_t` on `dhat_{t-1}` has no errors-in-variables
+- none of this enters the jump equation. The jump is defined by `bhat` itself, which is
+  observed exactly, so the regression of `J_t` on `bhat_{t-1}` has no errors-in-variables
   problem.
 
 A bug found on the way: `window_slope_ci` first counted the degrees of freedom with
 `count_nonzero` on the return weights, whose pre-window entries are 1e-14 rather than zero. It
 used t(389) instead of t(77), and its coverage was 94.7%. Fixed, and the test now checks the
 quantile directly, since coverage at n = 20,000 could not see a 0.3-point shortfall.
+
+## 2026-10-21 -- `dhat` renamed `bhat`
+
+The window slope is now `bhat` (`b_mu` for its mean) in the notebook, `window_dgp` and the
+docs, and the entries above use the new name. "d" was short for "drift", which it is not.
+`beta` was not an option, because `beta(u)` is the basic model's coefficient function, so it is
+`b`, as in the slope of a fitted line `gamma + b s`.
+
+## 2026-10-22 -- the basic model fitted to the window DGP
+
+Section 5 of `notebooks/window_jump_dgp.ipynb` fits `J_t` on the first `M` FPC scores of
+`X_{t-1}` by OLS (the conditional MLE) and tests `beta = 0` with the exact F test.
+
+- The signal is not in the leading components. For Brownian curves the components are
+  `sqrt(2) sin((k - 1/2) pi u)`, nearly flat near the close, so a late-window slope loads on
+  components 3 to 8. The first component holds 81% of the curve variance and 0.8% of the
+  signal. The 95%-of-variance rule gives `M = 4`, which captures 43% of the signal; `M = 8`
+  captures 98%. On real data `M` has to be chosen by a criterion, not by variance explained.
+- With `M = 8` and 62 days, the F test rejects at `kappa = 0.5` and `1`, not at `kappa = 0.25`
+  (true `R^2` 0.08), and not at `kappa = 0`.
+- `beta_hat` estimates the projection of `beta` onto the sample components, which rounds off the
+  discontinuity at 0.8 and wiggles before it. The fit finds the late effect and its sign, but
+  not the window's start.
+
+Open: power of the F test against `kappa`, `n` and `M`; choosing `M` without knowing `beta`.
+
+## 2026-10-22 -- truncFLR and fdaSP on the window DGP
+
+Section 6 of `notebooks/window_jump_dgp.ipynb` compares the untruncated fit (8 components),
+truncFLR methods A and B (told the window is at the end of the session) and the fdaSP group lasso
+(10-fold CV) over 100 quarters of 62 days, at `kappa = 0.5` and `1`.
+
+- Method A is the most accurate (median relative ISE 0.152 at `kappa = 1`) and the only method that
+  finds the window: median `u_hat` 0.795, within 0.02 of 0.8 in 77% of quarters. Its tail is
+  long: the worst quarter at `kappa = 0.5` has relative ISE 485.5.
+- Method B fails in almost every quarter (median `u_hat` 0.99). This `beta` changes sign inside
+  the window, so truncating the whole-session pilot to part of the window predicts worse than
+  nothing. Scanning from `u = 1`, the RSS dips to a shallow local minimum in the last minutes
+  (`u = 0.990` on the section 6 quarter) and then climbs far above the total sum of squares,
+  peaking at `u = 0.9`, so the first-interior-minimum rule stops in the dip. This is a failure of
+  the rule on a sign-changing coefficient, not of the section 3.2 penalty, since every `lambda`
+  gives the same answer.
+- The group lasso is second on median error (0.231) but zeroes any part of the session in only
+  5% of quarters: CV tunes for prediction.
+- The untruncated fit loses on median error but has the best worst case.
 
 ## References
 

@@ -7,55 +7,56 @@ the previous session ended. On the percent log price `P = 100 log S`, with the w
 `[a, 1]`, `a = start`, of width `w = 1 - a` and midpoint `u_bar = (1 + a) / 2`,
 
     X_t(s)    = 100 m s + 100 sigma W_t(s)                  the GBM's sessions, unchanged;
-    dhat_{t-1} = least-squares slope of X_{t-1}(s) on s over [a, 1];
-    J_t       = 100 m T + kappa T (dhat_{t-1} - 100 m) + sqrt(T v_{t-1}) Z_t,  Z_t iid N(0, 1);
+    bhat_{t-1} = least-squares slope of X_{t-1}(s) on s over [a, 1];
+    J_t       = 100 m T + kappa T (bhat_{t-1} - 100 m) + sqrt(T v_{t-1}) Z_t,  Z_t iid N(0, 1);
     P_t(s)    = P_{t-1}(1) + J_t + X_t(s).
 
-**What `dhat` is.** It is the slope of the straight line fitted by least squares to the
+**What `bhat` is.** (`b` as in the slope of a fitted line `c + b s`; `beta` is the
+coefficient function below.) It is the slope of the straight line fitted by least squares to the
 previous session's curve over the window,
 
-    dhat = int_a^1 (u - u_bar) X(u) du / int_a^1 (u - u_bar)^2 du
+    bhat = int_a^1 (u - u_bar) X(u) du / int_a^1 (u - u_bar)^2 du
          = (12 / w^3) int_a^1 (u - u_bar) X(u) du,
 
 computed on the grid as `sum_k c_k X(s_k)` with `c_k = (s_k - s_bar) / sum_j (s_j - s_bar)^2`
 (`window_slope_weights`). It is a statistic of the observed curve, with nothing unknown in it.
 Summing by parts writes it as a weighted average of the window's returns per unit time,
 
-    dhat = sum_k g_k dX_k,    g_k = sum_{j >= k} c_j,    sum_k g_k ds_k = 1,
+    bhat = sum_k g_k dX_k,    g_k = sum_{j >= k} c_j,    sum_k g_k ds_k = 1,
 
 with `g` zero outside the window and, in the continuum, the parabola
 `g(v) = (6 / w^3) ((w / 2)^2 - (v - u_bar)^2)` (`window_return_weights`). So the slope weights
 the middle of the window most and its two ends least. (On the grid the weights before the
 window are zero up to rounding, about 1e-14, not exactly.)
 
-**`dhat` is not the drift.** Under the model it splits into the drift and the path,
+**`bhat` is not the drift.** Under the model it splits into the drift and the path,
 
-    dhat_{t-1} = d_mu + sigma_eps xi_{t-1},    xi_{t-1} = sum_k g_k dW_{t-1, k},
+    bhat_{t-1} = b_mu + sigma_eps xi_{t-1},    xi_{t-1} = sum_k g_k dW_{t-1, k},
 
-where `d_mu = 100 m` is the window slope of the mean curve, the same every day, and `xi` is
+where `b_mu = 100 m` is the window slope of the mean curve, the same every day, and `xi` is
 Gaussian with variance `sum_k g_k^2 ds_k`, about `1.2 / w`. The increments of a Brownian
-motion are independent, so `dhat` is exactly `N(d_mu, sigma_eps^2 sum_k g_k^2 ds_k)` and i.i.d.
+motion are independent, so `bhat` is exactly `N(b_mu, sigma_eps^2 sum_k g_k^2 ds_k)` and i.i.d.
 over days (`window_slope_sd`). With `sigma_eps = 1%` and `w = 0.2` its standard deviation is
-2.43% per session, about a hundred times the drift. Almost all of `dhat` is therefore the
+2.43% per session, about a hundred times the drift. Almost all of `bhat` is therefore the
 direction the price happened to move in over the window, and that is what the jump responds
 to: the model is momentum in yesterday's realised late-session trend, not in a drift. The
 true drift is a constant and could predict nothing.
 
-**Inference on `dhat` needs the Brownian covariance, not the textbook OLS formula.** The usual
+**Inference on `bhat` needs the Brownian covariance, not the textbook OLS formula.** The usual
 standard error of a regression slope assumes the deviations of the 79 points from the line
 are independent. Those of a Brownian path are not: neighbouring points share almost all of
 their history. The OLS formula is about eleven times too small on the one-minute grid, and its
-95% interval for `d_mu` covers about 14% of the time. The correct interval is
-`dhat +- z sigma_eps sqrt(sum g^2 ds)`, exact with `sigma_eps` known (it is pinned down to a
+95% interval for `b_mu` covers about 14% of the time. The correct interval is
+`bhat +- z sigma_eps sqrt(sum g^2 ds)`, exact with `sigma_eps` known (it is pinned down to a
 fraction of a percent by pooling days, as `basic_est.fit_null` does). With `sigma_eps` taken
 from the window's own realised variance it is a t interval on `K_w - 1` degrees of freedom.
-`dhat` and that realised variance come from the same returns, so they are not exactly
+`bhat` and that realised variance come from the same returns, so they are not exactly
 independent and the t interval is not exact in theory, but the effect is too small to
 measure: its coverage is 95.03% over 500,000 simulated sessions. `window_slope_ci` gives both. The interval is about +-4.8% per
 session, which is what "78 minutes say nothing about the drift" means in numbers.
 
-None of that uncertainty enters the jump equation, because the jump is defined by `dhat`
-itself, which is observed without error. Regressing `J_t` on `dhat_{t-1}` is an ordinary
+None of that uncertainty enters the jump equation, because the jump is defined by `bhat`
+itself, which is observed without error. Regressing `J_t` on `bhat_{t-1}` is an ordinary
 regression on an exactly measured regressor, so inference on `kappa T` is the usual
 regression inference.
 
@@ -64,13 +65,15 @@ on the window's slope in full, and a negative `kappa` is a reversal. `v_{t-1}` i
 variance rate, either the GBM's `(100 sigma)^2` (`vol="fixed"`) or the window's realised
 variance (`vol="realised"`).
 
-**No overnight path is simulated.** A GBM run over a night of length `T` with log drift `d`
-and variance rate `v` has a Gaussian log endpoint, `N(d T, v T)`, and the jump is that
-endpoint and nothing else. One normal draw per night is therefore exactly the same thing as
+**No overnight path is simulated.** The night is a GBM with volatility `sigma` and log drift
+`m_t = m + kappa (bhat_{t-1} / 100 - m)`, the GBM's own `m` moved by a share `kappa` of how far
+yesterday's slope sat from it. Over a night of length `T` its log price moves by
+`m_t T + sigma B_T ~ N(m_t T, sigma^2 T)`, and the jump is 100 times that move and nothing
+else, which is the jump equation above. One normal draw per night is therefore exactly the same thing as
 simulating the night's path and keeping its end. The rule is written for the log price
 directly, so the Ito term `sigma^2 / 2` never enters.
 
-**This is the basic model with a known coefficient.** `kappa T dhat = int beta(u) X(u) du`
+**This is the basic model with a known coefficient.** `kappa T bhat = int beta(u) X(u) du`
 with
 
     beta(u) = kappa T 12 (u - u_bar) / w^3    on the window, and 0 before it,
@@ -78,7 +81,7 @@ with
 which lies in L2, so the jump equation is exactly the notes'
 `J_t = alpha + int beta(u) X_{t-1}(u) du + eta_t`, with `alpha = 100 m T (1 - kappa)`.
 `window_beta` gives `beta` on the grid, under the trapezium weights of `core.quadrature`, so
-that its integral against a curve is `kappa T dhat` to rounding.
+that its integral against a curve is `kappa T bhat` to rounding.
 
 **Replacing the nights leaves the sessions alone.** The GBM's log increments over disjoint
 intervals are independent, so the sessions do not depend on the nights between them. Throwing
@@ -166,7 +169,7 @@ def window_return_weights(grid, start=0.8):
 
 
 def window_slope(X, grid, start=0.8):
-    """`dhat`: the least-squares slope of each curve over `[start, 1]`, in the curves' units
+    """`bhat`: the least-squares slope of each curve over `[start, 1]`, in the curves' units
     per session. Returns (n,).
 
     PARAMETERS
@@ -178,10 +181,10 @@ def window_slope(X, grid, start=0.8):
 
 
 def window_slope_sd(grid, start=0.8, sigma_eps=1.0):
-    """The exact standard deviation of `dhat` when the curve is `mu(s) + sigma_eps W(s)`.
+    """The exact standard deviation of `bhat` when the curve is `mu(s) + sigma_eps W(s)`.
     Returns a float.
 
-    `dhat - d_mu = sigma_eps sum_k g_k dW_k`, and Brownian increments are independent with
+    `bhat - b_mu = sigma_eps sum_k g_k dW_k`, and Brownian increments are independent with
     variance `ds_k`, so the variance is `sigma_eps^2 sum_k g_k^2 ds_k`. That equals
     `sigma_eps^2 c' min(s_i, s_j) c`, and is about `1.2 sigma_eps^2 / w` on a fine grid.
 
@@ -195,13 +198,13 @@ def window_slope_sd(grid, start=0.8, sigma_eps=1.0):
 
 
 def window_slope_ci(X, grid, start=0.8, level=0.95, sigma_eps=None):
-    """Confidence intervals for `d_mu`, the window slope of the mean curve, from each curve's
-    `dhat`. Returns (n, 2), lower and upper.
+    """Confidence intervals for `b_mu`, the window slope of the mean curve, from each curve's
+    `bhat`. Returns (n, 2), lower and upper.
 
-    With `sigma_eps` given the interval is `dhat +- z sigma_eps sqrt(sum g^2 ds)`, exact under
+    With `sigma_eps` given the interval is `bhat +- z sigma_eps sqrt(sum g^2 ds)`, exact under
     a Brownian curve. Without it, `sigma_eps` is taken from each curve's own window realised
     variance and the normal quantile becomes a t quantile on `K_w - 1` degrees of freedom; that
-    interval is not exact in theory, because `dhat` and the realised variance come from the
+    interval is not exact in theory, because `bhat` and the realised variance come from the
     same returns, but its coverage is 95% to Monte Carlo error (95.03% over 500,000 sessions).
 
     This is not the textbook OLS interval. That one treats the curve's deviations from the
@@ -253,7 +256,7 @@ def window_beta(grid, start=0.8, kappa=1.0, T=0.25):
     """The jump's coefficient function in the basic model, on the grid. Returns (N,).
 
     `beta = kappa T c / w`, with `c` the slope weights and `w` the trapezium weights, so that
-    `sum_k w_k beta_k X(s_k) = kappa T dhat` exactly. On a fine grid it is the line
+    `sum_k w_k beta_k X(s_k) = kappa T bhat` exactly. On a fine grid it is the line
     `kappa T 12 (u - u_bar) / w^3` on the window and zero before it: the slope weighs the late
     points of the window up and the early ones down.
 
@@ -278,7 +281,7 @@ def window_jump_sessions(n_days=63, n_bars=390, S0=100.0, sigma=0.01, T=0.25, nu
         J      (n_days,) the new jumps, `J[t]` opening session `t + 1`, in percent;
         X      (n_days, n_bars + 1) the curves, in percent -- the GBM's, unchanged;
         X0     (n_bars + 1,) the burn-in curve, used only for `J[0]`;
-        slope  (n_days,) `dhat_{t-1}`, the window slope of the curve before each jump;
+        slope  (n_days,) `bhat_{t-1}`, the window slope of the curve before each jump;
         rv     (n_days,) the window realised variance of the same curves;
         signal (n_days,) `kappa T (slope - 100 m)`, the predictable part of the jump;
         eta    (n_days,) `sqrt(T v) Z`, the rest of it;
@@ -326,15 +329,15 @@ def window_jump_sessions(n_days=63, n_bars=390, S0=100.0, sigma=0.01, T=0.25, nu
 
 
 def window_jump_truth(grid, sigma=0.01, T=0.25, nu=2.5e-4, start=0.8, kappa=0.0):
-    """The moments of `dhat` and of the jump under `window_jump_sessions`, exact on `grid`.
+    """The moments of `bhat` and of the jump under `window_jump_sessions`, exact on `grid`.
     Returns a dict with
 
-        d_mu        100 m, the window slope of the mean curve, which `dhat` is centred on;
-        sd_slope    the standard deviation of `dhat`, from `window_slope_sd`;
+        b_mu        100 m, the window slope of the mean curve, which `bhat` is centred on;
+        sd_slope    the standard deviation of `bhat`, from `window_slope_sd`;
         var_slope   its square;
         alpha       100 m T (1 - kappa), the intercept of the basic model;
         mean_J      100 m T, the jump's mean, which `kappa` does not move;
-        kappa_T     kappa T, the jump's slope on `dhat`;
+        kappa_T     kappa T, the jump's slope on `bhat`;
         beta (N,)   the coefficient function, from `window_beta`;
         var_signal  kappa^2 T^2 var_slope;
         var_noise   (100 sigma)^2 T, the noise variance, exact for `vol="fixed"` and its
@@ -356,7 +359,7 @@ def window_jump_truth(grid, sigma=0.01, T=0.25, nu=2.5e-4, start=0.8, kappa=0.0)
     var_signal = kappa**2 * T**2 * sd_slope**2
     var_noise = (100.0 * sigma) ** 2 * T
     var_J = var_signal + var_noise
-    return {"d_mu": 100.0 * m, "sd_slope": sd_slope, "var_slope": sd_slope**2,
+    return {"b_mu": 100.0 * m, "sd_slope": sd_slope, "var_slope": sd_slope**2,
             "alpha": 100.0 * m * T * (1 - kappa), "mean_J": 100.0 * m * T,
             "kappa_T": kappa * T, "beta": window_beta(grid, start, kappa, T),
             "var_signal": var_signal, "var_noise": var_noise,

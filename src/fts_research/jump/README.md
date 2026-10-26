@@ -230,13 +230,13 @@ finds in the jump equation, it has to find it against a mean that the data barel
 sessions from `basic_dgp` and replaces its nights with jumps that read the end of the session
 before:
 
-    J_t = 100 m T + kappa T (dhat_{t-1} - 100 m) + 100 sigma sqrt(T) Z_t,
+    J_t = 100 m T + kappa T (bhat_{t-1} - 100 m) + 100 sigma sqrt(T) Z_t,
 
-where `dhat_{t-1}` is the least-squares slope of `X_{t-1}` over the last 20% of the session.
-`dhat` is a statistic of the observed curve, not the drift. It is exactly
+where `bhat_{t-1}` is the least-squares slope of `X_{t-1}` over the last 20% of the session.
+`bhat` is a statistic of the observed curve, not the drift. It is exactly
 `N(100 m, sigma_eps^2 sum g^2 ds)`, with sd 2.43% per session against a drift of 0.02%, so it
 is almost entirely the window's realised trend. That trend is what the jump responds to: the
-DGP is late-session momentum. `window_return_weights` writes `dhat` as a parabola-weighted
+DGP is late-session momentum. `window_return_weights` writes `bhat` as a parabola-weighted
 average of the window's returns. `window_slope_sd` and `window_slope_ci` give its exact
 standard deviation and a valid interval for the drift. The textbook OLS standard error of the
 slope treats a Brownian path's deviations from the line as independent, and it is about eleven
@@ -251,11 +251,13 @@ model, with `beta(u) = kappa T 12 (u - 0.9) / 0.2^3` on `[0.8, 1]` and zero befo
 - the curves are unchanged, and with the same seed they are `gbm_sessions`' own;
 - a burn-in curve, drawn after the sample, gives the first jump its previous session.
 
-`window_jump_truth` gives the moments of `dhat` and of the jump exactly on the grid.
+`window_jump_truth` gives the moments of `bhat` and of the jump exactly on the grid.
 `vol="realised"` sets the night's variance from the window's realised variance instead. Under
 a constant `sigma` that carries almost nothing and makes the noise heteroskedastic, so it is
 off by default.
-`notebooks/window_jump_dgp.ipynb` builds and checks these data.
+`notebooks/window_jump_dgp.ipynb` presents the model, plots the data and fits the basic
+model to them by OLS on principal component scores, then compares that fit with
+`truncFLR` (methods A and B) and `fdaSP`'s group lasso over 100 simulated quarters.
 
 ## Usage
 
@@ -407,14 +409,14 @@ slow -- the shape test holding its size and the gamma intervals holding their co
     increments, a jump tied to its session, MA increments, Ornstein-Uhlenbeck curves, a
     sinusoidal drift and AR curves.
 
-`pytest tests/test_window_jump.py` -- seven tests, one per claim the notebook makes:
+`pytest tests/test_window_jump.py` -- seven tests, one per claim `window_dgp` makes:
 
 - the slope weights give the least-squares slope, and the return weights give the same number;
 - the curves are the GBM's and the restitched prices slice back exactly;
 - each jump reads the previous curve, and `beta` integrates to the same signal;
 - `kappa = 0` is the null;
-- the variance of the jump and its slope on `dhat` match `window_jump_truth`;
-- `dhat` has the stated sd, both intervals cover 95%, the plug-in one uses the window's 77
+- the variance of the jump and its slope on `bhat` match `window_jump_truth`;
+- `bhat` has the stated sd, both intervals cover 95%, the plug-in one uses the window's 77
   degrees of freedom, and the textbook OLS standard error is far too small;
 - the realised-variance switch is unbiased and bad settings are refused.
 

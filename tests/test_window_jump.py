@@ -1,7 +1,7 @@
 """Tests for the window-jump GBM (`jump.window_dgp`), which `notebooks/window_jump_dgp.ipynb`
 uses to make overnight jumps that depend on the end of the session before.
 
-Seven tests, one per claim the notebook makes about the data. The Monte Carlo is one long seeded
+Seven tests, one per claim `window_dgp` makes about the data. The Monte Carlo is one long seeded
 run, and its tolerances are about three standard errors.
 """
 
@@ -18,7 +18,7 @@ GRID = np.linspace(0.0, 1.0, 391)
 
 
 def test_slope_weights_are_the_least_squares_slope():
-    """`dhat` is what the notebook says it is: the LS slope over the window, blind before it,
+    """`bhat` is what the notebook says it is: the LS slope over the window, blind before it,
     and the same number as the weighted average of the window's returns."""
     X = bd.split_sessions(bd.gbm_sessions(n_days=5, rng=np.random.default_rng(1), **GBM)["S"],
                           100.0)[1]
@@ -63,7 +63,7 @@ def test_kappa_zero_is_the_null():
 
 
 def test_moments_match_the_truth():
-    """The truth table in the notebook is right: Var(J) and the slope of J_t on d_{t-1}."""
+    """`window_jump_truth` is right: Var(J) and the slope of J_t on bhat_{t-1}."""
     kappa = 0.5
     sim = wd.window_jump_sessions(n_days=20_000, kappa=kappa, rng=np.random.default_rng(4),
                                   **GBM)
@@ -77,8 +77,8 @@ def test_moments_match_the_truth():
 
 
 def test_slope_distribution_and_intervals():
-    """`dhat` has the sd `window_slope_sd` says, both intervals cover 95%, and the textbook
-    OLS interval does not -- the claim section 2 of the notebook rests on."""
+    """`bhat` has the sd `window_slope_sd` says, both intervals cover 95%, and the textbook
+    OLS interval does not."""
     n = 20_000
     X = bd.split_sessions(bd.gbm_sessions(n_days=n, rng=np.random.default_rng(6), **GBM)["S"],
                           100.0)[1]
@@ -88,7 +88,7 @@ def test_slope_distribution_and_intervals():
     tol = 3 * np.sqrt(0.95 * 0.05 / n)
     for sigma_eps in (1.0, None):
         ci = wd.window_slope_ci(X, GRID, sigma_eps=sigma_eps)
-        covered = (ci[:, 0] <= truth["d_mu"]) & (truth["d_mu"] <= ci[:, 1])
+        covered = (ci[:, 0] <= truth["b_mu"]) & (truth["b_mu"] <= ci[:, 1])
         assert abs(covered.mean() - 0.95) < tol
     # The plug-in interval is a t interval on the window's 77 degrees of freedom. Coverage
     # alone cannot see the difference from t(389) at this n, so check the quantile directly.

@@ -463,6 +463,10 @@ notebooks/
   basic_jump_equation.ipynb   The basic jump equation built up one step at a time on a
                               simulated GBM: the slicing into jumps and curves, the null
                               model fitted exactly, and every assumption of it tested
+  window_jump_dgp.ipynb       Simulated data in which the overnight jump depends on the
+                              least-squares slope of the last 20% of the session before,
+                              so the basic model has a known, non-zero beta(u); the
+                              model fitted, and against truncFLR and fdaSP
 tests/          pytest suite covering all five packages, the documentation, the notebooks
                 and the layout itself
 scripts/        bibliography.py      -- generate and check the bibliography (see below)
