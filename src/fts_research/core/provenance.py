@@ -10,10 +10,12 @@ files on disk back against it.
 
 Entries are written by whatever fetched the file, in `fdaSP.empirical.ensure_dataset` and
 `fdaSP.intraday.ensure_panel`, so provenance is recorded at the moment it is known rather
-than reconstructed afterwards. One file was not fetched at all: `spx_1m_2017H1.csv` is a fixed
-historical window no public endpoint serves, and it carries `fetchable: false` so that a reader
-is told the committed copy is the only one rather than left to infer it from a source that does
-not resolve. `tests/test_provenance.py` allows that declaration and nothing else.
+than reconstructed afterwards. `spx_1m_2017H1.csv` is a fixed historical window rather than a
+snapshot. It was imported with the overnight-jump project without a record of its source, and
+is in fact Oanda's SPX500_USD CFD as archived by FutureSharks/financial-data. It is recorded
+by `fdaSP.intraday.ensure_spx_2017`, which rebuilds it byte for byte from that repository at a
+pinned commit. A dataset that genuinely could not be rebuilt would carry `fetchable: false` and
+say in prose what it is; `tests/test_provenance.py` checks that none currently does.
 
 `python -m fts_research.core.provenance` prints the manifest and exits non-zero if the working
 tree disagrees with it, which is what `tests/test_provenance.py` asserts.

@@ -467,3 +467,27 @@ def test_the_open_anchor_places_each_close_at_the_end_of_its_bar(three_days):
 def test_session_curves_rejects_an_unknown_anchor(three_days):
     with pytest.raises(ValueError, match="anchor"):
         itd.session_curves(three_days, anchor="midday")
+
+
+def test_the_2017_cut_reproduces_the_committed_file_from_oanda_candles():
+    """`spx_2017_from_oanda` is the whole of the step from FutureSharks' monthly Oanda files to
+    `data/spx_1m_2017H1.csv`. Written back out in Oanda's layout -- UTC times, the extra
+    columns, candles outside the session and the window, out of order -- the committed file
+    must come back byte for byte."""
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data",
+                        itd.SPX_2017["file"])
+    if not os.path.exists(path):
+        pytest.skip("the 2017 panel is not in this checkout")
+    committed = open(path, "rb").read()
+    ours = pd.read_csv(path)
+    utc = pd.to_datetime(ours["time"], utc=True).dt.tz_localize(None)
+    oanda = pd.DataFrame({"time": utc.astype(str), "close": ours["close"],
+                          "high": ours["close"] + 0.2, "low": ours["close"] - 0.2,
+                          "open": ours["close"], "volume": 3})
+    noise = pd.DataFrame({"time": ["2017-01-02 23:00:00", "2017-01-03 14:29:00",
+                                   "2017-01-03 21:00:00", "2017-03-13 13:29:00",
+                                   "2017-07-03 14:30:00"],
+                          "close": 1.0, "high": 1.0, "low": 1.0, "open": 1.0, "volume": 1})
+    months = [oanda.iloc[::2], noise, oanda.iloc[1::2]]
+    rebuilt = itd.spx_2017_from_oanda(months).to_csv(index=False, lineterminator="\n")
+    assert rebuilt.encode() == committed

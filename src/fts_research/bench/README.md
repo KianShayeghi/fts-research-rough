@@ -8,7 +8,7 @@ they have to recover.
 
 The methods are method A and method B of Hall & Hooker [[37]][hall-hooker-2016], which assume the
 informative set is a single interval and estimate its endpoint, and the overlap group lasso of
-Stefanucci, Bernardi & Canale [[77]][stefanucci-bernardi-canale-2025], which lets it be any union
+Stefanucci, Bernardi & Canale [[78]][stefanucci-bernardi-canale-2025], which lets it be any union
 of intervals. The untruncated FPCA pilot is carried alongside as the no-sparsity baseline, so what
 each assumption buys is visible rather than inferred.
 
@@ -136,7 +136,7 @@ link into it.
 
 <!-- references: hall-hooker-2016, stefanucci-bernardi-canale-2025 -->
 - **[37]** Hall & Hooker (2016), [Truncated linear models for functional data][hall-hooker-2016].
-- **[77]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
+- **[78]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
   models with scalar response][stefanucci-bernardi-canale-2025].
 <!-- /references -->
 

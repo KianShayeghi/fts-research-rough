@@ -120,7 +120,7 @@ temporary price pressure from liquidity trading looks like.
 <!-- references: bogousslavsky-muravyev-2023b, wu-jegadeesh-2022 -->
 - **[15]** Bogousslavsky & Muravyev (2023b), [Who trades at the close? Implications for price
   discovery and liquidity][bogousslavsky-muravyev-2023b].
-- **[80]** Wu & Jegadeesh (2022), [Closing auctions: Nasdaq versus NYSE][wu-jegadeesh-2022].
+- **[81]** Wu & Jegadeesh (2022), [Closing auctions: Nasdaq versus NYSE][wu-jegadeesh-2022].
 <!-- /references -->
 
 **What this buys, and what it does not.** Signed order imbalance is not in a bar panel. The
@@ -159,9 +159,9 @@ through the New York night and is the natural predictor of the New York open.
   volatility in the foreign exchange market][engle-ito-lin-1990].
 - **[38]** Hamao, Masulis & Ng (1990), [Correlations in price changes and volatility across
   international stock markets][hamao-masulis-ng-1990].
-- **[67]** Rapach, Strauss & Zhou (2013), [International stock return predictability: what is the
+- **[68]** Rapach, Strauss & Zhou (2013), [International stock return predictability: what is the
   role of the United States?][rapach-strauss-zhou-2013].
-- **[81]** Xu et al. (2025), [Cross-market overnight time-series momentum][xu-etal-2025].
+- **[82]** Xu et al. (2025), [Cross-market overnight time-series momentum][xu-etal-2025].
 <!-- /references -->
 
 ### 3.1 The look-ahead that inflates the machine-learning results
@@ -177,7 +177,7 @@ American target that block includes European markets, which open at 07:00 UTC **
 UTC** -- four and a half hours after the 14:30 UTC New York open. A same-day European return
 therefore contains most of the New York session it is being used to forecast the start of.
 
-The correction is recent and explicit. Bai and Li [[79]][overnight-not-simultaneous-2026] impose a
+The correction is recent and explicit. Bai and Li [[80]][overnight-not-simultaneous-2026] impose a
 common-clock ordering, build predictors only from markets that have already closed, and use a
 last-known-value rule where a market is on holiday, precisely so that same-date variables cannot
 embed an implicit look-ahead; their point is that "overnight" is not simultaneous and that the
@@ -188,7 +188,7 @@ table also shows the diagnostic that gives the game away in the 2022 paper: its 
 <!-- references: gao-etal-2022, overnight-not-simultaneous-2026 -->
 - **[32]** Gao et al. (2022), [Forecasting the overnight return direction of stock market index
   combining global market indices: a multiple-branch deep learning approach][gao-etal-2022].
-- **[79]** [When "overnight" is not simultaneous: turning cross index overnight returns into
+- **[80]** [When "overnight" is not simultaneous: turning cross index overnight returns into
   feasible forecasts of morning gaps][overnight-not-simultaneous-2026] (2026).
 <!-- /references -->
 
@@ -332,7 +332,7 @@ next chapter turns on.
 - **[37]** Hall & Hooker (2016), [Truncated linear models for functional data][hall-hooker-2016].
 - **[52]** Kokoszka & Reimherr (2013), [Predictability of shapes of intraday price
   curves][kokoszka-reimherr-2013].
-- **[77]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
+- **[78]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
   models with scalar response][stefanucci-bernardi-canale-2025].
 <!-- /references -->
 

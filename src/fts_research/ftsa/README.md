@@ -1,7 +1,7 @@
 # ftsa
 
 Forecasting a functional time series through its principal component scores, after Hyndman & Shang
-[[47]][hyndman-shang-2009] and the intraday application of Shang [[73]][shang-2017a]. The sample of
+[[47]][hyndman-shang-2009] and the intraday application of Shang [[74]][shang-2017a]. The sample of
 curves is decomposed once,
 
     X_t(s) = mu(s) + sum_{k=1}^{M} psi_{t,k} phi_k(s) + e_t(s),
@@ -12,7 +12,7 @@ the temporal modelling happens in `R^M` and none of it in function space, which 
 the method as cheap as it is.
 
 The package is named for the R package it ports, as `fdaSP` is: Shang's `ftsa::forecast.ftsm`
-(Shang [[72]][shang-2013]) is the routine reproduced here. It shares its decomposition with `far`
+(Shang [[73]][shang-2013]) is the routine reproduced here. It shares its decomposition with `far`
 rather than keeping a second one — `far_est.fpca` is what both call — so the scores forecast here
 are the scores `far_est.far1_fit` regresses, and the two forecasters below differ in what they do
 with those scores and in nothing else.
@@ -44,7 +44,7 @@ model's `h`-step to its one-step forecast standard deviation; at `h = 1` that fa
 the scheme is Shang's exactly.
 
 **`updating.py`**: the second half of both 2017 papers, after Shang & Hyndman
-[[71]][shang-hyndman-2011]. Once the first `m` points of a day are observed, the forecast of the
+[[72]][shang-hyndman-2011]. Once the first `m` points of a day are observed, the forecast of the
 rest of it is revised. Four methods differ only in which score vector they rebuild the unobserved
 block from: `ols` regresses the observed block on the same block of the components, `ridge` shrinks
 that toward the mean curve, `pls` shrinks it toward the day-ahead forecast instead, and `block`
@@ -66,8 +66,9 @@ re-estimated at every split, so nothing is fitted on a curve it is later scored 
 three measures, `interval_score` being Gneiting & Raftery's [[34]][gneiting-raftery-2007], each
 reported both averaged over the holdout and profiled along the intraday grid, since *when* in the
 session a forecaster goes wrong is what a grand mean throws away. `replication_curves` builds the
-design itself, from the committed 2017 S&P 500 panel through `fdaSP.intraday.session_curves`, so
-the notebook and the cache cannot drift apart. `cached_rolling` keeps the forecasts — not the
+design itself, from the committed 2017 S&P 500 panel (Oanda's SPX500_USD CFD, one-minute
+mid prices, rebuilt by `fdaSP.intraday.ensure_spx_2017`) through
+`fdaSP.intraday.session_curves`, so the notebook and the cache cannot drift apart. `cached_rolling` keeps the forecasts — not the
 scores — under `artifacts/cache/`, so a measure this repository has not thought of yet can be
 computed without refitting.
 
@@ -149,12 +150,12 @@ link into it.
 - **[46]** Hyndman & Khandakar (2008), [Automatic time series forecasting: the forecast package for
   R][hyndman-khandakar-2008].
 - **[47]** Hyndman & Shang (2009), [Forecasting functional time series][hyndman-shang-2009].
-- **[71]** Shang & Hyndman (2011), [Nonparametric time series forecasting with dynamic
+- **[72]** Shang & Hyndman (2011), [Nonparametric time series forecasting with dynamic
   updating][shang-hyndman-2011].
-- **[72]** Shang (2013), [ftsa: an R package for analyzing functional time series][shang-2013].
-- **[73]** Shang (2017a), [Forecasting intraday S&P 500 index returns: a functional time series
+- **[73]** Shang (2013), [ftsa: an R package for analyzing functional time series][shang-2013].
+- **[74]** Shang (2017a), [Forecasting intraday S&P 500 index returns: a functional time series
   approach][shang-2017a].
-- **[74]** Shang (2017b), [Functional time series forecasting with dynamic updating: an application
+- **[75]** Shang (2017b), [Functional time series forecasting with dynamic updating: an application
   to intraday particulate matter concentration][shang-2017b].
 <!-- /references -->
 

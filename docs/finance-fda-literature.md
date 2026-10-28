@@ -9,7 +9,7 @@ estimators in this repository inherit.
 It is organised around three questions rather than by strand, because those are the questions the
 work here is stuck on and the literature answers them fairly directly:
 
-1. What do we need that Stefanucci, Bernardi and Canale [[77]][stefanucci-bernardi-canale-2025]
+1. What do we need that Stefanucci, Bernardi and Canale [[78]][stefanucci-bernardi-canale-2025]
    cannot do? (§4)
 2. Is a FAR(1) a good data-generating process for this data? (§2)
 3. What happens when the noise is not i.i.d.? (§3)
@@ -29,8 +29,8 @@ Writing `P_i(t)` for the price on day `i` at rescaled intraday time `t` in `[0, 
 
 | | Definition | Used by | Value at `t = 0` |
 |---|---|---|---|
-| **OCIDR** | `100[log P_i(t) - log P_{i-1}(1)]` | Rice, Wirjanto & Zhao [[68]][rice-wirjanto-zhao-2020] [[69]][rice-wirjanto-zhao-2021] | **the overnight jump** |
-| **CIDR** | `log P_i(t) - log P_i(0)` | Gabrys, Horváth & Kokoszka [[30]][gabrys-horvath-kokoszka-2010]; Kokoszka & Reimherr [[52]][kokoszka-reimherr-2013]; Shang [[73]][shang-2017a] | `0`, by construction |
+| **OCIDR** | `100[log P_i(t) - log P_{i-1}(1)]` | Rice, Wirjanto & Zhao [[69]][rice-wirjanto-zhao-2020] [[70]][rice-wirjanto-zhao-2021] | **the overnight jump** |
+| **CIDR** | `log P_i(t) - log P_i(0)` | Gabrys, Horváth & Kokoszka [[30]][gabrys-horvath-kokoszka-2010]; Kokoszka & Reimherr [[52]][kokoszka-reimherr-2013]; Shang [[74]][shang-2017a] | `0`, by construction |
 | **IDR** | `log P_i(t) - log P_i(t - w)` | Aue, Horváth & Pellatt [[4]][aue-horvath-pellatt-2017] | a single `w`-minute return |
 
 `fdaSP.intraday.session_curves` builds the middle one under `kind="cidr"`, and two relatives of the
@@ -49,7 +49,7 @@ at the *previous day's close* rather than at today's open, so
 `X_i(0) = log P_i(0) - log P_{i-1}(1)` is exactly the overnight jump. The whole of `jump` exists because the CIDR transform imposes
 `X_t(0) = 0` and so deletes the overnight move, which then has to be modelled by a separate scalar
 equation outside the functional framework. The volatility literature does not have that problem
-because it picked a different transform. Rice, Wirjanto and Zhao [[69]][rice-wirjanto-zhao-2021]
+because it picked a different transform. Rice, Wirjanto and Zhao [[70]][rice-wirjanto-zhao-2021]
 prefer it explicitly, as "more suitable for modeling volatility, given the important role of the
 overnight effect", citing Hansen and Lunde [[39]][hansen-lunde-2006].
 
@@ -134,7 +134,7 @@ not.
 
 ### 2.3 Lag one is not enough either
 
-Rice, Wirjanto and Zhao [[68]][rice-wirjanto-zhao-2020] run goodness-of-fit tests on fitted
+Rice, Wirjanto and Zhao [[69]][rice-wirjanto-zhao-2020] run goodness-of-fit tests on fitted
 residuals and find FARCH(1) "generally deemed to be inadequate for each curve type", while
 FGARCH(1,1) is acceptable for all three. A plain lag-one ARCH would be as unrepresentative a
 straw man as the rank-one FAR(1) is, for the same kind of reason.
@@ -145,7 +145,7 @@ In this data it is not noise. It is the signal, and there is a test that says so
 
 ### 3.1 Two statistics, and why the difference between them is our question
 
-Rice, Wirjanto and Zhao [[68]][rice-wirjanto-zhao-2020] frame conditional heteroscedasticity as a
+Rice, Wirjanto and Zhao [[69]][rice-wirjanto-zhao-2020] frame conditional heteroscedasticity as a
 hypothesis test -- `H_0`: the curves are i.i.d.; `H_A`: the curves are conditionally
 heteroscedastic -- and propose two portmanteau statistics, deliberately testing serial correlation
 in the *squares* so that a rejection is not merely first-moment dependence:
@@ -228,7 +228,7 @@ Seven papers, one question: where is the coefficient function zero, and how is t
 | Lin, Cao, Wang & Wang [[55]][lin-cao-wang-wang-2017] | functional SCAD | a null set, with the oracle property | CV |
 | Guan, Lin & Cao [[35]][guan-lin-cao-2020] | nested group **bridge**, shrinks the tail | an endpoint, by penalisation | BIC |
 | Liu, Divani & Petersen [[56]][liu-divani-petersen-2022] | nested group **lasso**, in a GLM | an endpoint, convexly | BIC |
-| Stefanucci, Bernardi & Canale [[77]][stefanucci-bernardi-canale-2025] | overlap group lasso | any union of intervals | CV |
+| Stefanucci, Bernardi & Canale [[78]][stefanucci-bernardi-canale-2025] | overlap group lasso | any union of intervals | CV |
 | Kneip, Poß & Sarda [[51]][kneip-poss-sarda-2016] | points of impact beside the integral | impact locations `tau_k` | — |
 
 Two things this table settles. **The truncation/penalisation split is a false dichotomy**: Guan,
@@ -247,7 +247,7 @@ and concluded that where a curve's informative summary is one of its values, a b
 integrated against `X` cannot express it.
 
 The volatility literature never regresses on a price curve. Rice, Wirjanto and Zhao's
-[[69]][rice-wirjanto-zhao-2021] functional GARCH-X puts a non-negative covariate **curve**
+[[70]][rice-wirjanto-zhao-2021] functional GARCH-X puts a non-negative covariate **curve**
 `x_i(t)` into the conditional variance, and their four choices are all *variation* curves:
 
 | Covariate curve | Definition | The scalar it generalises |
@@ -355,13 +355,13 @@ carries; and anything needing a panel spanning the 2021 structural break from bo
   regression models][liu-divani-petersen-2022].
 - **[65]** Parkinson (1980), [The extreme value method for estimating the variance of the rate of
   return][parkinson-1980].
-- **[68]** Rice, Wirjanto & Zhao (2020), [Tests for conditional heteroscedasticity of functional
+- **[69]** Rice, Wirjanto & Zhao (2020), [Tests for conditional heteroscedasticity of functional
   data][rice-wirjanto-zhao-2020].
-- **[69]** Rice, Wirjanto & Zhao (2021), [*Exploring volatility of crude oil intra-day return
+- **[70]** Rice, Wirjanto & Zhao (2021), [*Exploring volatility of crude oil intra-day return
   curves: a functional GARCH-X model*][rice-wirjanto-zhao-2021].
-- **[73]** Shang (2017a), [Forecasting intraday S&P 500 index returns: a functional time series
+- **[74]** Shang (2017a), [Forecasting intraday S&P 500 index returns: a functional time series
   approach][shang-2017a].
-- **[77]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
+- **[78]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
   models with scalar response][stefanucci-bernardi-canale-2025].
 <!-- /references -->
 

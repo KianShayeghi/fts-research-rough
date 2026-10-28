@@ -22,3 +22,6 @@ figures/*
 
 # Claude Code: the project settings are shared, a machine's own allowances are not.
 .claude/settings.local.json
+
+# A stopped `jump.window_power` run resumes from its checkpoint; it is not a result.
+artifacts/cache/*.partial

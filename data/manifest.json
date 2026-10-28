@@ -23,11 +23,12 @@
   },
   "spx_1m_2017H1.csv": {
     "bytes": 1391291,
-    "fetchable": false,
-    "retrieved": "2026-08-31",
+    "commit": "7ba1d404aa8b0e1c0f71321acebadcbfb9bcca8d",
+    "instrument": "Oanda SPX500_USD, a CFD on the S&P 500: one-minute mid-price candle closes from Oanda's v20 API, as archived by FutureSharks/financial-data",
+    "retrieved": "2026-10-28",
     "rows": 42160,
     "sha256": "5c4a1d3404811eee8dbced10171b10c08075acbc6acc5dd8cf74e4b8e53f06b5",
-    "source": "not recorded upstream: one-minute regular-session closes of the S&P 500 cash index, imported with the overnight-jump project. A fixed historical window rather than a rolling snapshot, so unlike the two panels above it does not move under a re-fetch -- but it cannot be re-fetched either, and the committed file is the only copy.",
+    "source": "https://raw.githubusercontent.com/FutureSharks/financial-data/7ba1d404aa8b0e1c0f71321acebadcbfb9bcca8d/pyfinancialdata/data/currencies/oanda/SPX500_USD/2017/oanda-SPX500_USD-2017-{month}.csv",
     "span": [
       "2017-01-03",
       "2017-06-30"

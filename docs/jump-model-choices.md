@@ -126,7 +126,7 @@ each).
 The model does not have to assume either. The curve equation's slope on the jump, `b(s)`, is
 the whole gap-fill profile, estimated pointwise with no shape imposed. `joint_est.shape_test`
 then asks whether it is a multiple of `s`. Its null distribution is a weighted sum of
-chi-squares, as in the functional F test of [[76]][shen-faraway-2004], and the p-value is the exact
+chi-squares, as in the functional F test of [[77]][shen-faraway-2004], and the p-value is the exact
 tail by Imhof's method [[48]][imhof-1961]. It holds its size, and it detects a gap filled in the
 first tenth of the session from about a year of data (section 9.2).
 
@@ -147,7 +147,7 @@ on real data it is confounded with sessions simply being more volatile after big
 - **[37]** Hall & Hooker (2016), [Truncated linear models for functional data][hall-hooker-2016].
 - **[48]** Imhof (1961), [Computing the distribution of quadratic forms in normal
   variables][imhof-1961].
-- **[76]** Shen & Faraway (2004), [An F test for linear models with functional
+- **[77]** Shen & Faraway (2004), [An F test for linear models with functional
   responses][shen-faraway-2004].
 <!-- /references -->
 

@@ -52,8 +52,9 @@ fraction of a percent by pooling days, as `basic_est.fit_null` does). With `sigm
 from the window's own realised variance it is a t interval on `K_w - 1` degrees of freedom.
 `bhat` and that realised variance come from the same returns, so they are not exactly
 independent and the t interval is not exact in theory, but the effect is too small to
-measure: its coverage is 95.03% over 500,000 simulated sessions. `window_slope_ci` gives both. The interval is about +-4.8% per
-session, which is what "78 minutes say nothing about the drift" means in numbers.
+measure: its coverage is 95.03% over 500,000 simulated sessions. `window_slope_ci` gives
+both. The interval is about +-4.8% per session, which is what "78 minutes say nothing about
+the drift" means in numbers.
 
 None of that uncertainty enters the jump equation, because the jump is defined by `bhat`
 itself, which is observed without error. Regressing `J_t` on `bhat_{t-1}` is an ordinary
@@ -69,9 +70,9 @@ variance (`vol="realised"`).
 `m_t = m + kappa (bhat_{t-1} / 100 - m)`, the GBM's own `m` moved by a share `kappa` of how far
 yesterday's slope sat from it. Over a night of length `T` its log price moves by
 `m_t T + sigma B_T ~ N(m_t T, sigma^2 T)`, and the jump is 100 times that move and nothing
-else, which is the jump equation above. One normal draw per night is therefore exactly the same thing as
-simulating the night's path and keeping its end. The rule is written for the log price
-directly, so the Ito term `sigma^2 / 2` never enters.
+else, which is the jump equation above. One normal draw per night is therefore exactly the
+same thing as simulating the night's path and keeping its end. The rule is written for the
+log price directly, so the Ito term `sigma^2 / 2` never enters.
 
 **This is the basic model with a known coefficient.** `kappa T bhat = int beta(u) X(u) du`
 with
@@ -105,6 +106,15 @@ default and the one under which the basic model holds exactly.
 
 `window_jump_truth` gives the moments of the process on its grid, so a simulation is checked
 against what it should produce up to Monte Carlo error alone.
+
+**The signal strength is set by `R^2`, not by `kappa`.** The share of the jump's variance the
+previous curve predicts is
+
+    R^2 = kappa^2 T^2 v / (kappa^2 T^2 v + T) = kappa^2 T v / (1 + kappa^2 T v),
+
+with `v = Var(bhat) / sigma_eps^2 = sum_k g_k^2 ds_k` (5.93 on the one-minute grid with
+`w = 0.2`). `sigma` cancels, so `R^2` depends on `kappa`, `T` and the window alone, and
+`kappa_for_r2` inverts it.
 """
 
 import numpy as np
@@ -116,7 +126,7 @@ from .joint_dgp import price_curves
 
 __all__ = ["window_slope_weights", "window_return_weights", "window_slope",
            "window_slope_sd", "window_slope_ci", "window_realised_variance", "window_beta",
-           "window_jump_sessions", "window_jump_truth"]
+           "window_jump_sessions", "window_jump_truth", "kappa_for_r2"]
 
 VOL = ("fixed", "realised")
 
@@ -364,3 +374,29 @@ def window_jump_truth(grid, sigma=0.01, T=0.25, nu=2.5e-4, start=0.8, kappa=0.0)
             "kappa_T": kappa * T, "beta": window_beta(grid, start, kappa, T),
             "var_signal": var_signal, "var_noise": var_noise,
             "var_J": var_J, "sd_J": float(np.sqrt(var_J)), "r2": var_signal / var_J}
+
+
+def kappa_for_r2(r2, T=0.25, grid=None, start=0.8):
+    """The `kappa >= 0` at which the previous curve predicts a share `r2` of the jump. Returns
+    a float, or an array shaped like `r2`.
+
+    Inverts `R^2 = kappa^2 T^2 v / (kappa^2 T^2 v + T)`, with `v = window_slope_sd(grid,
+    start, 1)^2`, so `kappa = sqrt(r2 / ((1 - r2) T v))`. `sigma` cancels from `R^2`, so it is
+    not an argument. `window_jump_truth(grid, T=T, start=start, kappa=kappa)["r2"]` gives `r2`
+    back. A negative `kappa` of the same size gives the same `R^2`, as a reversal.
+
+    PARAMETERS
+    r2    : float or array in [0, 1), the target share of the jump's variance;
+    T     : float, the night's length in variance time;
+    grid  : (N,) the within-session grid, or None for the one-minute grid of 390 bars;
+    start : float, where the window begins.
+    """
+    r2 = np.asarray(r2, float)
+    if np.any((r2 < 0) | (r2 >= 1)) or np.any(np.isnan(r2)):
+        raise ValueError(f"r2 must lie in [0, 1), got {r2}.")
+    if T <= 0:
+        raise ValueError(f"T must be positive, got {T}.")
+    grid = np.linspace(0.0, 1.0, 391) if grid is None else np.asarray(grid, float)
+    v = window_slope_sd(grid, start, 1.0) ** 2
+    kappa = np.sqrt(r2 / ((1.0 - r2) * T * v))
+    return float(kappa) if kappa.ndim == 0 else kappa

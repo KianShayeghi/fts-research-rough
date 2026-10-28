@@ -136,14 +136,14 @@ today, which is the plainest way to see what a parameter does.
 `joint_est` fits the two equations one at a time, which loses nothing: the system is recursive
 and its errors independent, so the conditional likelihood factorises and `J_t` is exogenous in
 the curve equation. The curve equation is regressed at every grid point on the jump and the
-scores of yesterday's curve ([[82]][yao-muller-wang-2005]), and the slope on the jump, `b(s)`,
+scores of yesterday's curve ([[83]][yao-muller-wang-2005]), and the slope on the jump, `b(s)`,
 is the unrestricted gap-fill profile. `gamma` is read off it by L2 projection onto `G`, and
 by generalised least squares on its increments -- the Brownian noise has independent
 increments, so that is the Gaussian MLE given the rest, and in the notebook's Monte Carlo it
 has about a fifth less variance. `gamma_variance` reads `Var(gamma_t)` off the
 heteroskedasticity a random `gamma_t` leaves. `shape_test` asks whether `b` is a multiple of
 `G` at all, by the L2 norm of its orthogonal part, a weighted sum of chi-squares under the
-null ([[76]][shen-faraway-2004]) whose exact tail `imhof_sf` computes ([[48]][imhof-1961]).
+null ([[77]][shen-faraway-2004]) whose exact tail `imhof_sf` computes ([[48]][imhof-1961]).
 `onset_profile` locates the onset of a step `beta`, on the curve's level or on its returns,
 and `nesting_test` asks which of the two the jump follows, by regressing it on both: each
 t-test there is a J test of one model against the other ([[26]][davidson-mackinnon-1981]).
@@ -194,7 +194,7 @@ coverage of each.
 `null_diagnostics` tests each assumption of the null on its own, so a failure says which
 assumption failed. The checks are:
 
-- the jumps are normal: Shapiro-Wilk ([[75]][shapiro-wilk-1965]) and Jarque-Bera
+- the jumps are normal: Shapiro-Wilk ([[76]][shapiro-wilk-1965]) and Jarque-Bera
   ([[50]][jarque-bera-1987]);
 - the jumps and their squares are independent over days: Ljung-Box ([[57]][ljung-box-1978]);
 - the jump is independent of the same day's session;
@@ -258,6 +258,40 @@ off by default.
 `notebooks/window_jump_dgp.ipynb` presents the model, plots the data and fits the basic
 model to them by OLS on principal component scores, then compares that fit with
 `truncFLR` (methods A and B) and `fdaSP`'s group lasso over 100 simulated quarters.
+`kappa_for_r2` sets `kappa` by the share of the jump the previous curve predicts,
+`R^2 = kappa^2 T v / (1 + kappa^2 T v)` with `v = Var(bhat) / sigma_eps^2`, which does not
+depend on `sigma`.
+
+**`window_power.py`**: the same DGP at the signal strengths real data allow. The notebook above
+runs at `R^2` of 0.27 and 0.60, and the real-data notebooks find the own-curve term empty, so
+this runs `R^2` in {0, 0.01, 0.02, 0.05} with `kappa` in {0.25, 0.5, 1} kept as reference
+cells. Each (n, replication) is drawn once, at `kappa = 0`, and moved to every other `kappa` by
+`jumps_at`, which is exact: `kappa` changes no draw. So the cells of a replication share their
+curves and noise, and every comparison between them is paired.
+
+`power_tests` runs five tests of `beta = 0` on one set of curves. Three are exact F tests: the
+1-df regression on `bhat` (the oracle, told the window and the shape), the first 8 principal
+component scores (the notebook's oracle M), and the first M holding 95% of the curves'
+variance (chosen from the curves alone). The fourth is the F test at the M in 1..10 that
+minimises BIC. That M was chosen by looking at the jumps, so the F table makes it too liberal.
+The fifth refers the same statistic to its permutation distribution, rerunning
+select-then-test on each permutation, which is exact under the null because the jumps are
+then exchangeable ([[67]][phipson-smyth-2010]). The scores are orthogonal, so `nested_fits`
+gets all ten nested regressions, for the data and every permutation, from one matrix product.
+
+`f_test_power` is the analytic guide: with Gaussian regressors the noncentrality is
+`f^2 chi^2_{n-1}`, so the power is a one-dimensional integral, exact for the oracle. Together
+with `signal_share`, the share of the signal the first M population components of a Brownian
+curve carry, it puts 80% power at `R^2 = 0.02` at 389 pairs for the oracle and 765 for eight
+components. `fit_methods` and `score_methods` are section 6 of the notebook made reusable,
+with the untruncated fit also run at a BIC-chosen M, the group lasso also at its
+one-standard-error rule, and every fit scored on the next 63 jumps against the expanding-mean
+forecast. The records are kept per replication, so paired tests need no refit. `bench` is a
+package nothing imports, so the fits call `truncFLR` and `fdaSP.SBC` directly, and the tests
+hold them to `bench.study`'s fits bit for bit, including the fall back to the smallest lambda
+where section 3.2 cannot rank them.
+`scripts/make_window_power_cache.py` builds the caches, and `notebooks/window_jump_power.ipynb`
+reads them.
 
 ## Usage
 
@@ -352,6 +386,18 @@ print(truth["r2"], truth["kappa_T"])               # 0.27 of the jump is predict
 J, X = bd.split_sessions(sim["S"], sim["S0"])      # the same J and X as sim["J"], sim["X"]
 ```
 
+The same DGP at a realistic signal, and every test of `beta = 0` on one quarter of it:
+
+```python
+from fts_research.jump import window_power as wp
+
+kappa = wd.kappa_for_r2(0.02)                      # 0.117: the curve predicts 2% of the jump
+data = wp.simulate(62, wp.rng_of("power", 62, 0))
+J = wp.jumps_at(data, kappa)
+print(wp.power_tests(J, data["X_prev"], data["s"], data["slope"]))
+print(wp.n_for_power(1, wp.effective_f2(0.02)))  # 389 pairs for 80% power, oracle
+```
+
 ## Tests
 
 `pytest tests/test_jump.py` — the design matrix against a hand-built lag, since putting `psi_t`
@@ -409,7 +455,7 @@ slow -- the shape test holding its size and the gamma intervals holding their co
     increments, a jump tied to its session, MA increments, Ornstein-Uhlenbeck curves, a
     sinusoidal drift and AR curves.
 
-`pytest tests/test_window_jump.py` -- seven tests, one per claim `window_dgp` makes:
+`pytest tests/test_window_jump.py` -- eight tests, one per claim `window_dgp` makes:
 
 - the slope weights give the least-squares slope, and the return weights give the same number;
 - the curves are the GBM's and the restitched prices slice back exactly;
@@ -418,7 +464,21 @@ slow -- the shape test holding its size and the gamma intervals holding their co
 - the variance of the jump and its slope on `bhat` match `window_jump_truth`;
 - `bhat` has the stated sd, both intervals cover 95%, the plug-in one uses the window's 77
   degrees of freedom, and the textbook OLS standard error is far too small;
-- the realised-variance switch is unbiased and bad settings are refused.
+- the realised-variance switch is unbiased and bad settings are refused;
+- `kappa_for_r2` inverts `window_jump_truth`'s `R^2` on any grid, window and night.
+
+`pytest tests/test_window_power.py` -- the machinery, then the committed caches:
+
+- moving a dataset to another `kappa` reproduces `window_jump_sessions` from the same seed;
+- `true_beta` is the slope functional, and the grid representer differs from it by exactly
+  the ratio of the discrete to the continuous sum of squares;
+- the nested fits are least squares, and each p-value is its F test computed directly;
+- the permutation p-value is exact under the null, while the F table at a BIC-chosen M is
+  liberal;
+- `f_test_power` matches a direct simulation with one regressor and with three;
+- a stopped comparison resumes from its checkpoint to exactly the same result;
+- in the caches, every exact test has size 5% to Monte Carlo error, the naive BIC test does
+  not, and the oracle's power is the analytic power.
 
 ## References
 
@@ -429,7 +489,8 @@ link into it.
 <!-- references:
   pagan-1984, newey-west-1987, damon-guillas-2002, andersen-bollerslev-1997, nicholls-quinn-1982,
   yao-muller-wang-2005, shen-faraway-2004, imhof-1961, davidson-mackinnon-1981, shapiro-wilk-1965,
-  jarque-bera-1987, ljung-box-1978, bartlett-1937, gabrys-kokoszka-2007, holm-1979
+  jarque-bera-1987, ljung-box-1978, bartlett-1937, gabrys-kokoszka-2007, holm-1979,
+  phipson-smyth-2010
 -->
 - **[1]** Andersen & Bollerslev (1997), [Intraday periodicity and volatility persistence in
   financial markets][andersen-bollerslev-1997].
@@ -452,11 +513,13 @@ link into it.
   Introduction*][nicholls-quinn-1982].
 - **[64]** Pagan (1984), [Econometric issues in the analysis of regressions with generated
   regressors][pagan-1984].
-- **[75]** Shapiro & Wilk (1965), [An analysis of variance test for normality (complete
+- **[67]** Phipson & Smyth (2010), [Permutation p-values should never be zero: calculating exact
+  p-values when permutations are randomly drawn][phipson-smyth-2010].
+- **[76]** Shapiro & Wilk (1965), [An analysis of variance test for normality (complete
   samples)][shapiro-wilk-1965].
-- **[76]** Shen & Faraway (2004), [An F test for linear models with functional
+- **[77]** Shen & Faraway (2004), [An F test for linear models with functional
   responses][shen-faraway-2004].
-- **[82]** Yao, Müller & Wang (2005), [Functional linear regression analysis for longitudinal
+- **[83]** Yao, Müller & Wang (2005), [Functional linear regression analysis for longitudinal
   data][yao-muller-wang-2005].
 <!-- /references -->
 
@@ -473,6 +536,7 @@ link into it.
 [newey-west-1987]: ../../../docs/references.md#ref-newey-west-1987
 [nicholls-quinn-1982]: ../../../docs/references.md#ref-nicholls-quinn-1982
 [pagan-1984]: ../../../docs/references.md#ref-pagan-1984
+[phipson-smyth-2010]: ../../../docs/references.md#ref-phipson-smyth-2010
 [shapiro-wilk-1965]: ../../../docs/references.md#ref-shapiro-wilk-1965
 [shen-faraway-2004]: ../../../docs/references.md#ref-shen-faraway-2004
 [yao-muller-wang-2005]: ../../../docs/references.md#ref-yao-muller-wang-2005

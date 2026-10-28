@@ -62,6 +62,24 @@ python scripts/make_ftsa_cache.py --refresh
 The design is `ftsa.evaluation.CONFIG` with `ftsa.updating.UPDATE_FRACTIONS`, and the bootstrap
 is seeded from it, so a rebuild on the same configuration reproduces the committed files.
 
-Everything here is committed so that `notebooks/basis_and_coef_comp.ipynb` and
-`notebooks/shang_replication.ipynb` open on a fresh checkout without a multi-minute fit, not
-because they could not be recreated.
+`window_power.csv`, `window_methods.csv` and `window_methods_support.csv` are the realistic-
+signal study of the window DGP in `jump.window_power`. The first holds one row per (n,
+replication, cell): the p-value of each of the five tests of `beta = 0`, and the M the
+curve-variance rule and BIC chose. The second holds one row per (n, replication, cell,
+estimator), with every error, support and held-out-forecast measure, kept per replication so
+that the paired comparisons between estimators need no refit. The third holds how often each
+estimator left each grid point in the support. The comparison takes two to three hours, so it
+checkpoints each finished task to `window_methods.csv.partial` (ignored by git) and resumes
+from there if stopped.
+
+```bash
+python scripts/make_window_power_cache.py --refresh
+```
+
+The design is `jump.window_power.CONFIG`, and every draw is seeded from it by
+`jump.window_power.rng_of`, so a rebuild on the same configuration reproduces the committed
+files; a rebuild of the power study was checked to be byte-identical.
+
+Everything here is committed so that `notebooks/basis_and_coef_comp.ipynb`,
+`notebooks/shang_replication.ipynb` and `notebooks/window_jump_power.ipynb` open on a fresh
+checkout without a multi-minute fit, not because they could not be recreated.

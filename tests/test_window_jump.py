@@ -1,7 +1,7 @@
 """Tests for the window-jump GBM (`jump.window_dgp`), which `notebooks/window_jump_dgp.ipynb`
 uses to make overnight jumps that depend on the end of the session before.
 
-Seven tests, one per claim `window_dgp` makes about the data. The Monte Carlo is one long seeded
+Eight tests, one per claim `window_dgp` makes about the data. The Monte Carlo is one long seeded
 run, and its tolerances are about three standard errors.
 """
 
@@ -115,3 +115,20 @@ def test_realised_variance_switch():
         wd.window_jump_sessions(n_days=5, vol="garch", rng=np.random.default_rng(0))
     with pytest.raises(ValueError):
         wd.window_slope_weights(GRID, start=1.0)
+
+
+def test_kappa_for_r2_inverts_the_truth():
+    """`kappa_for_r2` is the inverse of `window_jump_truth`'s R^2, on any grid, window and
+    night, and gives the item-1 design's kappas on the one-minute grid."""
+    for n_bars, start, T in ((390, 0.8, 0.25), (78, 0.5, 0.25), (390, 0.9, 1.0)):
+        grid = np.linspace(0.0, 1.0, n_bars + 1)
+        for r2 in (0.0, 0.01, 0.02, 0.05, 0.6):
+            k = wd.kappa_for_r2(r2, T, grid, start)
+            truth = wd.window_jump_truth(grid, sigma=0.013, T=T, start=start, kappa=k)
+            assert abs(truth["r2"] - r2) < 1e-12
+    k = wd.kappa_for_r2(np.array([0.0, 0.01, 0.02, 0.05]))
+    assert np.allclose(k, [0.0, 0.0826, 0.1174, 0.1885], atol=5e-5)
+    assert wd.kappa_for_r2(0.0) == 0.0 and isinstance(wd.kappa_for_r2(0.02), float)
+    for bad in (-0.01, 1.0, np.nan):
+        with pytest.raises(ValueError):
+            wd.kappa_for_r2(bad)

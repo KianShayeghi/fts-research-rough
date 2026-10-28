@@ -38,6 +38,7 @@ components, and the step 6-7 machinery -- live in `_common.py`.
 
 import numpy as np
 
+from ..core.quadrature import quadrature_weights
 from ._common import (
     WEIGHT_FUNCTIONS, DegenerateSelection, check_mirrorable, fat_tailed_weight,
     fit_b_simp, floor_eigvals, normal_weight, pilot_fpca, theta_lam_variance,
@@ -256,10 +257,12 @@ def _trunc_scores(phi_theta, X, grid_i, interval):
     """Trapezoid FPC scores ∫_0^theta phi_j^theta X_i of each curve onto the truncated FPCs.
 
     Returns (n, k) array.
+
+    The trapezium rule as one product with its weights (`core.quadrature`), the same sum as
+    `np.trapezoid` without forming the (k, n, N_i) array of products, which at a thousand curves
+    was half the cost of a method A fit.
     """
-    return np.trapezoid(
-        phi_theta[:, None, :] * X[None, :, interval], grid_i, axis=2
-    ).T
+    return X[:, interval] @ (phi_theta * quadrature_weights(grid_i)[None, :]).T
 
 
 def _refit_at_theta(X, Y, grid, interval, m):
