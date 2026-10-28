@@ -31,7 +31,14 @@ an estimator run on either sees curves with the same spectrum.
 **`_common.py`**: what the two methods share, since §3.2 differs only in steps 4-6. The pilot
 (step 1), the parametric target `b_simp` (step 3), the truncated-domain components
 `phi_j^theta` and eigenvalues `tau_j^theta`, the step-7 weight densities, and the step 6-7
-quantities `theta_lam_variance` and `weighted_S_b`.
+quantities `theta_lam_variance` and `weighted_S_b`. The truncated components are recomputed at
+every candidate theta, about 800 times per method A fit, so with more curves than grid points
+they come from the leading eigenpairs of the `N_theta x N_theta` Gram matrix rather than an
+`n x N_theta` SVD, falling back to the SVD wherever a wanted eigenvalue is below the Gram
+matrix's rounding level. At a thousand curves on a 391-point grid that, with the scores taken
+as one product against the trapezium weights, brings a method A fit from 81 s to 17 s on one
+thread, and the fit is the same: the same lambda, endpoint and component count, and a
+coefficient function equal to 3e-13.
 
 **`HH_continuous.py`**: drops the assumption both methods share, that the coefficient function
 is exactly zero on one side of the truncation point. Instead `b(t) = b1(t)` for `t <= theta`,
@@ -190,7 +197,7 @@ print(prof["theta_1se"], "elbow, against", prof["theta_hat"], "at the minimum")
 ```
 
 For the "any union of intervals" locally sparse approach (Stefanucci, Bernardi & Canale
-[[77]][stefanucci-bernardi-canale-2025]), see `fdaSP` (`fdaSP/README.md`).
+[[78]][stefanucci-bernardi-canale-2025]), see `fdaSP` (`fdaSP/README.md`).
 
 Where the assumption behind both methods -- a coefficient function exactly zero on one side --
 does not hold at all, `HH_continuous` drops it instead of working around it:
@@ -222,8 +229,9 @@ print(res["breakpoints"], "vs true", [data["u"]])
 ## Tests
 
 `pytest tests/test_hh_a.py tests/test_hh_b.py tests/test_common.py tests/test_scaling.py` —
-the truncated FPCA's orthonormality in the L2([0, theta]) inner product, the equivalence of the
-vectorised and plain theta scans, the mirroring algebra, the scale and quadrature of steps 6
+the truncated FPCA's orthonormality in the L2([0, theta]) inner product, the agreement of the
+Gram-matrix decomposition with the SVD on its own and through both methods end to end, the
+equivalence of the vectorised and plain theta scans, the mirroring algebra, the scale and quadrature of steps 6
 and 7, end-to-end endpoint recovery, and the profile's elbow recovering an endpoint in both
 orientations where its minimum does not. `test_scaling.py` is the one that holds §3.2 to its
 own definitions: it re-derives every S_Y and S_b term from the least-squares algebra,
@@ -248,7 +256,7 @@ link into it.
 
 <!-- references: hall-hooker-2016, stefanucci-bernardi-canale-2025 -->
 - **[37]** Hall & Hooker (2016), [Truncated linear models for functional data][hall-hooker-2016].
-- **[77]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
+- **[78]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
   models with scalar response][stefanucci-bernardi-canale-2025].
 <!-- /references -->
 

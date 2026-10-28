@@ -31,10 +31,16 @@ downstream moves with them. `ensure_panel` therefore prefers the cache and downl
 when a file is missing, and records the day it took the snapshot and the window it covers
 in `data/manifest.json`. `snapshot_span` reads that window off the cache itself.
 
+The third dataset, `SPX_2017`, is not from that endpoint. It is a fixed half-year of Oanda's
+SPX500_USD CFD, one-minute mid prices from the FutureSharks archive, which
+`ensure_spx_2017` rebuilds exactly from a pinned commit. It stands in for the cash S&P 500
+in the Shang replication, and is not the cash index itself.
+
 Run `python -m fts_research.fdaSP.intraday` to fetch everything up front, or with `--force`
 to take a fresh snapshot.
 """
 
+import io
 import json
 import os
 import sys
@@ -59,6 +65,8 @@ __all__ = [
     "load_bars",
     "snapshot_span",
     "SPX_2017",
+    "spx_2017_from_oanda",
+    "ensure_spx_2017",
     "load_spx_2017",
     "sessions",
     "session_curves",
@@ -308,20 +316,97 @@ def snapshot_span(name="1h"):
 
 # The one panel here that is not a snapshot. Shang (2017a) forecasts five-minute S&P 500
 # cumulative intraday return curves over the first half of a year, and the chart endpoint above
-# serves five-minute bars for sixty days only, so no fetch reproduces that design. This file is
-# a fixed historical window instead: one-minute regular-session closes of the cash index for
-# 2017-01-03 to 2017-06-30, which resample to Shang's own grid and, being historical rather
-# than rolling, do not move under anyone's feet the way the two panels above do.
+# serves five-minute bars for sixty days only, so it cannot reproduce that design. This file is
+# a fixed historical window instead, cut from Oanda's SPX500_USD, a contract for difference on
+# the S&P 500, as archived one-minute candle by candle in the FutureSharks `financial-data`
+# repository. It keeps the candles' mid-price closes from 09:30 to 15:59 New York time, for
+# 2017-01-03 to 2017-06-30, and nothing else. `ensure_spx_2017` rebuilds it byte for byte
+# from that repository, pinned to one commit, so the committed copy is not the only one.
+#
+# It is not the cash index. The CFD is a dealer's quote, in one decimal, that tracks the index:
+# its 15:59 candle closes a median 0.84 points below the official 16:00 close over these 125
+# sessions, with no step at the March and June futures rolls. Its 09:30 candle is not the
+# index's opening print, which is computed from the first trades of its constituents, and sits
+# a median 1.2 points from it. Oanda labels a candle by the minute it opens, so the "09:30"
+# close is the mid at 09:31.
 SPX_2017 = {
     "file": "spx_1m_2017H1.csv",
-    "ticker": "^GSPC",
+    "ticker": "SPX500_USD",
+    "commit": "7ba1d404aa8b0e1c0f71321acebadcbfb9bcca8d",
+    "source": ("https://raw.githubusercontent.com/FutureSharks/financial-data/"
+               "7ba1d404aa8b0e1c0f71321acebadcbfb9bcca8d/pyfinancialdata/data/currencies/"
+               "oanda/SPX500_USD/2017/oanda-SPX500_USD-2017-{month}.csv"),
+    "months": (1, 2, 3, 4, 5, 6),
+    "span": ("2017-01-03", "2017-06-30"),
+    "instrument": ("Oanda SPX500_USD, a CFD on the S&P 500: one-minute mid-price candle "
+                   "closes from Oanda's v20 API, as archived by FutureSharks/financial-data"),
     "note": (
-        "One-minute regular-session closes of the S&P 500 cash index, 2017-01-03 to "
-        "2017-06-30. 125 full sessions of 09:30 to 15:59 and three early closes, which "
-        "`load_spx_2017` drops. Closes only: `overnight_jumps` and `session_summary` need "
-        "the open, high and low this file does not carry, and do not apply to it."
+        "One-minute mid-price closes of Oanda's SPX500_USD CFD, 09:30 to 15:59 New York "
+        "time, 2017-01-03 to 2017-06-30: 125 full sessions, and three US exchange holidays "
+        "(16 January, 20 February, 29 May) on which the CFD traded until 13:00 and the cash "
+        "market was shut, which `load_spx_2017` drops. Closes only: `overnight_jumps` and "
+        "`session_summary` need the open, high and low this file does not carry."
     ),
 }
+
+
+def spx_2017_from_oanda(frames):
+    """The 2017 panel, cut from Oanda candle files in FutureSharks' layout. Returns a
+    DataFrame with `time` (New York wall clock with its UTC offset) and `close`.
+
+    Each frame has `time` in UTC and the candle's `close`, its mid price. The cut keeps the
+    candles that open between 09:30 and 15:59 New York time on the days of `SPX_2017["span"]`,
+    which is every candle of the regular session, the early-closing holidays' included.
+
+    PARAMETERS
+    frames : iterable of DataFrames read from the monthly CSVs, in any order.
+    """
+    df = pd.concat(list(frames), ignore_index=True)
+    ts = pd.to_datetime(df["time"], utc=True).dt.tz_convert(_SPX_TZ)
+    clock = ts.dt.strftime("%H:%M")
+    day = ts.dt.strftime("%Y-%m-%d")
+    lo, hi = SPX_2017["span"]
+    keep = (clock >= "09:30") & (clock <= "15:59") & (day >= lo) & (day <= hi)
+    out = pd.DataFrame({"time": ts[keep], "close": df.loc[keep, "close"].astype(float)})
+    return out.sort_values("time").drop_duplicates("time").reset_index(drop=True)
+
+
+def ensure_spx_2017(force=False):
+    """Return the path to the 2017 S&P 500 panel, rebuilding it from its source if missing.
+
+    The six monthly files are fetched from the FutureSharks repository at the commit in
+    `SPX_2017`, cut by `spx_2017_from_oanda`, and written exactly as committed. A rebuild that
+    does not reproduce the digest in `data/manifest.json` is refused rather than written, since
+    every number in `notebooks/shang_replication.ipynb` was computed on the recorded file.
+
+    PARAMETERS
+    force : bool, rebuild and re-record even though the file is present.
+    """
+    path = paths.data_path(SPX_2017["file"])
+    if os.path.exists(path) and not force:
+        return path
+    frames = []
+    for i, month in enumerate(SPX_2017["months"]):
+        if i:
+            time.sleep(_PAUSE)
+        frames.append(pd.read_csv(io.BytesIO(_get(SPX_2017["source"].format(month=month)))))
+    cut = spx_2017_from_oanda(frames)
+
+    os.makedirs(paths.DATA_DIR, exist_ok=True)
+    tmp = path + ".part"
+    cut.to_csv(tmp, index=False, lineterminator="\n")
+    recorded = provenance.load().get(SPX_2017["file"])
+    if recorded is not None and provenance.sha256_of(tmp) != recorded["sha256"]:
+        os.remove(tmp)
+        raise RuntimeError(
+            f"the rebuild of {SPX_2017['file']} does not reproduce the recorded file "
+            f"(sha256 {recorded['sha256'][:12]}...); the source has moved, so nothing was "
+            f"replaced.")
+    os.replace(tmp, path)
+    provenance.record(SPX_2017["file"], path, SPX_2017["source"],
+                      instrument=SPX_2017["instrument"], commit=SPX_2017["commit"],
+                      span=list(SPX_2017["span"]))
+    return path
 
 
 def load_spx_2017(min_span=0.95):
@@ -330,24 +415,18 @@ def load_spx_2017(min_span=0.95):
     Returns a DataFrame with ticker, ts (exchange-local wall clock), close and session, one row
     per one-minute bar, in time order; only the sessions running the full trading day survive.
 
-    An early close is a shorter trading day rather than a faster one, so the three US holiday
-    half-days in this window are not curves on the same domain as the rest and are dropped
-    here. They are told apart by the span from a session's first bar to its last, not by how
-    many bars it holds: this feed has gaps inside otherwise complete days, and the bar-count
-    rule `sessions` applies to the fetched panels would throw nine full sessions away with
-    them. With the early closes already gone, pass `min_bars=1` to `session_curves` and let
-    this filter stand.
+    The CFD traded until 13:00 on three US exchange holidays in this window, when the index
+    did not trade at all, so those half-days are not curves on the same domain as the rest and
+    are dropped here. They are told apart by the span from a session's first bar to its last,
+    not by how many bars it holds: Oanda writes no candle for a minute without a quote change,
+    so the feed has gaps inside otherwise complete days, and the bar-count rule `sessions`
+    applies to the fetched panels would throw nine full sessions away with them. With the
+    half-days already gone, pass `min_bars=1` to `session_curves` and let this filter stand.
 
     PARAMETERS
     min_span : float, fraction of the modal first-bar-to-last-bar span a session must reach.
     """
-    path = paths.data_path(SPX_2017["file"])
-    if not os.path.exists(path):
-        raise FileNotFoundError(
-            f"{SPX_2017['file']} is not at {path}. It is committed under data/ rather than "
-            f"fetched, so a missing file means the checkout is incomplete or FTS_DATA_DIR "
-            f"points elsewhere."
-        )
+    path = ensure_spx_2017()
     raw = pd.read_csv(path)
     ts = pd.to_datetime(raw["time"], utc=True, format="ISO8601")
     local = ts.dt.tz_convert(_SPX_TZ).dt.tz_localize(None)
@@ -743,6 +822,9 @@ def _main(argv):
         size = os.path.getsize(path) / 1024
         print(f"  {name:<4} {PANELS[name]['file']:<20} {size:9.1f} KB  "
               f"{len(df):7d} bars  {df['ticker'].nunique()} tickers")
+    path = ensure_spx_2017(force=force)       # a rebuild, checked against the recorded digest
+    print(f"  2017 {SPX_2017['file']:<20} {os.path.getsize(path) / 1024:9.1f} KB  "
+          f"{len(pd.read_csv(path)):7d} bars  {SPX_2017['ticker']}")
     return 0
 
 

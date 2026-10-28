@@ -85,7 +85,7 @@ squares with an `n lambda theta^2` penalty, which `truncFLR.HH` and `truncFLR.HH
 and whose §3.2 tuning scheme `notebooks/truncFLR_lambdadegen.ipynb` corrects in three places.
 
 **Local sparsity.** `psi = 0` on some unknown union of intervals. Stefanucci, Bernardi and Canale
-[[77]][stefanucci-bernardi-canale-2025] get it from an overlap group lasso on B-spline
+[[78]][stefanucci-bernardi-canale-2025] get it from an overlap group lasso on B-spline
 coefficients, which `fdaSP.SBC` implements: a B-spline of order `d` covers each point with `d`
 basis functions, so requiring a whole *overlapping group* to vanish is what makes the estimate
 exactly zero on a knot interval rather than merely small. James, Wang and Zhu
@@ -139,7 +139,7 @@ linear model are correlated at all.
 Given §2, a rule that targets prediction will not return a null set. The alternative this
 repository uses is stability selection: Meinshausen and Bühlmann
 [[61]][meinshausen-buhlmann-2010] fit the same penalised estimator on many subsamples and keep what
-is selected often; Shah and Samworth [[70]][shah-samworth-2013] sharpen the error bound and add
+is selected often; Shah and Samworth [[71]][shah-samworth-2013] sharpen the error bound and add
 complementary pairs.
 
 Applied to a functional penalty through the identity in §3, this gives a **three-way** partition of
@@ -152,7 +152,7 @@ Two caveats the repository has already established, and one it has not.
 *Established.* A bound stated relative to a base procedure cannot rescue a signal that base
 procedure never finds -- on `psi3`, which has no null region, stability selection declares part of
 the domain null on every replication while never violating its own bound. And improving the base
-procedure is worth more than reading it harder: adaptive weights [[83]][zou-2006] raise median
+procedure is worth more than reading it harder: adaptive weights [[84]][zou-2006] raise median
 Jaccard overlap from 0.40 to 0.83 at no change to the error budget.
 
 *Not established.* Shah and Samworth's Theorem 1 assumes independent observations, and consecutive
@@ -182,11 +182,11 @@ see `docs/finance-fda-literature.md` §4.3.
 - **[55]** Lin et al. (2017), [Locally sparse estimator for functional linear regression
   models][lin-cao-wang-wang-2017].
 - **[61]** Meinshausen & Bühlmann (2010), [Stability selection][meinshausen-buhlmann-2010].
-- **[70]** Shah & Samworth (2013), [Variable selection with error control: another look at
+- **[71]** Shah & Samworth (2013), [Variable selection with error control: another look at
   stability selection][shah-samworth-2013].
-- **[77]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
+- **[78]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
   models with scalar response][stefanucci-bernardi-canale-2025].
-- **[83]** Zou (2006), [The adaptive lasso and its oracle properties][zou-2006].
+- **[84]** Zou (2006), [The adaptive lasso and its oracle properties][zou-2006].
 <!-- /references -->
 
 <!-- reference-links -->

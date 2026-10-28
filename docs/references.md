@@ -294,7 +294,7 @@ for functional data. *Journal of the Royal Statistical Society: Series B* 78(3),
 and `truncFLR.HH`; section 3.2 is the one `notebooks/truncFLR_lambdadegen.ipynb` takes apart.
 
 Cited in `README.md`, `docs/fda-foundations.md`, `docs/finance-fda-literature.md`,
-`docs/jump-model-choices.md`, `docs/overnight-jumps-literature.md`,
+`docs/jump-model-choices.md`, `docs/overnight-jumps-literature.md`, `docs/progress.md`,
 `docs/session-2026-09-hh-multi.md`, `notebooks/HH_vs_SBC.ipynb`,
 `notebooks/tecator_application.ipynb`, `notebooks/truncFLR.ipynb`,
 `notebooks/truncFLR_lambdadegen.ipynb`, `notebooks/window_jump_dgp.ipynb`,
@@ -327,7 +327,8 @@ procedure. *Scandinavian Journal of Statistics* 6(2), 65-70.
 applies across the null model's thirteen diagnostics in `notebooks/basic_jump_equation.ipynb`, so
 that a verdict is not read off one p-value among many.
 
-Cited in `notebooks/basic_jump_equation.ipynb`, `src/fts_research/jump/README.md`.
+Cited in `docs/progress.md`, `notebooks/basic_jump_equation.ipynb`,
+`src/fts_research/jump/README.md`.
 
 <a id="ref-hormann-kokoszka-2010"></a>**[42]** Hörmann, S. and Kokoszka, P. (2010). Weakly
 dependent functional data. *The Annals of Statistics* 38(3), 1845-1884.
@@ -527,13 +528,24 @@ and Statistics* 97(3), 683-697.
 
 Cited in `docs/overnight-jumps-literature.md`, `notebooks/jump_covariates.ipynb`.
 
-<a id="ref-rapach-strauss-zhou-2013"></a>**[67]** Rapach, D. E., Strauss, J. K. and Zhou, G.
+<a id="ref-phipson-smyth-2010"></a>**[67]** Phipson, B. and Smyth, G. K. (2010). Permutation
+p-values should never be zero: calculating exact p-values when permutations are randomly drawn.
+*Statistical Applications in Genetics and Molecular Biology* 9(1), Article 39.
+[doi:10.2202/1544-6115.1585](https://doi.org/10.2202/1544-6115.1585). Why a Monte Carlo permutation
+p-value is `(1 + b) / (B + 1)` and not `b / B`: counting the observed statistic among the
+permutations makes the test exact at every level that is a multiple of `1 / (B + 1)`.
+`jump.window_power` calibrates the F test at a BIC-chosen number of components this way.
+
+Cited in `docs/progress.md`, `notebooks/window_jump_power.ipynb`,
+`src/fts_research/jump/README.md`.
+
+<a id="ref-rapach-strauss-zhou-2013"></a>**[68]** Rapach, D. E., Strauss, J. K. and Zhou, G.
 (2013). International stock return predictability: what is the role of the United States?. *Journal
 of Finance* 68(4), 1633-1662.
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-rice-wirjanto-zhao-2020"></a>**[68]** Rice, G., Wirjanto, T. and Zhao, Y. (2020). Tests
+<a id="ref-rice-wirjanto-zhao-2020"></a>**[69]** Rice, G., Wirjanto, T. and Zhao, Y. (2020). Tests
 for conditional heteroscedasticity of functional data. *Journal of Time Series Analysis* 41(6),
 733-758. [doi:10.1111/jtsa.12532](https://doi.org/10.1111/jtsa.12532). The formal test for what
 `notebooks/overnight_jumps.ipynb` established by hand, that the dependence in a sequence of
@@ -543,7 +555,7 @@ rather than leaving it to be inferred from the pair.
 
 Cited in `docs/finance-fda-literature.md`.
 
-<a id="ref-rice-wirjanto-zhao-2021"></a>**[69]** Rice, G., Wirjanto, T. and Zhao, Y. (2021).
+<a id="ref-rice-wirjanto-zhao-2021"></a>**[70]** Rice, G., Wirjanto, T. and Zhao, Y. (2021).
 *Exploring volatility of crude oil intra-day return curves: a functional GARCH-X model*. MPRA
 Paper. [MPRA 109231](https://mpra.ub.uni-muenchen.de/109231/). Where the four variation-curve
 covariates come from -- a Corsi-style mean absolute-return curve, an intraday range curve, a
@@ -554,46 +566,47 @@ working paper because the published version was not consulted.
 
 Cited in `docs/finance-fda-literature.md`.
 
-<a id="ref-shah-samworth-2013"></a>**[70]** Shah, R. D. and Samworth, R. J. (2013). Variable
+<a id="ref-shah-samworth-2013"></a>**[71]** Shah, R. D. and Samworth, R. J. (2013). Variable
 selection with error control: another look at stability selection. *Journal of the Royal
 Statistical Society: Series B* 75(1), 55-80.
 [doi:10.1111/j.1467-9868.2011.01034.x](https://doi.org/10.1111/j.1467-9868.2011.01034.x). Theorem 1
 is the bound `region.bounds` implements, in both of its directions.
 
-Cited in `README.md`, `docs/fda-foundations.md`, `notebooks/region_selection.ipynb`,
-`src/fts_research/region/README.md`.
+Cited in `README.md`, `docs/fda-foundations.md`, `docs/progress.md`,
+`notebooks/region_selection.ipynb`, `src/fts_research/region/README.md`.
 
-<a id="ref-shang-hyndman-2011"></a>**[71]** Shang, H. L. and Hyndman, R. J. (2011). Nonparametric
+<a id="ref-shang-hyndman-2011"></a>**[72]** Shang, H. L. and Hyndman, R. J. (2011). Nonparametric
 time series forecasting with dynamic updating. *Mathematics and Computers in Simulation* 81(7),
 1310-1324. [doi:10.1016/j.matcom.2010.04.027](https://doi.org/10.1016/j.matcom.2010.04.027).
 
 Cited in `README.md`, `notebooks/shang_updating.ipynb`, `src/fts_research/ftsa/README.md`.
 
-<a id="ref-shang-2013"></a>**[72]** Shang, H. L. (2013). ftsa: an R package for analyzing
+<a id="ref-shang-2013"></a>**[73]** Shang, H. L. (2013). ftsa: an R package for analyzing
 functional time series. *The R Journal* 5(1), 64-72.
 [doi:10.32614/RJ-2013-006](https://doi.org/10.32614/RJ-2013-006).
 
 Cited in `src/fts_research/ftsa/README.md`.
 
-<a id="ref-shang-2017a"></a>**[73]** Shang, H. L. (2017a). Forecasting intraday S&P 500 index
+<a id="ref-shang-2017a"></a>**[74]** Shang, H. L. (2017a). Forecasting intraday S&P 500 index
 returns: a functional time series approach. *Journal of Forecasting* 36(7), 741-755.
 [doi:10.1002/for.2467](https://doi.org/10.1002/for.2467). The paper
 `notebooks/shang_replication.ipynb` rebuilds, and the design `fdaSP.intraday`'s 2017 panel exists
 to serve.
 
-Cited in `README.md`, `docs/finance-fda-literature.md`, `docs/research-log.md`,
+Cited in `README.md`, `docs/finance-fda-literature.md`, `docs/progress.md`, `docs/research-log.md`,
 `notebooks/shang_replication.ipynb`, `src/fts_research/ftsa/README.md`.
 
-<a id="ref-shang-2017b"></a>**[74]** Shang, H. L. (2017b). Functional time series forecasting with
+<a id="ref-shang-2017b"></a>**[75]** Shang, H. L. (2017b). Functional time series forecasting with
 dynamic updating: an application to intraday particulate matter concentration. *Econometrics and
 Statistics* 1, 184-200.
 [doi:10.1016/j.ecosta.2016.08.004](https://doi.org/10.1016/j.ecosta.2016.08.004). The companion
 paper, which puts the same decomposition and the same two score forecasters on half-hourly
 particulate matter and develops the dynamic updating at greater length.
 
-Cited in `README.md`, `notebooks/shang_replication.ipynb`, `src/fts_research/ftsa/README.md`.
+Cited in `README.md`, `docs/progress.md`, `notebooks/shang_replication.ipynb`,
+`src/fts_research/ftsa/README.md`.
 
-<a id="ref-shapiro-wilk-1965"></a>**[75]** Shapiro, S. S. and Wilk, M. B. (1965). An analysis of
+<a id="ref-shapiro-wilk-1965"></a>**[76]** Shapiro, S. S. and Wilk, M. B. (1965). An analysis of
 variance test for normality (complete samples). *Biometrika* 52(3-4), 591-611.
 [doi:10.1093/biomet/52.3-4.591](https://doi.org/10.1093/biomet/52.3-4.591). The test of normality
 used on the overnight jumps in `notebooks/basic_jump_equation.ipynb`, chosen there for its power at
@@ -601,7 +614,7 @@ a few dozen observations.
 
 Cited in `notebooks/basic_jump_equation.ipynb`, `src/fts_research/jump/README.md`.
 
-<a id="ref-shen-faraway-2004"></a>**[76]** Shen, Q. and Faraway, J. (2004). An F test for linear
+<a id="ref-shen-faraway-2004"></a>**[77]** Shen, Q. and Faraway, J. (2004). An F test for linear
 models with functional responses. *Statistica Sinica* 14(4), 1239-1257.
 [www3.stat.sinica.edu.tw](https://www3.stat.sinica.edu.tw/statistica/J14N4/J14N415/J14N415.html).
 Tests nested linear models for a functional response through an L2 norm whose null law is a
@@ -612,7 +625,7 @@ approximation.
 Cited in `docs/jump-model-choices.md`, `notebooks/jump_equation_v2.ipynb`,
 `src/fts_research/jump/README.md`.
 
-<a id="ref-stefanucci-bernardi-canale-2025"></a>**[77]** Stefanucci, M., Bernardi, M. and Canale,
+<a id="ref-stefanucci-bernardi-canale-2025"></a>**[78]** Stefanucci, M., Bernardi, M. and Canale,
 A. (2025). Locally sparse estimation for functional linear models with scalar response. In G.
 Aneiros, E. G. Bongiorno, A. Goia and M. Hušková (eds.), *New Trends in Functional Statistics and
 Related Fields*, Contributions to Statistics, chapter 62, pp. 521-527. Springer.
@@ -620,18 +633,18 @@ Related Fields*, Contributions to Statistics, chapter 62, pp. 521-527. Springer.
 what `fdaSP.SBC` solves.
 
 Cited in `README.md`, `docs/fda-foundations.md`, `docs/finance-fda-literature.md`,
-`docs/overnight-jumps-literature.md`, `notebooks/HH_vs_SBC.ipynb`,
+`docs/overnight-jumps-literature.md`, `docs/progress.md`, `notebooks/HH_vs_SBC.ipynb`,
 `notebooks/tecator_application.ipynb`, `notebooks/window_jump_dgp.ipynb`,
 `src/fts_research/bench/README.md`, `src/fts_research/core/README.md`,
 `src/fts_research/fdaSP/README.md`, `src/fts_research/truncFLR/README.md`.
 
-<a id="ref-wang-leng-2008"></a>**[78]** Wang, H. and Leng, C. (2008). A note on adaptive group
+<a id="ref-wang-leng-2008"></a>**[79]** Wang, H. and Leng, C. (2008). A note on adaptive group
 lasso. *Computational Statistics and Data Analysis* 52(12), 5277-5286.
 [doi:10.1016/j.csda.2008.05.006](https://doi.org/10.1016/j.csda.2008.05.006).
 
 Cited in `src/fts_research/region/README.md`.
 
-<a id="ref-overnight-not-simultaneous-2026"></a>**[79]** When "overnight" is not simultaneous:
+<a id="ref-overnight-not-simultaneous-2026"></a>**[80]** When "overnight" is not simultaneous:
 turning cross index overnight returns into feasible forecasts of morning gaps (2026). *The Journal
 of Finance and Data Science*.
 [sciencedirect.com](https://www.sciencedirect.com/science/article/pii/S2214845026000918). Cited by
@@ -641,20 +654,20 @@ and the two statements need reconciling before either is used.
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-wu-jegadeesh-2022"></a>**[80]** Wu, Y. and Jegadeesh, N. (2022). Closing auctions:
+<a id="ref-wu-jegadeesh-2022"></a>**[81]** Wu, Y. and Jegadeesh, N. (2022). Closing auctions:
 Nasdaq versus NYSE. *Journal of Financial Economics* 143(3), 1120-1139.
 [sciencedirect.com](https://www.sciencedirect.com/science/article/abs/pii/S0304405X21005092).
 
 Cited in `docs/overnight-jumps-literature.md`.
 
-<a id="ref-xu-etal-2025"></a>**[81]** Xu, D., Li, B., Singh, T., Chen, X. and Li, J. (2025).
+<a id="ref-xu-etal-2025"></a>**[82]** Xu, D., Li, B., Singh, T., Chen, X. and Li, J. (2025).
 Cross-market overnight time-series momentum. *Journal of International Financial Markets,
 Institutions and Money*.
 [sciencedirect.com](https://www.sciencedirect.com/science/article/abs/pii/S1042443125001295).
 
 Cited in `docs/overnight-jumps-literature.md`, `notebooks/jump_covariates.ipynb`.
 
-<a id="ref-yao-muller-wang-2005"></a>**[82]** Yao, F., Müller, H.-G. and Wang, J.-L. (2005).
+<a id="ref-yao-muller-wang-2005"></a>**[83]** Yao, F., Müller, H.-G. and Wang, J.-L. (2005).
 Functional linear regression analysis for longitudinal data. *The Annals of Statistics* 33(6),
 2873-2903. [doi:10.1214/009053605000000660](https://doi.org/10.1214/009053605000000660).
 Function-on-function regression through the principal component scores of the predictor.
@@ -662,7 +675,7 @@ Function-on-function regression through the principal component scores of the pr
 
 Cited in `notebooks/jump_equation_v2.ipynb`, `src/fts_research/jump/README.md`.
 
-<a id="ref-zou-2006"></a>**[83]** Zou, H. (2006). The adaptive lasso and its oracle properties.
+<a id="ref-zou-2006"></a>**[84]** Zou, H. (2006). The adaptive lasso and its oracle properties.
 *Journal of the American Statistical Association* 101(476), 1418-1429.
 [doi:10.1198/016214506000000735](https://doi.org/10.1198/016214506000000735).
 

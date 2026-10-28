@@ -37,7 +37,7 @@ taking it on trust, because everything else rests on it.
 
 **The probabilities come from complementary pairs.** Refit the estimator on disjoint halves of the
 data, `n_pairs` times, and record how often each group survives. Shah and Samworth's
-[[70]][shah-samworth-2013] Theorem 1 then bounds the expected number of rarely-selected groups a
+[[71]][shah-samworth-2013] Theorem 1 then bounds the expected number of rarely-selected groups a
 threshold keeps, under no assumption about the model, the estimator, or the number of pairs.
 
 **Both halves of the claim use the same theorem.** Theorem 1 has a second part bounding what
@@ -165,10 +165,10 @@ link into it.
   large model spaces][chen-chen-2008].
 - **[60]** Meinshausen (2007), [Relaxed lasso][meinshausen-2007].
 - **[61]** Meinshausen & Bühlmann (2010), [Stability selection][meinshausen-buhlmann-2010].
-- **[70]** Shah & Samworth (2013), [Variable selection with error control: another look at
+- **[71]** Shah & Samworth (2013), [Variable selection with error control: another look at
   stability selection][shah-samworth-2013].
-- **[78]** Wang & Leng (2008), [A note on adaptive group lasso][wang-leng-2008].
-- **[83]** Zou (2006), [The adaptive lasso and its oracle properties][zou-2006].
+- **[79]** Wang & Leng (2008), [A note on adaptive group lasso][wang-leng-2008].
+- **[84]** Zou (2006), [The adaptive lasso and its oracle properties][zou-2006].
 <!-- /references -->
 
 <!-- reference-links -->

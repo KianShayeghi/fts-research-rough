@@ -100,7 +100,7 @@ link into it.
 
 <!-- references: hall-hooker-2016, stefanucci-bernardi-canale-2025 -->
 - **[37]** Hall & Hooker (2016), [Truncated linear models for functional data][hall-hooker-2016].
-- **[77]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
+- **[78]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
   models with scalar response][stefanucci-bernardi-canale-2025].
 <!-- /references -->
 

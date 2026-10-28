@@ -13,6 +13,7 @@ README derives all three.
 """
 
 import numpy as np
+from scipy.linalg import eigh
 from scipy.special import gamma
 from skfda import FDataGrid
 from skfda.representation.basis import BSplineBasis
@@ -257,6 +258,43 @@ def fit_b_simp(X, Y, grid, a_pilot, n_fourier=1, theta_bar=None, theta_grid=None
 # ------------------------------------------------------------- truncated-domain FPCA -----
 
 
+def _top_components(A, k, vectors=True):
+    """The `k` largest squared singular values of `A` (n, p), descending, and the matching
+    right singular vectors as rows. Returns s2 (k',) and Vt (k', p) or None, k' = min(k, n, p).
+
+    Both truncFLR theta scans decompose the curves once per candidate theta, about 800 times per
+    fit, so this is where method A spends its time. With more curves than grid points the
+    decomposition is taken from the p x p Gram matrix `A'A`, whose eigenpairs are the squared
+    singular values and the right singular vectors, at a cost of n p^2 for the product and p^3
+    for the eigensolver rather than an n p^2 SVD with a large constant, and only the `k` leading
+    pairs are formed. Otherwise, or where a wanted eigenvalue is too small for the Gram matrix
+    to resolve, it is the SVD. The two agree to rounding, which
+    `tests/test_hh_a.py` checks along with every fit built on them; a singular vector is only
+    defined up to sign, and nothing downstream depends on the sign.
+
+    PARAMETERS
+    A       : (n, p) the centred, square-root-weighted curves;
+    k       : int, the number of leading components wanted;
+    vectors : bool, also return the right singular vectors.
+    """
+    n, p = A.shape
+    k = min(int(k), n, p)
+    if n > p:
+        G = A.T @ A
+        if vectors:
+            vals, vecs = eigh(G, subset_by_index=[p - k, p - 1])
+        else:
+            vals, vecs = eigh(G, eigvals_only=True, subset_by_index=[p - k, p - 1]), None
+        # Below p eps lambda_max an eigenvalue of the Gram matrix is rounding; the SVD resolves
+        # such components (a sub-grid holding X(0) = 0 has one) and the Gram matrix cannot.
+        if vals[0] > p * np.finfo(float).eps * vals[-1]:
+            return vals[::-1], (vecs[:, ::-1].T if vectors else None)
+    if not vectors:
+        return np.linalg.svd(A, compute_uv=False)[:k] ** 2, None
+    _, s, Vt = np.linalg.svd(A, full_matrices=False)
+    return s[:k] ** 2, Vt[:k]
+
+
 def trunc_fpca(X, grid, interval, m):
     """Empirical FPCs phi_j^theta and eigenvalues tau_j^theta of the covariance operator of X
     restricted to `interval` (the truncated-domain components of section 3.1.1, step 4).
@@ -277,11 +315,10 @@ def trunc_fpca(X, grid, interval, m):
     Xc = X[:, interval] - X[:, interval].mean(axis=0)
     n = Xc.shape[0]
     sqrt_w = np.sqrt(w)
-    _, s, Vt = np.linalg.svd(Xc * sqrt_w[None, :], full_matrices=False)
+    s2, Vt = _top_components(Xc * sqrt_w[None, :], m)
 
-    k = min(m, Vt.shape[0])
-    phi_theta = Vt[:k] / sqrt_w[None, :]  # unweight so phi are orthonormal under trapezoid L2
-    tau_theta = (s[:k] ** 2) / n
+    phi_theta = Vt / sqrt_w[None, :]  # unweight so phi are orthonormal under trapezoid L2
+    tau_theta = s2 / n
     return phi_theta, tau_theta
 
 
@@ -308,5 +345,6 @@ def trunc_eigvals(X, grid, interval, m):
     """
     grid_i = grid[interval]
     Xc = X[:, interval] - X[:, interval].mean(axis=0)
-    s = np.linalg.svd(Xc * np.sqrt(quadrature_weights(grid_i))[None, :], compute_uv=False)
-    return floor_eigvals((s ** 2) / Xc.shape[0], m)
+    s2, _ = _top_components(Xc * np.sqrt(quadrature_weights(grid_i))[None, :], m,
+                            vectors=False)
+    return floor_eigvals(s2 / Xc.shape[0], m)

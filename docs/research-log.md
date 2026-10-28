@@ -21,7 +21,7 @@ Add a naive method to HH.py, seeing what happens if we choose to circumvent the 
 ## 2026-08-31 -- the overnight-jump project, folded in
 
 Brought the old `overnight-jump` repository into this one. Two things came out of it: the Shang
-[[73]][shang-2017a] forecaster, now `ftsa`, and the jump equation, now `jump`. Notes on what
+[[74]][shang-2017a] forecaster, now `ftsa`, and the jump equation, now `jump`. Notes on what
 changed and what is still open.
 
 The FPCA front end was the duplication worth killing. Both of the old modules ran their own
@@ -62,7 +62,8 @@ Open on `jump`:
 
 `data/spx_1m_2017H1.csv` has no recorded upstream source. It is a fixed historical window so it
 cannot drift, but it also cannot be re-fetched, and the manifest entry says so with
-`fetchable: false`. Find out where it came from and record it properly.
+`fetchable: false`. Find out where it came from and record it properly. (Resolved on
+2026-10-28, below: it is Oanda's SPX500_USD CFD, and it can be rebuilt.)
 
 ## 2026-08-31 -- dynamic updating, and what it actually buys
 
@@ -259,10 +260,77 @@ truncFLR methods A and B (told the window is at the end of the session) and the 
   5% of quarters: CV tunes for prediction.
 - The untruncated fit loses on median error but has the best worst case.
 
+## 2026-10-27 -- the window DGP at realistic signal strengths
+
+Item 1 of the first-year-review plan. The window DGP had only been run at `R^2` of 0.27 and
+0.60, and the real-data notebooks find the own-curve term empty. `jump.window_power` reruns it at
+`R^2` in {0, 0.01, 0.02, 0.05}, on 62 to 1,000 pairs, and `notebooks/window_jump_power.ipynb`
+reads the caches.
+
+- **"Exact F test with a data-driven M" is a contradiction as written.** An M chosen by looking
+  at the jumps makes the F test at that M liberal: 9.5% size at 62 days with BIC. Calibrating
+  the whole select-then-test procedure by permuting the jumps against the curves restores exact
+  size, because the jumps are exchangeable under the null.
+- **BIC is the wrong data-driven M here.** It keeps M = 1 in four datasets of five even at a
+  thousand days and `R^2 = 0.02`, because the first component carries under 1% of the signal.
+  The signal sits in components 3 to 8, where the curves vary least. The permutation-calibrated
+  BIC test has 24% power at a thousand days, against 76% for the 95%-variance rule and over 99%
+  for the oracle. A data-driven test that keeps the power has to search the components for the
+  signal instead of ranking them by fit. To try: the adaptive Neyman statistic (the maximum over
+  M of the standardised F), calibrated by the same permutation.
+- **765 days, not 740.** The analytic guide for the 8-component test assumed all of the signal.
+  Eight components hold 97.6% of it, which moves 80% power at `R^2 = 0.02` to 765 pairs. The
+  simulation reaches 0.788 there; estimating the components costs about 20 days.
+- **One quarter sees nothing at realistic strength.** At 62 days and `R^2 <= 0.05`, no estimator
+  beats `beta_hat = 0` on median relative ISE, and none forecasts the next quarter's jumps
+  better than the expanding mean. At a thousand days the ordering of the 2026-10-22 entry holds
+  from `R^2 = 0.02` on.
+- **Section 3.2 has nothing to say at weak signal.** Method A's lambda criterion is degenerate in
+  up to two fifths of datasets at `R^2 <= 0.02`, so the fit takes the smallest lambda on the grid.
+  This is the same degeneracy as the 2026-07-30 entry, now with a frequency attached.
+- **The group lasso's sparsity becomes a test.** At realistic strength cross-validation returns
+  `beta_hat = 0` everywhere in most quarters, rather than zeroing part of the session.
+- Method A's truncated FPCA now takes the leading eigenpairs of the Gram matrix rather than an SVD
+  when there are more curves than grid points: the same fits, about four times faster at a
+  thousand curves. Without that the comparison would have taken a working day of compute.
+
+## 2026-10-28 -- where the 2017 file came from
+
+Item 4 of the first-year-review plan, and the open question of the 2026-08-31 entry.
+`data/spx_1m_2017H1.csv` is Oanda's SPX500_USD, a CFD on the S&P 500, as archived in the
+FutureSharks `financial-data` repository, one CSV per month under its Oanda SPX500_USD
+directory. It is not the cash index it was described as.
+
+- **The match is exact.** All 42,160 bars equal the `close` of Oanda's one-minute candles at
+  the same minute. Restricted to 09:30-15:59 New York time on 2017-01-03 to 2017-06-30, the
+  two sets of bars are identical. Cutting the six monthly files that way reproduces the
+  committed file byte for byte, SHA-256 included. Histdata's SPXUSD, the other S&P 500 series
+  in that repository, is off by a median of 3 points.
+- **What the values are.** FutureSharks' downloader stores Oanda v20 *mid* candles from the
+  practice API. Oanda labels a candle by the minute it opens, so the "09:30" close is the mid
+  at 09:31.
+- **How far it is from the cash index.** The 15:59 candle closes a median 0.84 points below
+  the official 16:00 close (s.d. 0.68), with no step at the March or June futures rolls. So the
+  CFD tracks the index, not the futures. Its 09:30 candle sits a median 1.2 points from the
+  index's official open.
+- **The "three early closes" were holidays.** 16 January, 20 February and 29 May are US
+  exchange holidays, on which the CFD traded until 13:00 and the index did not trade at all.
+  `load_spx_2017` already dropped them by session span, so no number changes; only the
+  explanation was wrong. The gaps inside complete days are minutes in which Oanda wrote no
+  candle.
+- **What it means for the Shang replication.** Its curves are a dealer's mid quotes on a CFD.
+  They track the index to about a point, against intraday ranges of tens of points, so the
+  descriptive results stand. But they are not the index's prints, and the paper's Thomson
+  Reuters data was never this series anyway.
+
+`intraday.ensure_spx_2017` now rebuilds the file from the repository at commit `7ba1d40`, and
+refuses to replace it unless the rebuild reproduces the recorded digest. The manifest cites that
+URL, so no dataset is left as `fetchable: false`.
+
 ## References
 
 <!-- references: cited -->
-- **[73]** Shang (2017a), [Forecasting intraday S&P 500 index returns: a functional time series
+- **[74]** Shang (2017a), [Forecasting intraday S&P 500 index returns: a functional time series
   approach][shang-2017a].
 <!-- /references -->
 

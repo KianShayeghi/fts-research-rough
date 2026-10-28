@@ -1,7 +1,7 @@
 # fdaSP
 
 Locally sparse scalar-on-function regression, following Stefanucci, Bernardi & Canale
-[[77]][stefanucci-bernardi-canale-2025]:
+[[78]][stefanucci-bernardi-canale-2025]:
 
     y_i = ∫_T x_i(t) ψ(t) dt + z_i ^ T γ + ε_i,    i = 1, ..., n
 
@@ -95,6 +95,14 @@ window off the cache so a notebook can state which data its numbers came from. E
 also records the day it ran, the window it took and the file's SHA-256 in
 `data/manifest.json`, which `tests/test_provenance.py` reads back against the working tree.
 
+The 2017 panel of the Shang replication is the opposite case: a fixed window that does not move.
+`load_spx_2017` reads Oanda's SPX500_USD, a CFD on the S&P 500, as one-minute mid-price
+closes from 09:30 to 15:59 New York time for the first half of 2017. `ensure_spx_2017`
+rebuilds it byte for byte from the FutureSharks `financial-data` archive at a pinned commit,
+and refuses to overwrite the committed file with anything else. The CFD tracks the cash index
+to about a point, but it is not the index. Its candles are a dealer's mid quotes, labelled by
+the minute they open, and it traded a half-day on three US holidays, which the loader drops.
+
 Bars arrive unadjusted, so `fetch_bars` divides every bar before a split by that split's ratio
 -- an unadjusted 4-for-1 split otherwise reads as a 75% overnight fall -- and carries cash
 dividends, which `overnight_jumps` adds back so that a stock opening lower by its dividend on
@@ -177,7 +185,7 @@ link into it.
   methods][bernardi-stefanucci-2023].
 - **[65]** Parkinson (1980), [The extreme value method for estimating the variance of the rate of
   return][parkinson-1980].
-- **[77]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
+- **[78]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
   models with scalar response][stefanucci-bernardi-canale-2025].
 <!-- /references -->
 

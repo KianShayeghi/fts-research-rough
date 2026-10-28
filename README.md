@@ -12,13 +12,13 @@ where the coefficient function `psi` is zero on part of its domain, so the estim
 includes finding *where*. Two approaches are implemented: `truncFLR`, which assumes the informative
 set is a single interval and estimates its endpoint (Hall & Hooker [[37]][hall-hooker-2016]), and
 `fdaSP`, which lets it be any union of intervals and induces the sparsity by penalisation
-(Stefanucci, Bernardi & Canale [[77]][stefanucci-bernardi-canale-2025]). `far` supplies serially
+(Stefanucci, Bernardi & Canale [[78]][stefanucci-bernardi-canale-2025]). `far` supplies serially
 dependent curves, so both can be run without the i.i.d. assumption, and also estimates and tests a
 FAR(1) from observed curves; `bench` runs all three methods over a matched grid of designs.
 
 Two further packages take the same curves in the other direction, forward in time rather than onto
 a scalar. `ftsa` forecasts the next curve through its principal component scores, which is Shang's
-[[73]][shang-2017a] method, scores it against the FAR(1) on identical components, and revises it
+[[74]][shang-2017a] method, scores it against the FAR(1) on identical components, and revises it
 through the day as the session is observed; `jump` is the model for the quantity that forecaster
 cannot see, the overnight move between one session's close and the next one's open.
 
@@ -413,6 +413,17 @@ fail at least one of them. The baseline the basic model is tested against is sco
 rather than the chi-squared likelihood ratio. `jump.basic_est`,
 `notebooks/basic_jump_equation.ipynb`, `docs/basic-jump-equation.md`.
 
+**At the signal strengths real data allow, a quarter detects nothing, and a data-driven choice
+of components loses the signal.** When yesterday's late-session slope explains 2% of the
+overnight jump, the oracle test, told the window, needs about 390 days for 80% power, and eight
+principal components need about 765. With M chosen by BIC, the F test is too liberal, at 9.5%
+size on 62 days. Calibrating the same procedure by permutation makes it exact, but it still
+has 24% power at a thousand days: BIC keeps the first component, and the signal lives where the
+curves vary least. On one quarter no estimator beats `beta_hat = 0`. At a thousand days truncFLR
+method A is the most accurate and the only one that locates the window, and the group lasso
+forecasts nearly as well without locating it. `jump.window_power`,
+`notebooks/window_jump_power.ipynb`.
+
 ## Layout
 
 ```
@@ -467,6 +478,9 @@ notebooks/
                               least-squares slope of the last 20% of the session before,
                               so the basic model has a known, non-zero beta(u); the
                               model fitted, and against truncFLR and fdaSP
+  window_jump_power.ipynb     The same data at the signal strengths real data allow
+                              (R-squared up to 5%): how many days the test of beta = 0
+                              needs, and the four estimators at those strengths
 tests/          pytest suite covering all five packages, the documentation, the notebooks
                 and the layout itself
 scripts/        bibliography.py      -- generate and check the bibliography (see below)
@@ -474,6 +488,7 @@ scripts/        bibliography.py      -- generate and check the bibliography (see
                 make_study_cache.py  -- rebuild the bench study cache
                 make_ftsa_cache.py   -- rebuild the rolling-origin and updating caches
                 make_region_cache.py -- rebuild the null-set selection study
+                make_window_power_cache.py -- rebuild the window-DGP power study
 data/           the real datasets, with `manifest.json` recording what each one is: its
                 source, the day it was taken, its SHA-256, and where it is a window of
                 sessions, the window it covers
@@ -497,8 +512,9 @@ docs/           references.toml -- the bibliography, and the only place a journa
 
 The eight packages are layered: `core` depends on nothing, `truncFLR` and `fdaSP` on `core`,
 `far` on `core` and `fdaSP`, `ftsa` and `jump` on `far` and on `fdaSP` for the panel they are
-defined on, `region` on the estimator whose null set it selects, and `bench` on the two
-estimators it compares. That is not a description -- `tests/test_layout.py` reads the import
+defined on, `jump` also on `truncFLR` for the estimators `window_power` fits to its DGP,
+`region` on the estimator whose null set it selects, and `bench` on the two estimators it
+compares. That is not a description -- `tests/test_layout.py` reads the import
 statements back against it, so a shared piece cannot drift into a method package unnoticed, and
 it holds that the packages nothing imports are exactly the four the repository ends in.
 
@@ -538,13 +554,15 @@ returns different data and every number in `notebooks/overnight_jumps.ipynb` mov
 The committed CSVs are what those numbers were computed on; the loader prefers them and
 downloads only when a file is missing. `intraday.snapshot_span` reports the window.
 
-One dataset is not fetched at all. `data/spx_1m_2017H1.csv` holds one-minute
-regular-session closes of the S&P 500 cash index for 2017-01-03 to 2017-06-30, which is the
-design `notebooks/shang_replication.ipynb` needs and which no public endpoint serves; it is
-loaded by `intraday.load_spx_2017` and, being a fixed historical window, has the opposite
-failure mode to the snapshots -- it cannot be silently replaced, and it cannot be recovered
-either. Its manifest entry carries `fetchable: false` to say so, and `tests/test_provenance.py`
-permits that declaration for this file and no other.
+One dataset is a fixed historical window rather than a snapshot. `data/spx_1m_2017H1.csv` holds
+one-minute mid-price closes of Oanda's SPX500_USD, a CFD on the S&P 500, from 09:30 to 15:59
+New York time for 2017-01-03 to 2017-06-30. That is the design
+`notebooks/shang_replication.ipynb` needs, and no rolling endpoint serves it. It is cut from
+the Oanda candles archived in the FutureSharks `financial-data` repository, and
+`intraday.ensure_spx_2017` rebuilds it from there, pinned to one commit, to the same SHA-256.
+It is not the cash index: the CFD tracks the index to within about a point, but it is a
+dealer's quote, not the index's official prints, and it trades on US holidays that the
+index does not.
 
 Each fetch records what it took in `data/manifest.json` -- source, date, SHA-256, and the
 window for the two panels -- so the file a number was computed on can be identified later, and
@@ -573,6 +591,7 @@ the rolling-origin forecasts `notebooks/shang_replication.ipynb` reads:
 python scripts/make_study_cache.py --refresh
 python scripts/make_ftsa_cache.py --refresh
 python scripts/make_region_cache.py --refresh
+python scripts/make_window_power_cache.py --refresh
 ```
 
 ## Tests
@@ -632,17 +651,17 @@ test about each one.
 - **[37]** Hall & Hooker (2016), [Truncated linear models for functional data][hall-hooker-2016].
 - **[47]** Hyndman & Shang (2009), [Forecasting functional time series][hyndman-shang-2009].
 - **[61]** Meinshausen & Bühlmann (2010), [Stability selection][meinshausen-buhlmann-2010].
-- **[70]** Shah & Samworth (2013), [Variable selection with error control: another look at
+- **[71]** Shah & Samworth (2013), [Variable selection with error control: another look at
   stability selection][shah-samworth-2013].
-- **[71]** Shang & Hyndman (2011), [Nonparametric time series forecasting with dynamic
+- **[72]** Shang & Hyndman (2011), [Nonparametric time series forecasting with dynamic
   updating][shang-hyndman-2011].
-- **[73]** Shang (2017a), [Forecasting intraday S&P 500 index returns: a functional time series
+- **[74]** Shang (2017a), [Forecasting intraday S&P 500 index returns: a functional time series
   approach][shang-2017a].
-- **[74]** Shang (2017b), [Functional time series forecasting with dynamic updating: an application
+- **[75]** Shang (2017b), [Functional time series forecasting with dynamic updating: an application
   to intraday particulate matter concentration][shang-2017b].
-- **[77]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
+- **[78]** Stefanucci, Bernardi & Canale (2025), [Locally sparse estimation for functional linear
   models with scalar response][stefanucci-bernardi-canale-2025].
-- **[83]** Zou (2006), [The adaptive lasso and its oracle properties][zou-2006].
+- **[84]** Zou (2006), [The adaptive lasso and its oracle properties][zou-2006].
 <!-- /references -->
 
 ## Licence

@@ -35,13 +35,16 @@ SRC = os.path.join(REPO, "src", "fts_research")
 # jump on them -- and both read `fdaSP.intraday` for the panel they are defined on: `ftsa` for
 # its replication design, `jump` for the sessions `covariates` summarises into the `z_t` block.
 # `region` sits on `fdaSP` because the estimator whose null set it selects is `fdaSP.SBC`.
+# `jump` also sits on `truncFLR`, because `window_power` fits both truncFLR methods to the
+# jumps its DGP makes; it calls them directly rather than through `bench`, which stays a
+# package nothing imports, and `tests/test_window_power.py` holds the fits to `bench`'s.
 ALLOWED = {
     "core": set(),
     "truncFLR": {"core"},
     "fdaSP": {"core"},
     "far": {"core", "fdaSP"},
     "ftsa": {"core", "far", "fdaSP"},
-    "jump": {"core", "far", "fdaSP"},
+    "jump": {"core", "far", "fdaSP", "truncFLR"},
     "region": {"core", "fdaSP"},
     "bench": {"core", "truncFLR", "fdaSP"},
 }

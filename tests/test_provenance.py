@@ -7,10 +7,12 @@ computed on, and the replacement looks exactly as legitimate. The manifest pins 
 digest, a retrieval date and, where it is a window of sessions, the window it covers; these
 tests fail the moment the working tree and that record disagree.
 
-One file is the other kind. `spx_1m_2017H1.csv` was imported rather than fetched, and no public
-endpoint serves it, so it cannot be silently replaced and cannot be recovered either. It is
-required to declare that in the record with `fetchable: false` rather than to be quietly
-excused, and nothing else may.
+One file is a fixed window rather than a snapshot. `spx_1m_2017H1.csv` was imported with the
+overnight-jump project and its record once said only that its source was unknown. It is Oanda's
+SPX500_USD CFD as archived by FutureSharks/financial-data, and `intraday.ensure_spx_2017`
+rebuilds it byte for byte from that repository at a pinned commit, so it now cites its source
+like everything else. `fetchable: false` remains for a dataset that genuinely cannot be
+rebuilt, and none currently is.
 """
 
 import datetime
@@ -66,14 +68,31 @@ def test_every_entry_carries_a_source_a_date_and_a_digest(name):
     assert entry["bytes"] > 0 and entry["rows"] > 0
 
 
-def test_an_unfetchable_dataset_is_the_documented_exception():
-    """Only the imported panel may skip the URL, and it must be the one `intraday` names."""
+def test_every_dataset_names_a_source_it_can_be_rebuilt_from():
+    """Nothing is excused from citing a source any longer: the 2017 panel, the one file that
+    was, now cites the pinned commit it is rebuilt from."""
     unfetchable = sorted(n for n in NAMES if not MANIFEST[n].get("fetchable", True))
-    assert unfetchable == [itd.SPX_2017["file"]], (
-        f"an undeclared dataset has appeared without a source: {unfetchable}")
+    assert unfetchable == [], f"datasets that cannot be rebuilt: {unfetchable}"
+    entry = MANIFEST[itd.SPX_2017["file"]]
+    assert entry["source"] == itd.SPX_2017["source"]
+    assert entry["commit"] == itd.SPX_2017["commit"] and entry["commit"] in entry["source"]
+    assert entry["instrument"].startswith("Oanda SPX500_USD")
 
 
-def test_the_imported_panel_records_the_window_it_covers():
+@pytest.mark.slow
+def test_the_2017_panel_rebuilds_byte_for_byte_from_its_source(tmp_path, monkeypatch):
+    """The provenance claim itself: fetch the six monthly files at the pinned commit, cut them,
+    and get the committed file's digest. Skipped where there is no network."""
+    recorded = MANIFEST[itd.SPX_2017["file"]]["sha256"]
+    monkeypatch.setattr(paths, "DATA_DIR", str(tmp_path))
+    try:
+        path = itd.ensure_spx_2017(force=True)
+    except RuntimeError as exc:
+        pytest.skip(f"no network: {exc}")
+    assert provenance.sha256_of(path) == recorded
+
+
+def test_the_2017_panel_records_the_window_it_covers():
     """Its window is what makes it usable as a replication design, so it is recorded and read
     back off the file the same way the snapshots' windows are."""
     entry = MANIFEST[itd.SPX_2017["file"]]

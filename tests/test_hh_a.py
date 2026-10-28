@@ -10,6 +10,7 @@ import numpy as np
 import pytest
 
 from fts_research.truncFLR import HH, HH_A, HH_dgp
+from fts_research.truncFLR import _common as C
 
 # The candidate grid the notebooks use: lambda is order 1 on these problems.
 LAMBDAS = np.linspace(0.0, 1.0, 250)[1:]
@@ -64,6 +65,45 @@ def test_trunc_fpca_agrees_with_method_B_eigenvalues(hh_data):
     _, tau_a = HH_A.trunc_fpca(X, grid, interval, m=4)
     tau_b = HH.trunc_eigvals(X, grid, interval, m=4)
     np.testing.assert_allclose(tau_a, tau_b, rtol=1e-10)
+
+
+def _svd_components(A, k, vectors=True):
+    """The decomposition `_common._top_components` replaced: a thin SVD, always."""
+    k = min(int(k), *A.shape)
+    _, s, Vt = np.linalg.svd(A, full_matrices=False)
+    return s[:k] ** 2, (Vt[:k] if vectors else None)
+
+
+@pytest.mark.parametrize("shape, k", [((300, 40), 6), ((300, 40), 40), ((30, 80), 5)])
+def test_gram_path_matches_the_svd(shape, k):
+    """With more curves than grid points the components come from the Gram matrix; they must
+    be the SVD's to rounding: the same eigenvalues, and singular vectors equal up to sign."""
+    A = np.random.default_rng(0).standard_normal(shape).cumsum(axis=1)   # Brownian rows
+    A -= A.mean(axis=0)
+    s2, Vt = C._top_components(A, k)
+    s2_ref, Vt_ref = _svd_components(A, k)
+    np.testing.assert_allclose(s2, s2_ref, rtol=1e-9, atol=1e-12 * s2_ref[0])
+    lead = s2_ref > 1e-8 * s2_ref[0]          # vectors are defined where the spectrum is
+    np.testing.assert_allclose(np.abs(np.sum(Vt * Vt_ref, axis=1))[lead], 1.0, atol=1e-8)
+    np.testing.assert_allclose(C._top_components(A, k, vectors=False)[0], s2)
+    assert np.all(np.diff(s2) <= 0) and np.all(s2 >= 0)
+
+
+@pytest.mark.slow
+def test_fits_do_not_depend_on_the_decomposition(hh_data, monkeypatch):
+    """Methods A and B end to end, Gram path against the SVD it replaced: the same lambda,
+    endpoint and component count, and the same coefficient function to rounding."""
+    grid, X, Y = hh_data["grid"], hh_data["X"], hh_data["Y"]
+    lambdas = LAMBDAS[::5]
+    fits = {}
+    for name, fn in (("gram", C._top_components), ("svd", _svd_components)):
+        monkeypatch.setattr(C, "_top_components", fn)
+        fits[name] = (HH_A.fit_mirror(X, Y, grid, lambdas), HH.fit_mirror(X, Y, grid, lambdas))
+    for new, old in zip(fits["gram"], fits["svd"]):
+        assert new["lam_hat"] == old["lam_hat"] and new["u_hat"] == old["u_hat"]
+        np.testing.assert_allclose(new["b_hat"], old["b_hat"], rtol=1e-8, atol=1e-10)
+        np.testing.assert_allclose(new["a_hat"], old["a_hat"], rtol=1e-8, atol=1e-10)
+    assert fits["gram"][0]["m_hat"] == fits["svd"][0]["m_hat"]
 
 
 def test_trunc_eigvals_floors_short_subgrids(hh_data):
